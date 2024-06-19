@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-sema"
+name = "sema"
 version = "0.1.0"
 description = "Overall parent of all packages involving semantic manipulation of RDF data."
 authors = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>"]
@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 rdflib = "^7.0.0"
+validators = "^0.28.3"
+urnparse = "^0.2.2"
 
 [tool.poetry.group.docs]
 optional = true

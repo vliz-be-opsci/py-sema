@@ -46,7 +46,14 @@ init-docs: startup  ## initial prepare of the environment for local execution an
 #	@cp ./source_docs/source/custom.css ./source_docs/build/html/_static/custom.css
 
 test:  ## runs the standard test-suite for the memory-graph implementation
-	@poetry run pytest ${TEST_PATH}
+	@for file in $$(find ${TEST_PATH} -name 'test_*.py'); do \
+		if grep -q $(filter-out $@,$(MAKECMDGOALS)) $$file; then \
+			poetry run pytest $$file::$(filter-out $@,$(MAKECMDGOALS)); \
+		fi \
+	done
+
+%:
+	@:
 
 test-quick:  ## runs tests more quickly by skipping some lengthy ones
 	@(export QUICKTEST=1 && $(MAKE) test --no-print-directory)
