@@ -1,6 +1,6 @@
-"""pyrdfstore
+"""store
 
-.. module:: pyrdfstore
+.. module:: store
 :platform: Unix, Windows
 :synopsis: A library for creating and interacting with RDF stores
 
