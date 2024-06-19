@@ -519,9 +519,11 @@ class RDFStoreDecorator(RDFStore):
 
     def select(self, sparql: str, named_graph: Optional[str] = None) -> Result:
         return self._core.select(sparql, named_graph)
-    
+
     def all_triples(self, named_graph: Optional[str] = None) -> Result:
-        return self._core.select("SELECT ?s ?p ?o WHERE { ?s ?p ?o }", named_graph)
+        return self._core.select(
+            "SELECT ?s ?p ?o WHERE { ?s ?p ?o }", named_graph
+        )
 
     def insert(self, graph: Graph, named_graph: Optional[str] = None):
         return self._core.insert(graph, named_graph)

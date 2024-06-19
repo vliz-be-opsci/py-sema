@@ -7,6 +7,11 @@ from urllib.parse import quote
 from uuid import uuid4
 
 import pytest
+from rdflib import BNode, Graph, Literal, URIRef
+from rdflib.query import Result
+from util4tests import log, run_single_test
+
+from sema.commons.store import MemoryRDFStore, RDFStore, timestamp
 from tests.conftest import (
     DCT_ABSTRACT,
     SELECT_ALL_SPO,
@@ -14,11 +19,6 @@ from tests.conftest import (
     assert_file_ingest,
     make_sample_graph,
 )
-from rdflib import BNode, Graph, Literal, URIRef
-from rdflib.query import Result
-from util4tests import log, run_single_test
-
-from sema.commons.store import RDFStore, MemoryRDFStore, timestamp 
 
 
 @pytest.mark.usefixtures("rdf_stores", "example_graphs")
@@ -164,7 +164,7 @@ def test_insert(rdf_stores: Iterable[RDFStore], example_graphs: List[Graph]):
                 )
                 in results
             ), (
-                f"{rdf_store_type} :: expected triple for index { i } "
+                f"{rdf_store_type} :: expected triple for index {i}"
                 "not found in search result."
             )
 
@@ -207,7 +207,7 @@ def test_insert_large_graph(rdf_stores: Iterable[RDFStore]):
 @pytest.mark.usefixtures("rdf_stores")
 def test_insert_large_statement(rdf_stores: Iterable[RDFStore]):
     log.info(f"test_insert_large_statement ({len(rdf_stores)})")
-    sparql = f"SELECT ?abstract WHERE {{ [] <{ DCT_ABSTRACT }> ?abstract }}"
+    sparql = f"SELECT ?abstract WHERE {{ [] <{DCT_ABSTRACT}> ?abstract }}"
 
     for rdf_store in rdf_stores:
         rdf_store_type = type(rdf_store).__name__
@@ -246,7 +246,7 @@ def test_insert_named(
     # this test plans to create 2 named_graphs,
     # so they contain some overlapped ranges from the example_graphs fixture
     plans = [
-        dict(ns=f"urn:test-space:{ i }", nums=range(3 * i, 4 * i + 1))
+        dict(ns=f"urn:test-space:{i}", nums=range(3 * i, 4 * i + 1))
         for i in range(2)
     ]
     # we always look for all triples in the graph
@@ -280,7 +280,7 @@ def test_insert_named(
                     )
                     in results
                 ), (
-                    f"{rdf_store_type} :: expected triple for index { i } "
+                    f"{rdf_store_type} :: expected triple for index {i}"
                     "not found in result"
                 )
 
@@ -342,7 +342,7 @@ def test_insert_named(
                 )
                 in results
             ), (
-                f"{rdf_store_type} :: expected triple for index { i } "
+                f"{rdf_store_type} :: expected triple for index {i} "
                 f"not found in result of {ns1=}"
             )
 
@@ -362,7 +362,7 @@ def test_insert_named(
                 )
                 in results
             ), (
-                f"{rdf_store_type} :: expected triple for index { i } "
+                f"{rdf_store_type} :: expected triple for index {i} "
                 "not found in result of overall search"
             )
 

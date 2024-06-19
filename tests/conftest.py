@@ -16,7 +16,8 @@ SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
 
 enable_test_logging()  # note that this includes loading .env into os.getenv
 
-#TODO: enable this back when pyrdfstore is implemented in sema
+# TODO: enable this back when pyrdfstore is implemented in sema
+
 
 def format_from_extension(fpath: Path):
     sfx = fpath.suffix

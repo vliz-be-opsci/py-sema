@@ -14,12 +14,19 @@ from .clean import (
     clean_uri_node,
     default_cleaner,
 )
-from .store import GraphNameMapper, RDFStore, MemoryRDFStore, URIRDFStore, timestamp
+from .store import (
+    GraphNameMapper,
+    MemoryRDFStore,
+    RDFStore,
+    URIRDFStore,
+    timestamp,
+)
+
 __all__ = [
     "RDFStore",
     "MemoryRDFStore",
     "URIRDFStore",
-    "timestamp"
+    "timestamp",
     "create_rdf_store",
     "GraphNameMapper",
     "build_clean_chain",
