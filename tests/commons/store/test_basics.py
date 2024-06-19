@@ -11,13 +11,12 @@ from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result
 from util4tests import log, run_single_test
 
-from sema.commons.store import MemoryRDFStore, RDFStore, timestamp
-from tests.conftest import (
+from sema.commons.store import MemoryRDFStore, RDFStore  # , timestamp
+from tests.conftest import (  # make_sample_graph,
     DCT_ABSTRACT,
     SELECT_ALL_SPO,
     TEST_INPUT_FOLDER,
     assert_file_ingest,
-    make_sample_graph,
 )
 
 
@@ -92,6 +91,7 @@ def test_unknown_graph_age(rdf_stores: Iterable[RDFStore]):
             "should always return False, and not throw KeyError"
         )
 
+
 '''
 @pytest.mark.usefixtures("rdf_stores")
 def test_verify_ref_time(rdf_stores: Iterable[RDFStore]):
@@ -122,6 +122,7 @@ def test_verify_ref_time(rdf_stores: Iterable[RDFStore]):
             "should return False vs timestamp after the insert action"
         )
 '''
+
 
 @pytest.mark.usefixtures("rdf_stores", "example_graphs")
 def test_insert(rdf_stores: Iterable[RDFStore], example_graphs: List[Graph]):
