@@ -8,6 +8,6 @@ and classes used in the library
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
 """
 
-from . import store
+from . import j2, store
 
-__all__ = ["store"]
+__all__ = ["store", "j2"]

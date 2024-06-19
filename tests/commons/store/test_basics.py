@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+import logging
 from random import choice
 from string import ascii_letters
 from time import sleep
@@ -9,8 +10,9 @@ from uuid import uuid4
 import pytest
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result
-from util4tests import log, run_single_test
+from util4tests import run_single_test
 
+from sema.commons.log.load_logging import load_logger_config
 from sema.commons.store import MemoryRDFStore, RDFStore  # , timestamp
 from tests.conftest import (  # make_sample_graph,
     DCT_ABSTRACT,
@@ -18,6 +20,9 @@ from tests.conftest import (  # make_sample_graph,
     TEST_INPUT_FOLDER,
     assert_file_ingest,
 )
+
+load_logger_config()
+log = logging.getLogger(__name__)
 
 
 @pytest.mark.usefixtures("rdf_stores", "example_graphs")

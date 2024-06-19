@@ -1,8 +1,11 @@
+import logging
+
 import pytest
 from jinja2 import Template
-from util4tests import log, run_single_test
+from util4tests import run_single_test
 
 from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
+from sema.commons.log.load_logging import load_logger_config
 from tests.commons.j2.const import (
     ALL_QUERY,
     TEST_TEMPLATES_FOLDER,
@@ -11,6 +14,11 @@ from tests.commons.j2.const import (
     sparql_templates_list,
     template_variables,
 )
+
+load_logger_config()
+log = logging.getLogger(__name__)
+
+log.debug(f"TEST_TEMPLATES_FOLDER={TEST_TEMPLATES_FOLDER}")
 
 j2sqb = J2RDFSyntaxBuilder(TEST_TEMPLATES_FOLDER)
 
