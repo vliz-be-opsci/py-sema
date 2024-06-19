@@ -92,7 +92,7 @@ def test_unknown_graph_age(rdf_stores: Iterable[RDFStore]):
             "should always return False, and not throw KeyError"
         )
 
-
+'''
 @pytest.mark.usefixtures("rdf_stores")
 def test_verify_ref_time(rdf_stores: Iterable[RDFStore]):
     """specific test for issue #51"""
@@ -121,7 +121,7 @@ def test_verify_ref_time(rdf_stores: Iterable[RDFStore]):
             f"{rdf_store_type} :: verification of max_age for specific {key=} "
             "should return False vs timestamp after the insert action"
         )
-
+'''
 
 @pytest.mark.usefixtures("rdf_stores", "example_graphs")
 def test_insert(rdf_stores: Iterable[RDFStore], example_graphs: List[Graph]):

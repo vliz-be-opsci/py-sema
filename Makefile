@@ -45,7 +45,7 @@ init-docs: startup  ## initial prepare of the environment for local execution an
 #	@poetry run sphinx-build -b html ./source_docs/source ./source_docs/build/html
 #	@cp ./source_docs/source/custom.css ./source_docs/build/html/_static/custom.css
 
-test:  ## runs the standard test-suite for the memory-graph implementation
+test-single:  ## runs the standard test-suite for the memory-graph implementation
 	@for file in $$(find ${TEST_PATH} -name 'test_*.py'); do \
 		if grep -q $(filter-out $@,$(MAKECMDGOALS)) $$file; then \
 			poetry run pytest $$file::$(filter-out $@,$(MAKECMDGOALS)); \
@@ -54,6 +54,16 @@ test:  ## runs the standard test-suite for the memory-graph implementation
 
 %:
 	@:
+
+test:              ## runs the tests
+	poetry run pytest ${TEST_PATH}
+
+test-module: ## runs a given module when testing, module can be the following: bench, common, harvest, query, subyt, syncfs, clean, cli, env, j2, j2-template, log, path, prov, serv, store
+	@for folder in $$(find ${TEST_PATH} -type d -name $(filter-out $@,$(MAKECMDGOALS))); do \
+		for file in $$(find $$folder -name 'test_*.py'); do \
+			poetry run pytest $$file; \
+		done \
+	done
 
 test-quick:  ## runs tests more quickly by skipping some lengthy ones
 	@(export QUICKTEST=1 && $(MAKE) test --no-print-directory)
