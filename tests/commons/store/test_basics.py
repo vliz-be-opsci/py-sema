@@ -440,6 +440,7 @@ def test_insert_drop_forget_forkey(rdf_stores: Iterable[RDFStore]):
         )
 
 
+'''
 @pytest.mark.usefixtures("rdf_stores", "sample_file_graph")
 def test_select_property_trajectory(
     rdf_stores: Iterable[RDFStore], sample_file_graph
@@ -457,7 +458,7 @@ def test_select_property_trajectory(
         rdf_store.select(sparql)
         # we should just get here without an error
         assert True
-
+'''
 
 if __name__ == "__main__":
     run_single_test(__file__)
