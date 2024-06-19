@@ -29,6 +29,7 @@ poetry = "*"
 isort = "*"
 black = "*"
 flake8 = "*"
+setuptools = "^70.1.0"
 
 [tool.poetry.group.tests]
 optional = true
