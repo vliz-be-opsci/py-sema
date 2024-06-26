@@ -1,11 +1,11 @@
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
-from urllib.parse import quote
 
-import validators
 from dateutil import parser
 from uritemplate import URITemplate
+
+from sema.commons.clean import clean_uri_str
 
 
 class Functions:
@@ -29,24 +29,6 @@ class Filters:
             "xsd": xsd_format,
             "uri": uri_format,
         }
-
-
-def is_valid_uri(uri: str) -> bool:
-    """Checks if the uri is valid (does not contain chars it should not)
-    :param uri: the uri to check
-    :type uri: str
-    :return: True of uri is ok, else False"""
-    if uri.startswith("urn:"):
-        uri = "http://make.safe/" + uri
-    return bool(validators.url(uri))
-
-
-def clean_uri(uri: str) -> str:
-    """Escapes unacceptable chars in a URI."""
-    if is_valid_uri(uri):
-        return uri
-    # else
-    return quote(uri, safe="~@#$&()*!+=:;,?/'")
 
 
 def xsd_value(content, quote, type_name, suffix=None):
@@ -111,7 +93,7 @@ def xsd_format_datetime(content, quote, suffix):
 
 def xsd_format_uri(content, quote, suffix):
     # assume content is valid uri for now
-    uri = clean_uri(content)
+    uri = clean_uri_str(content)
     return xsd_value(uri, quote, "xsd:anyURI")
 
 
@@ -169,7 +151,7 @@ def xsd_format(content, type_name: str, quote: str = "'"):
 
 
 def uri_format(uri: str):
-    uri = clean_uri(uri)
+    uri = clean_uri_str(uri)
     return f"<{uri}>"
 
 
