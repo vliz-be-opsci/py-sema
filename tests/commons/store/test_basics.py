@@ -8,9 +8,9 @@ from urllib.parse import quote
 from uuid import uuid4
 
 import pytest
+from conftest import run_single_test
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result
-from util4tests import run_single_test
 
 from sema.commons.log.load_logging import load_logger_config
 from sema.commons.store import MemoryRDFStore, RDFStore  # , timestamp

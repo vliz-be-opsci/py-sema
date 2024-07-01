@@ -9,7 +9,7 @@ from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.plugins.stores.sparqlstore import SPARQLStore, SPARQLUpdateStore
 from rdflib.query import Result
 
-from .clean import clean_uri_str, default_cleaner
+from sema.commons.clean import clean_uri_str, default_cleaner
 
 log = logging.getLogger(__name__)
 

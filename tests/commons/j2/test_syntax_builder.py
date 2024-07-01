@@ -1,8 +1,8 @@
 import logging
 
 import pytest
+from conftest import run_single_test
 from jinja2 import Template
-from util4tests import run_single_test
 
 from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
 from sema.commons.log.load_logging import load_logger_config
