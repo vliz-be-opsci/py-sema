@@ -8,7 +8,11 @@
 """
 
 # TODO: add submodules here
-
+# Commented out because publicly exposing the submodules is not necessary
+# However this might be needed when making the sphinx documentation
+# TODO: investigate addition for sphinx documentation
+"""
 from . import commons
 
 __all__ = ["commons"]
+"""
