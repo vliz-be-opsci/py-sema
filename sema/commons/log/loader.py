@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 DEFAULT_LOGGING_CONFIG_LOCATION = Path(__file__).parent / "debug_logconf.yml"
 
 
-def load_logger_config(logconf: str = None):
+def load_log_config(logconf: str = None):
     """
     Load the logger configuration from a file.
 
@@ -27,17 +27,3 @@ def load_logger_config(logconf: str = None):
         return
 
     logging.config.fileConfig(str(logconf_path))
-
-
-def setup_common():
-    """
-    Setup the common logging configuration.
-    """
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger().setLevel(logging.DEBUG)
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    load_logger_config()
-    log = logging.getLogger(__name__)
