@@ -5,7 +5,7 @@ from conftest import run_single_test
 from jinja2 import Template
 
 from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
-from sema.commons.log.load_logging import load_logger_config
+from sema.commons.log.loader import load_log_config
 from tests.commons.j2.const import (
     ALL_QUERY,
     TEST_TEMPLATES_FOLDER,
@@ -15,7 +15,7 @@ from tests.commons.j2.const import (
     template_variables,
 )
 
-load_logger_config()
+load_log_config()
 log = logging.getLogger(__name__)
 
 log.debug(f"TEST_TEMPLATES_FOLDER={TEST_TEMPLATES_FOLDER}")

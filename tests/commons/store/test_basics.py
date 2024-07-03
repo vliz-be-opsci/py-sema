@@ -12,7 +12,7 @@ from conftest import run_single_test
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result
 
-from sema.commons.log.load_logging import load_logger_config
+from sema.commons.log.loader import load_log_config
 from sema.commons.store import MemoryRDFStore, RDFStore  # , timestamp
 from tests.conftest import (  # make_sample_graph,
     DCT_ABSTRACT,
@@ -21,7 +21,7 @@ from tests.conftest import (  # make_sample_graph,
     assert_file_ingest,
 )
 
-load_logger_config()
+load_log_config()
 log = logging.getLogger(__name__)
 
 
