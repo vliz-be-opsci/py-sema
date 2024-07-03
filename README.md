@@ -1,4 +1,5 @@
 # py-sema
+
 Overall parent of all packages involving semantic manipulation of RDF data.
 
 ## Installation
@@ -45,3 +46,5 @@ graph TD
     commons --> | readme.md | prov
     click prov "https://github.com/vliz-be-opsci/py-sema/blob/main/sema/commons/prov/README.md"
 ```
+
+General migration info can be found here: [migration](https://docs.google.com/document/d/11T16tZ4w2-UVToDZfy3QhGrcAlIAdrt-F3WLt576x5g/edit)
