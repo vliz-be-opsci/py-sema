@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 import yaml
-from dotenv import load_dotenv
 
 DEFAULT_LOGGING_CONFIG_LOCATION = Path(__file__).parent / "debug_logconf.yml"
 
