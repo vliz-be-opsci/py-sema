@@ -23,8 +23,8 @@ graph TD
     click subyt "https://github.com/vliz-be-opsci/py-sema/blob/main/sema/subyt/README.md"
     sema --> | readme.md | syncfs
     click syncfs "https://github.com/vliz-be-opsci/py-sema/blob/main/sema/syncfs/README.md"
-    sema --> | readme.md | web
-    click web "https://github.com/vliz-be-opsci/py-sema/blob/main/sema/web/README.md"
+    sema --> | readme.md | discovery
+    click discovery "https://github.com/vliz-be-opsci/py-sema/blob/main/sema/discovery/README.md"
 ```
 
 ```mermaid
