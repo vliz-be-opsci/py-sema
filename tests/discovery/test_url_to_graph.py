@@ -1,9 +1,12 @@
-import pytest
 import logging
-from rdflib import Graph
-from sema.discovery.url_to_graph import ctype_to_rdf_format
+
 from conftest import run_single_test
-from sema.discovery.url_to_graph import get_graph_for_format
+from rdflib import Graph
+
+from sema.discovery.url_to_graph import (
+    ctype_to_rdf_format,
+    get_graph_for_format,
+)
 
 log = logging.getLogger(__name__)
 
@@ -11,9 +14,9 @@ log = logging.getLogger(__name__)
 def test_ctype_to_rdf_format():
     assert ctype_to_rdf_format("application/ld+json") == "json-ld"
     assert ctype_to_rdf_format("text/turtle") == "turtle"
-    assert ctype_to_rdf_format("application/json") == None
-    assert ctype_to_rdf_format("application/octet-stream") == None
-    assert ctype_to_rdf_format("text/html") == None
+    assert ctype_to_rdf_format("application/json") is None
+    assert ctype_to_rdf_format("application/octet-stream") is None
+    assert ctype_to_rdf_format("text/html") is None
 
 
 # ttl file
