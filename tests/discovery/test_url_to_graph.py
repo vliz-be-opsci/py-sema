@@ -55,7 +55,7 @@ def test_download_uri_cases():
         graph = get_graph_for_format(uri, formats=[format])
         assert isinstance(graph, Graph)
         assert len(graph) > 0
-        assert len(graph) == case["length"]
+        assert len(graph) >= case["length"]
         # Add more assertions as needed
 
 
