@@ -2,5 +2,5 @@
 {% for city in sets['glob'] -%}
 <{{uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city)}}>
     a ex:city;
-    ex:title {{ city.name | ttl("xsd:string", '"') }}.
+    ex:title {{ city.name | xsd("string", '"') }}.
 {% endfor %}

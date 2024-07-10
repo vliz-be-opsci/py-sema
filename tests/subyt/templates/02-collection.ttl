@@ -15,18 +15,18 @@
 
 {% if ctrl.isFirst %}
 @prefix ex: <https://example.org/02-collection/> .
-ex:fullset ex:iteration {{ctrl.settings.iteration | ttl("xsd:boolean")}};
-    ex:ctrl-first {{ctrl.isFirst | ttl("xsd:boolean")}};
-    ex:ctrl-last {{ctrl.isLast | ttl("xsd:boolean")}};
-    ex:ctrl-index {{ctrl.index | ttl("xsd:integer")}}.
+ex:fullset ex:iteration {{ctrl.settings.iteration | xsd("boolean")}};
+    ex:ctrl-first {{ctrl.isFirst | xsd("boolean")}};
+    ex:ctrl-last {{ctrl.isLast | xsd("boolean")}};
+    ex:ctrl-index {{ctrl.index | xsd("integer")}}.
 {% endif -%}
 
 {%- set ctrymap = map(sets['countries'], 'Alpha-3 code', None, 'ctrymap') -%}
 {#- note: using the cache-key in the map() construct avoids duplicate work in iteration mode #}
 {%- set nothing = ctrymap.apply(_, 'country', 'country_info') -%}
 <{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_)}}>
-    ex:name "{{_.name}}"^^xsd:string;
-    ex:country "{{_.country_info['Alpha-2 code']}}"^xsd:string.
+    ex:name {{_.name | xsd('string') }};
+    ex:country {{_.country_info['Alpha-2 code'] | xsd('string')}}.
 
 {% if ctrl.isLast %}
     {%- for country in sets['countries'] -%}

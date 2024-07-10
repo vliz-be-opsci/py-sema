@@ -41,7 +41,7 @@ class JinjaBasedGenerator(Generator):
 
     def __repr__(self):
         abs_folder = os.path.abspath(self._templates_folder)
-        return "JinjaBasedGenerator('%s')" % abs_folder
+        return f"JinjaBasedGenerator('{abs_folder}')"
 
     def make_render_fn(self, template_name: str) -> Callable:
         return self.syntax_builder._get_rdfsyntax_template(

@@ -4,9 +4,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Callable, Dict
 
-from sema.commons.log.loader import load_log_config
-
-load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -70,8 +67,8 @@ class GeneratorSettings:
         "flatten": {
             "default": True,
             "description": (
-                "Flatten hierarchical strcutures"
-                " by making hierarchical key references."
+                "Flatten hierarchical strcutures "
+                "by making hierarchical key references."
             ),
         },
         "iteration": {
@@ -88,7 +85,7 @@ class GeneratorSettings:
     def describe() -> str:
         return "\n".join(
             [
-                "%30s: %s" % (key, val["description"])
+                f"{key:30s}: {val['description']}"
                 for (key, val) in GeneratorSettings._scheme.items()
             ]
         )
@@ -124,10 +121,7 @@ class GeneratorSettings:
             ]
             assert (
                 len(found) == 1
-            ), "ambiguous modifier string '%s' matches list: %s" % (
-                part,
-                found,
-            )
+            ), f"ambiguous modifier string '{part}' matches list: {found}"
             key = found[0]
             assert not set_parts[key], (
                 "ambiguous modifier string "
@@ -148,7 +142,7 @@ class GeneratorSettings:
         )
 
     def __repr__(self) -> str:
-        return "GeneratorSettings('%s')" % self.as_modifier_str()
+        return f"GeneratorSettings('{self.as_modifier_str()}')"
 
     def __getattr__(self, key: str) -> bool:
         return self._values[key]
@@ -160,8 +154,7 @@ class GeneratorSettings:
         # else  --> dynamic props to be stored in self._values
         if key not in GeneratorSettings._scheme.keys():
             raise KeyError(
-                "attribute '%s' not writeable in GeneratorSettings object"
-                % key
+                f"attribute '{key}' not writeable in GeneratorSettings object"
             )
         self._values[key] = val
 
@@ -192,7 +185,7 @@ class ReIterableAccess(dict):
 
     def __repr__(self):
         dictrepr = dict.__repr__(self)
-        return "%s(%s)" % (type(self).__name__, dictrepr)
+        return f"{type(self).__name__}({dictrepr})"
 
     def update(self, *args, **kwargs):
         for k, v in dict(*args, **kwargs).items():
@@ -299,7 +292,7 @@ class Generator(ABC):
         def push(self):
             """Actually pushes the item queued"""
             item = self.queued_item
-            log.debug("processing item _ = %s" % item)
+            log.debug(f"processing item _ = {item}")
             part = self.render(
                 _=item,
                 sets=self.sets,

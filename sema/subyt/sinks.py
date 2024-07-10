@@ -4,25 +4,22 @@ from pathlib import Path
 
 from uritemplate import URITemplate, variables
 
-from sema.commons.log.loader import load_log_config
-
 from .api import Sink
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
 def assert_writable(file_path: str, force_output: bool = False):
     if not force_output:
-        assert not os.path.isfile(file_path), (
-            "File to write '%s' already exists" % file_path
-        )
-    parent_path = os.path.dirname(os.path.abspath(file_path))
+        assert not os.path.isfile(
+            file_path
+        ), f"File to write '{file_path}' already exists"
+    parent_path = Path(file_path).parent.absolute()
     if not os.path.exists(parent_path):
         os.makedirs(parent_path)
-    assert os.access(parent_path, os.W_OK), (
-        "Can not write to folder '%s' for creating new files" % parent_path
-    )
+    assert os.access(
+        parent_path, os.W_OK
+    ), f"Can not write to folder '{parent_path}' for creating new files"
 
 
 class SinkFactory:
@@ -80,9 +77,9 @@ class SingleFileSink(Sink):
             self.mtimes = {file_path: os.stat(file_path).st_mtime}
 
     def __repr__(self):
-        return "SingleFileSink('%s', %s)" % (
-            os.path.abspath(self._file_path),
-            self._force_output,
+        return (
+            f"SingleFileSink('{str(Path(self._file_path).resolve())}', "
+            f"{self._force_output})"
         )
 
     def open(self):
@@ -113,9 +110,9 @@ class PatternedFileSink(Sink):
         self.mtimes = None
 
     def __repr__(self):
-        return "PatternedFileSink('%s', %s)" % (
-            self._name_template.uri,
-            self._force_output,
+        return (
+            f"PatternedFileSink("
+            f"'{self._name_template.uri}', {self._force_output})"
         )
 
     def open(self):
@@ -126,7 +123,7 @@ class PatternedFileSink(Sink):
 
     def _add(self, file_path: str, part: str, source_mtime: float = None):
         sink_mtime = (
-            os.stat(file_path).st_mtime if Path(file_path).exists() else 0
+            Path(file_path).stat().st_mtime if Path(file_path).exists() else 0
         )
         if source_mtime and (source_mtime < sink_mtime):
             log.info(

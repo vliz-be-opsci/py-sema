@@ -14,6 +14,6 @@
 
 {% for movie in sets['movies'] -%}
 [ a schema:movie;
-    schema:name "{{movie.title}}";
-    schema:director "{{movie.director}}"; ] .
+    schema:name '{{movie.title}}';
+    schema:director '{{movie.director}}'; ] .
 {% endfor %}

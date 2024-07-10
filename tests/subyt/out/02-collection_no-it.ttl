@@ -6,12 +6,12 @@ ex:fullset ex:iteration 'false'^^xsd:boolean;
     ex:ctrl-last 'true'^^xsd:boolean;
     ex:ctrl-index '0'^^xsd:integer.
 <https://vliz.be/code/pysubyt/test/item#1>
-    ex:name "one"^^xsd:string;
-    ex:country "BE"^xsd:string.
+    ex:name 'one'^^xsd:string;
+    ex:country 'BE'^^xsd:string.
 <https://vliz.be/code/pysubyt/test/item#2>
-    ex:name "two"^^xsd:string;
-    ex:country "US"^xsd:string.
+    ex:name 'two'^^xsd:string;
+    ex:country 'US'^^xsd:string.
 <https://vliz.be/code/pysubyt/test/item#3>
-    ex:name "three"^^xsd:string;
-    ex:country "BE"^xsd:string.
+    ex:name 'three'^^xsd:string;
+    ex:country 'BE'^^xsd:string.
 <https://iso.org/countries/BE> ex:name 'Belgium'@en.

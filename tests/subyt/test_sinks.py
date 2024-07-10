@@ -7,10 +7,8 @@ import unittest
 
 from conftest import run_single_test
 
-from sema.commons.log.loader import load_log_config
 from sema.subyt.sinks import PatternedFileSink, SingleFileSink, SinkFactory
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -77,7 +75,7 @@ class TestSinks(unittest.TestCase):
                     self.assertEqual(
                         item["data"],
                         content,
-                        "content for item %d should match" % item["id"],
+                        f"content for item {item['id']} should match",
                     )
                     all_data += item["data"]
             # assert the content of the overview file

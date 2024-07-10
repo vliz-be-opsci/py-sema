@@ -11,9 +11,6 @@ from .j2.generator import JinjaBasedGenerator
 from .sinks import SinkFactory
 from .sources import SourceFactory
 
-load_log_config()
-log = logging.getLogger(__name__)
-
 
 def get_arg_parser():
     """
@@ -158,27 +155,13 @@ def vars_to_dict(vars: list) -> dict:
     return {name: value for [name, value] in vars}
 
 
-def enable_logging(args: argparse.Namespace):
-    if args.logconf is None:
-        return
-    import yaml  # conditional dependency -- we only need this (for now)
-
-    # when logconf needs to be read
-
-    with open(args.logconf, "r") as yml_logconf:
-        logging.config.dictConfig(
-            yaml.load(yml_logconf, Loader=yaml.SafeLoader)
-        )
-    log.info(f"Logging enabled according to config in {args.logconf}")
-
-
 def main():
     """
     The main entry point to this module.
     """
     args = get_arg_parser().parse_args()
-
-    enable_logging(args)
+    load_log_config(args.logconf)
+    log = logging.getLogger(__name__)
     service = make_service(args)
     generator_settings = GeneratorSettings(args.mode)
     vars_dict = vars_to_dict(args.var)
@@ -186,11 +169,11 @@ def main():
     sink = make_sink(args)
 
     try:
-        log.debug("service  = %s" % service)
-        log.debug("generator_settings = %s" % generator_settings)
-        log.debug("variables = %s" % vars_dict)
-        log.debug("inputs   = %s" % inputs)
-        log.debug("sink     = %s" % sink)
+        log.debug(f"service  = {service}")
+        log.debug(f"generator_settings = {generator_settings}")
+        log.debug(f"variables = {vars_dict}")
+        log.debug(f"inputs   = {inputs}")
+        log.debug(f"sink     = {sink}")
 
         service.process(
             args.name,
@@ -204,10 +187,9 @@ def main():
         log.debug("processing done")
 
     except Exception as e:
-        errmsg = "sema.subyt processing failed due to <%s>" % e
+        errmsg = f"sema.subyt processing failed due to {e}"
         log.error(errmsg)
         log.exception(e)
-        print("*** ERROR *** " + errmsg, file=sys.stderr)
         sys.exit(1)
 
     finally:

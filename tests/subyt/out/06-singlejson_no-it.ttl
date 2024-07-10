@@ -1,3 +1,3 @@
 #---- 01
 @prefix ex: <https://example.org/06-singlejson_noit/>.
-<https://postcodes.be/BE/8/4/5/0 ex:placename "Bredene"@nl.
+<https://postcodes.be/BE/8/4/5/0 ex:placename 'Bredene'@nl.

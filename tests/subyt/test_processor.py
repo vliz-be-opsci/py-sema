@@ -5,10 +5,8 @@ from typing import Callable
 
 from conftest import run_single_test
 
-from sema.commons.log.loader import load_log_config
 from sema.subyt.api import Generator, GeneratorSettings, Sink, Source
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 

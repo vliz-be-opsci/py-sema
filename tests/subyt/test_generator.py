@@ -4,12 +4,10 @@ import unittest
 
 from conftest import run_single_test
 
-from sema.commons.log.loader import load_log_config
 from sema.subyt.api import GeneratorSettings, Sink
 from sema.subyt.j2.generator import JinjaBasedGenerator
 from sema.subyt.sources import SourceFactory
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -27,7 +25,7 @@ class AssertingSink(Sink):
         self._test.assertEqual(self._index, len(self._parts))
 
     def add(self, part: str, item: dict = None, source_mtime: float = None):
-        log.debug("part received no. %d:\n--\n%s\n--" % (self._index, part))
+        log.debug(f"part received no. {self._index}:\n--\n{part}\n--")
         expected = self._parts[self._index].strip()
         part = part.strip()
         log.debug(f"expected part == \n{expected}\n")
@@ -36,7 +34,7 @@ class AssertingSink(Sink):
         self._test.assertEqual(
             expected,
             part,
-            "unexpected rendering for part at index %d" % self._index,
+            f"unexpected rendering for part at index {self._index}",
         )
         self._index += 1
 
@@ -102,12 +100,9 @@ class TestJinjaGenerator(unittest.TestCase):
         )  # insert "glob pattern" glob source
         for inp_name in inp_names:
             key = get_indicator_from_name(inp_name, fallback="_")
-            assert (
-                key not in inputs
-            ), "duplicate key '%s' for input '%s' --> object[%s]" % (
-                key,
-                inp_name,
-                inputs[key],
+            assert key not in inputs, (
+                f"duplicate key '{key}' for input '"
+                f"{inp_name}' --> object[{inputs[key]}]"
             )
             inputs[key] = SourceFactory.make_source(
                 os.path.join(inp_path, inp_name)
@@ -128,7 +123,7 @@ class TestJinjaGenerator(unittest.TestCase):
 
             # process
             log.debug(
-                "processing test-template: %s " % os.path.join(tpl_path, name)
+                f"processing test-template: {os.path.join(tpl_path, name)}"
             )
             g.process(
                 name,

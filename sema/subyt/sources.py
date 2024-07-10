@@ -10,19 +10,16 @@ import requests
 import validators
 from typeguard import check_type
 
-from sema.commons.log.loader import load_log_config
-
 from .api import Source
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
 def assert_readable(file_path):
-    assert os.path.isfile(file_path), (
-        "File to read '%s' does not exist" % file_path
-    )
-    assert os.access(file_path, os.R_OK), "Can not read '%s'" % file_path
+    assert os.path.isfile(
+        file_path
+    ), f"File to read '{file_path}' does not exist"
+    assert os.access(file_path, os.R_OK), f"Can not read '{file_path}'"
 
 
 def fname_from_cdisp(cdisp):
@@ -48,9 +45,9 @@ class SourceFactory:
         self._register[mime] = sourceClass
 
     def _find(self, mime: str):
-        assert mime in self._register, (
-            "no Source class available for mime '%s'" % mime
-        )
+        assert (
+            mime in self._register
+        ), f"no Source class available for mime '{mime}'"
         return self._register[mime]
 
     @staticmethod
@@ -107,9 +104,9 @@ class SourceFactory:
 
         # else
         mime: str = SourceFactory.mime_from_identifier(identifier)
-        assert mime is not None, (
-            "no valid mime derived from identifier '%s'" % identifier
-        )
+        assert (
+            mime is not None
+        ), f"no valid mime derived from identifier '{identifier}'"
         sourceClass: Callable[[str], Source] = SourceFactory.instance()._find(
             mime
         )
@@ -125,7 +122,7 @@ class CollectionSource(Source):
         self._sourcefiles = []
 
     def __repr__(self):
-        return "%s('%s')" % (type(self), self._collection_path)
+        return f"{type(self).__name__}('{self._collection_path}')"
 
     def _reset(self):
         self._current_source = None
@@ -188,10 +185,9 @@ class FolderSource(CollectionSource):
         self._sourcefiles = sorted(
             list(next(os.walk(self._collection_path), (None, None, []))[2])
         )
-        assert len(self._sourcefiles) > 0, (
-            "FolderSource '%s' should have content files."
-            % self._collection_path
-        )
+        assert (
+            len(self._sourcefiles) > 0
+        ), f"FolderSource '{self._collection_path}' should have content files."
         self._reset()
         self.mtimes = {}
         for p in self._sourcefiles:
@@ -206,10 +202,9 @@ class GlobSource(CollectionSource):
         self._sourcefiles = sorted(
             [p for p in glob.glob(pattern) if os.path.isfile(p)]
         )
-        assert len(self._sourcefiles) > 0, (
-            "GlobSource '%s' should have content files."
-            % self._collection_path
-        )
+        assert (
+            len(self._sourcefiles) > 0
+        ), f"GlobSource '{self._collection_path}' should have content files."
         self._reset()
         self.mtimes = {}
         for p in self._sourcefiles:
@@ -240,7 +235,7 @@ try:
             self._csvfile.close()
 
         def __repr__(self):
-            return "CSVFileSource('%s')" % os.path.abspath(self._csv)
+            return f"CSVFileSource('{os.path.abspath(self._csv)}')"
 
     SourceFactory.register("text/csv", CSVFileSource)
     # wrong, yet useful mime for csv:
@@ -288,7 +283,7 @@ try:
             pass
 
         def __repr__(self):
-            return "JsonFileSource('%s')" % os.path.abspath(self._json)
+            return f"JsonFileSource('{os.path.abspath(self._json)}')"
 
     SourceFactory.register("application/json", JsonFileSource)
 except ImportError:
@@ -323,7 +318,7 @@ try:
             pass
 
         def __repr__(self):
-            return "XMLFileSource('%s')" % os.path.abspath(self._xml)
+            return f"XMLFileSource('{os.path.abspath(self._xml)}')"
 
     SourceFactory.map("eml", "text/xml")
     SourceFactory.register("text/xml", XMLFileSource)

@@ -5,10 +5,8 @@ from itertools import product
 
 from conftest import run_single_test
 
-from sema.commons.log.loader import load_log_config
 from sema.subyt.api import GeneratorSettings
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -54,16 +52,20 @@ class TestGeneratorSettings(unittest.TestCase):
                 self.assertEqual(
                     case_vals[key],
                     case_generator_settings.__getattr__(key),
-                    "wrong setting for key '%s' via modstr '%s' should be %s"
-                    % (key, case_mode, case_vals[key]),
+                    (
+                        f"wrong setting for key '{key}' via modstr "
+                        f"'{case_mode}' should be {case_vals[key]}"
+                    ),
                 )
 
             case_roundtrip = case_generator_settings.as_modifier_str()
             self.assertEqual(
                 set(case_keys),
                 set(case_roundtrip.split(",")),
-                "Roundtrip settings does not match '%s' <> '%s'."
-                % (case_mode, case_roundtrip),
+                (
+                    f"Roundtrip settings does not match "
+                    f"'{case_mode}' <> '{case_roundtrip}'."
+                ),
             )
 
 

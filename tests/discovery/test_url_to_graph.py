@@ -41,7 +41,7 @@ test_cases = [
     },
     {
         "uri": "https://data.arms-mbon.org/data_release_001/latest/#",
-        "length": 514,
+        "length": 532,
         "format": "application/json",
     },  # add more test cases as needed
 ]
@@ -55,7 +55,7 @@ def test_download_uri_cases():
         graph = get_graph_for_format(uri, formats=[format])
         assert isinstance(graph, Graph)
         assert len(graph) > 0
-        assert len(graph) >= case["length"]
+        assert len(graph) == case["length"]
         # Add more assertions as needed
 
 

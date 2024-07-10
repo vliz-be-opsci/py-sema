@@ -1,13 +1,10 @@
 import logging
 
-from sema.commons.log.loader import load_log_config
-
 from .api import GeneratorSettings
 from .j2.generator import JinjaBasedGenerator
 from .sinks import SinkFactory
 from .sources import SourceFactory
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 

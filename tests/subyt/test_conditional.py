@@ -7,10 +7,8 @@ from pathlib import Path
 import pandas as pd
 from conftest import run_single_test
 
-from sema.commons.log.loader import load_log_config
 from sema.subyt import Subyt
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 SUBYT_TEST_FOLDER = Path(os.path.dirname(os.path.abspath(__file__)))

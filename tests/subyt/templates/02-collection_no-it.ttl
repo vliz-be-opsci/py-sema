@@ -1,6 +1,6 @@
 {# Template '02-collection_no-it.ttl' 
   Description: 'This template shows how to create and apply a translation map from one of the input sets; 
-                and does so in no-it "one run" or "collection mode.' 
+                and does so in no-it 'one run' or 'collection mode.' 
   Author: Marc Portier
   Date: 08/03/2022
   Target vocabs:
@@ -13,22 +13,22 @@
 #}
 
 @prefix ex: <https://example.org/02-collection_no-it/> .
-ex:fullset ex:iteration {{ctrl.settings.iteration | ttl("xsd:boolean")}};
-    ex:ctrl-first {{ctrl.isFirst | ttl("xsd:boolean")}};
-    ex:ctrl-last {{ctrl.isLast | ttl("xsd:boolean")}};
-    ex:ctrl-index {{ctrl.index | ttl("xsd:integer")}}.
+ex:fullset ex:iteration {{ctrl.settings.iteration | xsd('boolean')}};
+    ex:ctrl-first {{ctrl.isFirst | xsd('boolean')}};
+    ex:ctrl-last {{ctrl.isLast | xsd('boolean')}};
+    ex:ctrl-index {{ctrl.index | xsd('integer')}}.
 {% if not ctrl.settings.iteration -%}
     {%- set ctrymap = map(sets['countries'], 'Alpha-3 code', 'Alpha-2 code') -%}
     {% for _ in sets['_'] -%}
         {%- set nothing = ctrymap.apply(_, 'country', 'ctry2') -%}
-<{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_)}}>
-    ex:name "{{_.name}}"^^xsd:string;
-    ex:country "{{_.ctry2}}"^xsd:string.
+<{{uritexpand('https://vliz.be/code/pysubyt/test/item{#id}',_)}}>
+    ex:name {{_.name | xsd('string')}};
+    ex:country {{_.ctry2 | xsd('string')}}.
 {# force newline #}
     {%- endfor %}
     {%- for country in sets['countries'] -%}
         {%- if country['Alpha-2 code'] == 'BE' -%}
-<{{uritexpand("https://iso.org/countries{/Alpha-2 code}", country)}}> ex:name {{country['English short name lower case'] | ttl('@en')}}.
+<{{uritexpand('https://iso.org/countries{/Alpha-2 code}', country)}}> ex:name {{country['English short name lower case'] | ttl('@en')}}.
 {# force newline #}
         {%- endif -%}
     {%- endfor %}
