@@ -1,0 +1,23 @@
+{#  This shows how macro's can be defined and reused to optimise template building #}
+
+{# ---------------------------------------------------------------- countries #}
+{% macro uri_country(code) -%}
+<{{uritexpand("https://countries.org/iso-3{/code}", {"code": code}) }}>{# note: this creates a local conext dict #}
+{%- endmacro -%}
+
+{% macro ttl_country(country) -%}
+{{ uri_country(country['Alpha-3 code'])}} a ex:country;
+    schema:title {{country['English short name lower case'] | ttl("@en")}}
+.
+{% endmacro %}
+
+{# ----------------------------------------------------------------- entities #}
+{% macro uri_thing(thing) -%}
+<{{uritexpand("https://example.org/id/sample{#id}", thing)}}>{# note: this reuses the sample as context dict #}
+{%- endmacro -%}
+
+{% macro ttl_thing(thing) -%}
+{{ uri_thing(sample) }} a ex:thing;
+    ex:in_country {{uri_country(thing.country)}}
+.
+{% endmacro %}

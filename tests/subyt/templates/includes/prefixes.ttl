@@ -1,0 +1,4 @@
+{# set of standard prefixes to include -#}
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/#>.
+@prefix dwc: <http://rs.tdwg.org/dwc/terms/#>.

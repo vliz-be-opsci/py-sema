@@ -16,6 +16,10 @@ python-dateutil = "^2.9.0.post0"
 setuptools = "*"
 uritemplate = "^4.1.1"
 urllib3 = "^2.2.2"
+requests = "^2.32.3"
+typeguard = "^4.3.0"
+xmlasdict = "^0.2.2"
+pandas = "^2.2.2"
 
 [tool.poetry.group.docs]
 optional = true

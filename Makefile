@@ -84,7 +84,7 @@ test-coverage-with-graphdb:  ## runs the standard test-suite for all available i
 check:  ## performs linting on the python code
 	@poetry run black --check --diff .
 	@poetry run isort --check --diff .
-	@poetry run flake8 . --exclude ${FLAKE8_EXCLUDE}
+	@poetry run flake8 . --exclude ${FLAKE8_EXCLUDE} --ignore=E203,W503
 
 lint-fix:  ## fixes code according to the lint suggestions
 	@poetry run black .

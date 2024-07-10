@@ -1,0 +1,38 @@
+{# Template '01-basic.ldt' 
+  Description: 'This template shows basic usage of operation and some essential functions:
+                  * uritemplate-expansion,
+                  * regex-replacements
+                  * specific turtle (ttl) formatting support' 
+  Author: Marc Portier
+  Date: 08/03/2022
+  Target vocabs:
+    - ex: <https://example.org/01-basic/>
+  Inputs: 
+    - input-file: data.csv
+#}
+
+@prefix ex: <https://example.org/01-basic/{{ME}}> .
+<{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_)}}>
+  a ex:test ;
+  ex:name "{{_.name}}"^^xsd:string;
+  schema:identifier "{{regexreplace('^[^:]*:', '', _.combi)}}";
+{%- if _.x and _.y %}
+  geo:location [
+    a geo:Location;
+    geo:lat "{{_.x}}"^^xsd:double;
+    geo:lon "{{_.y}}"^^xsd:double;
+  ];
+{%- endif -%}
+{%- for hl in ['nl', 'fr', 'en'] -%}
+    {%- set hl_text = _['txt_' + hl] -%}
+    {%- if hl_text %}
+  schema:description {{ hl_text | ttl('@' + hl)}};
+    {%- endif -%}
+{%- endfor -%}
+{%- if ctrl.isFirst %}
+  ex:posFirst "true"^^xsd:boolean;
+{% endif %}
+{%- if ctrl.isLast %}
+  ex:posLast "true"^^xsd:boolean;
+{% endif %}
+  ex:position {{ ctrl.index | ttl("xsd:integer") }}.

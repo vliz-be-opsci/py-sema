@@ -1,0 +1,13 @@
+{# Template '05-jsonify_no-it.json' 
+  Description: 'This template shows how one can use the built-in tojson filter of jinja2 to just produce standard json output' 
+  Author: Marc Portier
+  Date: 29/10/2021
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_team.json as team 
+#}
+
+{%- set team = [] -%}
+{%- for member in sets['team'] -%}{%- set ign = team.append(member) -%}{%- endfor-%}
+{{ team | tojson('  ') }}

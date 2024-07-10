@@ -1,6 +1,6 @@
 """discovery
 
-.. module:: discovery
+.. submodule:: discovery
 :platform: Unix, Windows
 :synopsis: A library for discovering triples from a given URL
 

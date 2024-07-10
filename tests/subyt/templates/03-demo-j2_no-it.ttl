@@ -1,0 +1,32 @@
+{# Template '03-demo-j2_no-it.ttl' 
+  Description: 'This template mainly shows of some standard tricks available in jinja2 to optimise template-management.' 
+  Author: Marc Portier
+  Date: 29/10/2021
+  Target vocabs: (see include-file)
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_countries.csv as countries,
+        - data.csv as _
+    - include-file(s): prefixes.ttl
+    - macro-file(s): things-and-countries.ttl as tac
+#}
+
+@prefix ex: <https://example.org/03-demo-j2_no-it/>.
+{% import 'macros/things-and-countries.ttl' as tac -%}
+{% if ctrl.isFirst -%} {# executes only on first iteration -- equaly so in no-iteration modus -#}
+{% include 'includes/prefixes.ttl' %}
+{% endif %}
+
+{%- set used_countries = [] %}
+{% for thing in sets['_'] -%}
+    {%- set ign = used_countries.append(thing.country) -%}
+{{ tac.ttl_thing(thing) }}
+{%- endfor -%}
+
+{% for country in sets['countries'] -%}
+    {% if country['Alpha-3 code'] in used_countries -%}
+{{ tac.ttl_country(country) }}
+    {%- endif -%}
+{%- endfor -%}
+{# also not how one control whitespace produced by jinja through -- https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control #}

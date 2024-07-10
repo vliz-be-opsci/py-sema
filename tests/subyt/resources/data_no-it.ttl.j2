@@ -1,0 +1,7 @@
+@prefix ex: <http://example.org/> .
+
+{% for item in sets["data"] -%}
+_:{{item.key}} a ex:Type;
+    ex:property "{{item.value}}" .
+
+{% endfor %}

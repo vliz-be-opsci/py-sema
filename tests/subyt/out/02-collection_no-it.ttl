@@ -1,0 +1,17 @@
+# expected output files are split by lines with leading # marks
+#---- 01
+@prefix ex: <https://example.org/02-collection_no-it/> .
+ex:fullset ex:iteration 'false'^^xsd:boolean;
+    ex:ctrl-first 'true'^^xsd:boolean;
+    ex:ctrl-last 'true'^^xsd:boolean;
+    ex:ctrl-index '0'^^xsd:integer.
+<https://vliz.be/code/pysubyt/test/item#1>
+    ex:name "one"^^xsd:string;
+    ex:country "BE"^xsd:string.
+<https://vliz.be/code/pysubyt/test/item#2>
+    ex:name "two"^^xsd:string;
+    ex:country "US"^xsd:string.
+<https://vliz.be/code/pysubyt/test/item#3>
+    ex:name "three"^^xsd:string;
+    ex:country "BE"^xsd:string.
+<https://iso.org/countries/BE> ex:name 'Belgium'@en.

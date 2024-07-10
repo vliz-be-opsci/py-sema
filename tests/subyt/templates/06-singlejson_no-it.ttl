@@ -1,0 +1,16 @@
+{# Template '06-singlejson_no-it.ttl' 
+  Description: 'This template simply ensures that single json structs are iterable as a whole' 
+  Author: Marc Portier
+  Date: 29/10/2021
+  Target vocabs: 
+    - ex: <https://example.org/06-singlejson_noit/>
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_digits.json as digits 
+#}
+
+@prefix ex: <https://example.org/06-singlejson_noit/>.
+{% for item in sets['digits'] -%}
+<{{uritexpand('https://postcodes.be/BE{/eight,four,five,zero}', item)}} ex:placename "Bredene"@nl.
+{%- endfor -%}

@@ -1,0 +1,7 @@
+@prefix ex: <https://example.org/13-key-value-pair-injection_no-it/> .
+{% for item in sets['glob'] -%}
+{% set _ = item.update({"domain": my_domain}) %}
+<{{uritexpand("https://{domain}/flemish-cities/byzipcode{/id}", item)}}>
+    a ex:city;
+    ex:title {{ item.name | ttl("xsd:string", '"') }}.
+{% endfor %}
