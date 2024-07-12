@@ -3,7 +3,7 @@ from typing import Callable
 
 from jinja2 import select_autoescape
 
-from sema.commons.j2 import Filters, J2RDFSyntaxBuilder
+from sema.commons.j2 import J2RDFSyntaxBuilder
 from sema.subyt.api import Generator
 
 
@@ -19,11 +19,10 @@ class JinjaBasedGenerator(Generator):
         :param templates_folder: Location of the templates defaults to "."
         """
         self._templates_folder = templates_folder
-        ttl_filter = {"ttl": Filters.all()["xsd"]}
 
         self.syntax_builder = J2RDFSyntaxBuilder(
             templates_folder,
-            extra_filters=ttl_filter,
+            extra_filters=None,
             jinja_env_variables={
                 "autoescape": select_autoescape(
                     disabled_extensions=(

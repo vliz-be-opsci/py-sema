@@ -26,7 +26,7 @@
 {%- for hl in ['nl', 'fr', 'en'] -%}
     {%- set hl_text = _['txt_' + hl] -%}
     {%- if hl_text %}
-  schema:description {{ hl_text | ttl('@' + hl)}};
+  schema:description {{ hl_text | xsd('@' + hl)}};
     {%- endif -%}
 {%- endfor -%}
 {%- if ctrl.isFirst %}

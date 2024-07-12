@@ -31,7 +31,7 @@ ex:fullset ex:iteration {{ctrl.settings.iteration | xsd("boolean")}};
 {% if ctrl.isLast %}
     {%- for country in sets['countries'] -%}
         {%- if country['Alpha-2 code'] == 'BE' -%}
-<{{uritexpand("https://iso.org/countries{/Alpha-2 code}", country)}}> ex:name {{country['English short name lower case'] | ttl('@en')}}.
+<{{uritexpand("https://iso.org/countries{/Alpha-2 code}", country)}}> ex:name {{country['English short name lower case'] | xsd('@en')}}.
 {# force newline #}
         {%- endif -%}
     {%- endfor %}

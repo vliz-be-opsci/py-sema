@@ -16,7 +16,7 @@
     {%- for col in col_info -%}
         {%- if col.property and col.type and col.title -%}
             {%- if obj[col.title] %}
-  {{col.property}} {{ obj[col.title] | ttl(col.type)}};
+  {{col.property}} {{ obj[col.title] | xsd(col.type)}};
             {%- else %}
   # skipping described column '{{col.title}}' as there is no value for it available
             {%- endif -%}
