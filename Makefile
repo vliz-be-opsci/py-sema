@@ -1,6 +1,6 @@
 TEST_PATH = ./tests/
 FLAKE8_EXCLUDE = venv,.venv,.eggs,.tox,.git,__pycache__,*.pyc
-PROJECT = py-sema
+MODULE = sema
 AUTHOR = "Flanders Marine Institute, VLIZ vzw"
 
 REPONAME = py-sema
@@ -38,10 +38,10 @@ init-docs: startup  ## initial prepare of the environment for local execution an
 
 
 #docs:  ## builds the docs
-#	@poetry run sphinx-quickstart -q --ext-autodoc --ext-githubpages --ext-viewcode --sep --project $(PROJECT) --author '${AUTHOR} -f' source_docs
+#	@poetry run sphinx-quickstart -q --ext-autodoc --ext-githubpages --ext-viewcode --sep --project $(MODULE) --author '${AUTHOR} -f' source_docs
 #	@cp ./docs/* ./source_docs/source/
 #	@sleep 1
-#	@poetry run sphinx-apidoc -o ./source_docs/source ./$(PROJECT)
+#	@poetry run sphinx-apidoc -o ./source_docs/source ./$(MODULE)
 #	@poetry run sphinx-build -b html ./source_docs/source ./source_docs/build/html
 #	@cp ./source_docs/source/custom.css ./source_docs/build/html/_static/custom.css
 
@@ -74,7 +74,7 @@ test-with-graphdb: ## runs the standard test-suite for all available implementat
 	@./tests/kgap-graphdb.sh stop
 
 test-coverage:  ## runs the standard test-suite for the memory-graph implementation and produces a coverage report
-	@poetry run pytest --cov=$(PROJECT) ${TEST_PATH} --cov-report term-missing
+	@poetry run pytest --cov=$(MODULE) ${TEST_PATH} --cov-report term-missing
 
 test-coverage-with-graphdb:  ## runs the standard test-suite for all available implementations and produces a coverage report
 	@(export REPONAME=${REPONAME} && ./tests/kgap-graphdb.sh start-wait)
