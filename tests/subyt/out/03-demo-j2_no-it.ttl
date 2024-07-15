@@ -1,0 +1,21 @@
+#---- 01
+@prefix ex: <https://example.org/03-demo-j2_no-it/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/#>.
+@prefix dwc: <http://rs.tdwg.org/dwc/terms/#>.
+
+<https://example.org/id/sample> a ex:thing;
+    ex:in_country <https://countries.org/iso-3/BEL>
+.
+<https://example.org/id/sample> a ex:thing;
+    ex:in_country <https://countries.org/iso-3/USA>
+.
+<https://example.org/id/sample> a ex:thing;
+    ex:in_country <https://countries.org/iso-3/BEL>
+.
+<https://countries.org/iso-3/BEL> a ex:country;
+    schema:title 'Belgium'@en
+.
+<https://countries.org/iso-3/USA> a ex:country;
+    schema:title 'United States'@en
+.

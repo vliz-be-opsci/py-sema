@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<coast_cities>
+  <city>
+    <id>8450</id>
+    <name>Bredene</name>
+  </city>
+  <city>
+    <id>8400</id>
+    <name>Oostende</name>
+    </city>
+</coast_cities>

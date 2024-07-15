@@ -1,0 +1,4 @@
+@prefix ex: <http://example.org/> .
+
+_:D a ex:Type;
+    ex:property "4" .

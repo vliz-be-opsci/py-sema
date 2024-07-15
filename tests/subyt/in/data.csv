@@ -1,0 +1,6 @@
+id,name,age,combi,x,y,country,txt_nl,txt_fr,txt_en
+1,one,12y7m16d,SOME_THING:good,34.85,9.33,BEL,"een tekst over
+meerdere '''''
+lijnen","ceci n'est pas une texte","As \ said before"
+2,two,1y160d,SOME_THING:else,,,USA,"enkel nl",,
+3,three,101y,SOME_THING:strange,,,BEL,,,

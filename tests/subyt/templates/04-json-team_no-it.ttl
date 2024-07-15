@@ -1,0 +1,25 @@
+{# Template '04-json-team_no-it.ttl' 
+  Description: 'This template demonstrates support for json input sets['team'] is loaded from in /data-team.json' 
+  Author: Marc Portier
+  Date: 08/03/2022
+  Target vocabs: 
+    - ex: <https://example.org/04-json-team_no-it/>
+    - rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    - rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    - foaf: <http://xmlns.com/foaf/0.1/>
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_team.json as team
+#}
+
+@prefix ex: <https://example.org/04-json-team_no-it/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+{% for colleague in sets['team'] -%}
+<{{uritexpand("https://orcid.org{/orcid}", colleague)}}>
+    a foaf:Person;
+    foaf:name {{ colleague.name | xsd("string") }}.
+{# force newline #}
+{%- endfor %}

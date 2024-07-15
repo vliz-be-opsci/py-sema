@@ -41,7 +41,7 @@ test_cases = [
     },
     {
         "uri": "https://data.arms-mbon.org/data_release_001/latest/#",
-        "length": 514,
+        "length": 532,
         "format": "application/json",
     },  # add more test cases as needed
 ]

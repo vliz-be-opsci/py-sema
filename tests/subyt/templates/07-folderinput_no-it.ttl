@@ -1,0 +1,18 @@
+{# Template '07-folderinput_no-it.ttl' 
+  Description: 'This template shows support for iterating folder input sources' 
+  Author: Marc Portier
+  Date: 08/03/2022
+  Target vocabs: 
+    - ex: <https://example.org/07-folderinput_no-it/>
+  Inputs: 
+    - input-file: None
+    - set-file(s): 
+        - /data_cities/ as cities
+#}
+
+@prefix ex: <https://example.org/07-folderinput_no-it/> .
+{% for city in sets['cities'] -%}
+<{{uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city)}}>
+    a ex:city;
+    ex:title {{ city.name | xsd("string", '"') }}.
+{% endfor %}

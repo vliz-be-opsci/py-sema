@@ -1,0 +1,13 @@
+@prefix ex: <https://example.org/13-key-value-pair-injection_no-it/> .
+
+<https://realexample.org/flemish-cities/byzipcode/9000>
+    a ex:city;
+    ex:title "Gent"^^xsd:string.
+
+<https://realexample.org/flemish-cities/byzipcode/6600>
+    a ex:city;
+    ex:title "Bastogne"^^xsd:string.
+
+<https://realexample.org/flemish-cities/byzipcode/6870>
+    a ex:city;
+    ex:title "Saint-Hubert"^^xsd:string.

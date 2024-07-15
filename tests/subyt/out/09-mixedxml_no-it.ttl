@@ -1,0 +1,5 @@
+@prefix schema: <https://schema.org/>.
+
+[] schema:description 'One would think you have seen all the <em>sand</em> you could handle?'^^xsd:string.
+[] schema:description '''The major problem <span class="ed.d">[encountered in time travel]</span> is quite simply one of grammar, and the main work to consult in this matter is Dr. Dan Streetmentioner's Time Traveler's Handbook of 1001 Tense Formations.'''^^xsd:string.
+[] schema:description 'Makes you kind of think <b>twice</b> about displacing'^^xsd:string.

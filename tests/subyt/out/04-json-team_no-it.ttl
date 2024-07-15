@@ -1,0 +1,20 @@
+#---- 01
+@prefix ex: <https://example.org/04-json-team_no-it/>.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+<https://orcid.org/0000-0001-6387-5988>
+    a foaf:Person;
+    foaf:name 'Cedric Decruw'^^xsd:string.
+<https://orcid.org/0000-0002-9648-6484>
+    a foaf:Person;
+    foaf:name 'Katrina Exter'^^xsd:string.
+<https://orcid.org/0000-0003-0663-5907>
+    a foaf:Person;
+    foaf:name 'Laurian Van Maldeghem'^^xsd:string.
+<https://orcid.org/0000-0002-9648-6484>
+    a foaf:Person;
+    foaf:name 'Marc Portier'^^xsd:string.
+<https://orcid.org/0000-0002-0440-215X>
+    a foaf:Person;
+    foaf:name 'Rory Meyer'^^xsd:string.

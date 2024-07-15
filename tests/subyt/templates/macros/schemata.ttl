@@ -1,0 +1,27 @@
+{# Macro 'schemate.ttl'
+  Description: 'Helpers to dynamically assign metadata'
+  Author: Marc Portier
+  Date: 10/06/2022
+#}
+
+
+{# ---------------------------------------------------------------- describe #}
+{%- macro describe(uri, obj, obj_type, col_info) -%}
+<{{uri}}>
+    {%- if obj_type %}
+  a {{obj_type}};
+    {%- else %}
+  # no rdf type given
+    {%- endif -%}
+    {%- for col in col_info -%}
+        {%- if col.property and col.type and col.title -%}
+            {%- if obj[col.title] %}
+  {{col.property}} {{ obj[col.title] | xsd(col.type)}};
+            {%- else %}
+  # skipping described column '{{col.title}}' as there is no value for it available
+            {%- endif -%}
+        {%- else %}
+  # skipping column '{{col.title}}' as some required schema information is missing
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}

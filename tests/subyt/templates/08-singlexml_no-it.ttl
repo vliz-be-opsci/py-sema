@@ -1,0 +1,19 @@
+{# Template '08-singlexml_no-it.ttl' 
+  Description: 'This template ensures that xml structures are iterable' 
+  Author: Marc Portier
+  Date: 29/11/2021
+  Target vocabs: 
+    - schema: <https://schema.org/>
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_movies.xml as movies
+#}
+
+@prefix schema: <https://schema.org/>.
+
+{% for movie in sets['movies'] -%}
+[ a schema:movie;
+    schema:name '{{movie.title}}';
+    schema:director '{{movie.director}}'; ] .
+{% endfor %}

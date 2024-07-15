@@ -1,0 +1,11 @@
+@prefix schema: <https://schema.org/>.
+
+[ a schema:movie;
+    schema:name 'Dune';
+    schema:director 'Denis Villeneuve'; ] .
+[ a schema:movie;
+    schema:name 'Back to the Future';
+    schema:director 'Robert Zemeckis'; ] .
+[ a schema:movie;
+    schema:name 'Spirited away';
+    schema:director 'Hayao Miyazaki'; ] .

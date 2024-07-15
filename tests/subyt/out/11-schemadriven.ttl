@@ -1,0 +1,53 @@
+#----- 01
+@prefix ex: <https://example.org/11-schemadriven/> .
+@prefix dct: <http://purl.org/dc/terms> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+
+<https://vliz.be/code/pysubyt/test/item#1>
+  a ex:thing;
+  schema:identifier '1'^^xsd:integer;
+  dct:title 'one'^^xsd:string;
+  # skipping column 'age' as some required schema information is missing
+  # skipping column 'combi' as some required schema information is missing
+  geo:lat '34.85'^^xsd:double;
+  geo:lon '9.33'^^xsd:double;
+  ex:country 'BEL'^^xsd:string;
+  ex:text '''een tekst over
+meerdere \'\'\'\'\'
+lijnen'''@nl;
+  ex:text '''ceci n'est pas une texte'''@fr;
+  ext:text 'As \\ said before'@en;
+#----- 02
+@prefix ex: <https://example.org/11-schemadriven/> .
+@prefix dct: <http://purl.org/dc/terms> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+
+<https://vliz.be/code/pysubyt/test/item#2>
+  a ex:thing;
+  schema:identifier '2'^^xsd:integer;
+  dct:title 'two'^^xsd:string;
+  # skipping column 'age' as some required schema information is missing
+  # skipping column 'combi' as some required schema information is missing
+  # skipping described column 'x' as there is no value for it available
+  # skipping described column 'y' as there is no value for it available
+  ex:country 'USA'^^xsd:string;
+  ex:text 'enkel nl'@nl;
+  # skipping described column 'txt_fr' as there is no value for it available
+  # skipping described column 'txt_en' as there is no value for it available
+#----- 03
+@prefix ex: <https://example.org/11-schemadriven/> .
+@prefix dct: <http://purl.org/dc/terms> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+
+<https://vliz.be/code/pysubyt/test/item#3>
+  a ex:thing;
+  schema:identifier '3'^^xsd:integer;
+  dct:title 'three'^^xsd:string;
+  # skipping column 'age' as some required schema information is missing
+  # skipping column 'combi' as some required schema information is missing
+  # skipping described column 'x' as there is no value for it available
+  # skipping described column 'y' as there is no value for it available
+  ex:country 'BEL'^^xsd:string;
+  # skipping described column 'txt_nl' as there is no value for it available
+  # skipping described column 'txt_fr' as there is no value for it available
+  # skipping described column 'txt_en' as there is no value for it available
