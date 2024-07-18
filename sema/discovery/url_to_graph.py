@@ -14,6 +14,11 @@ log = logging.getLogger(__name__)
 RDF_MIME_TO_FORMAT = {
     "application/ld+json": "json-ld",
     "text/turtle": "turtle",
+    #todo add tests for these formats
+    "application/rdf+xml": "xml",
+    "text/n3": "n3",
+    "application/n-triples": "nt",
+    "text/html": "html",
 }
 
 
