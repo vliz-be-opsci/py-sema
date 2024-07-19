@@ -1,7 +1,6 @@
 import logging
 
 import pytest
-from conftest import run_single_test
 from jinja2 import Template
 
 from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
@@ -46,7 +45,3 @@ def test_get_variables_sparql_template(name):
     assert (
         variables == template_variables[name]
     ), f"unexpected variables in {name}"
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

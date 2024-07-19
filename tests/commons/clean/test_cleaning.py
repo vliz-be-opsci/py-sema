@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 import json
 from typing import Callable
 
@@ -7,7 +6,6 @@ from conftest import (
     format_from_extension,
     loadfilegraph,
     log,
-    run_single_test,
 )
 from rdflib import BNode, Graph, Literal, Namespace, URIRef
 
@@ -343,7 +341,3 @@ def test_clean_chain():
     assert expected_literals == count_literals
     assert expected_uriref == count_uriref
     assert expected_other == count_other
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

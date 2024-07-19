@@ -1,16 +1,16 @@
 import logging
 import logging.config
 import os
-import sys
 from pathlib import Path
 from typing import Iterable, Optional
 
 import pytest
-import yaml
 from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
 from sema.commons.store import RDFStore, create_rdf_store
+from sema.commons.log import load_log_config
+
 
 TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
 DCT: Namespace = Namespace("http://purl.org/dc/terms/#")
@@ -23,28 +23,7 @@ log = logging.getLogger("tests")
 
 def enable_test_logging():
     load_dotenv()
-    if "PYTEST_LOGCONF" in os.environ:
-        logconf = os.environ["PYTEST_LOGCONF"]
-        try:
-            with open(logconf, "r") as yml_logconf:
-                logging.config.dictConfig(
-                    yaml.load(yml_logconf, Loader=yaml.SafeLoader)
-                )
-            log.info(f"Logging enabled according to config in {logconf}")
-        except Exception:
-            print(f"error while tryring to load {logconf=}")
-            # and then silently ignore..
-
-
-def run_single_test(testfile):
-    enable_test_logging()
-    log.info(
-        f"Running tests in {testfile} "
-        + "with -v(erbose) and -s(no stdout capturing) "
-        + "and logging to stdout, "
-        + "level controlled by env var ${PYTEST_LOGCONF}"
-    )
-    sys.exit(pytest.main(["-v", "-s", testfile]))
+    load_log_config(os.environ.get("PYTEST_LOGCONF", None))
 
 
 enable_test_logging()  # note that this includes loading .env into os.getenv

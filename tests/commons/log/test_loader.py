@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from conftest import TEST_INPUT_FOLDER, run_single_test
+from conftest import TEST_INPUT_FOLDER
 
 from sema.commons.log.loader import load_log_config
 
@@ -40,6 +40,3 @@ def test_load_yaml_log_config():
 # Test loading non-YAML log configuration (if applicable)
 # This test is dependent on the support for
 # non-YAML configurations in your application
-
-if __name__ == "__main__":
-    run_single_test(__file__)

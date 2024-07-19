@@ -273,7 +273,3 @@ class TestMapFormatting(unittest.TestCase):
         key_name = "Alpha-8 code"
         self.fmt.apply(self.map_test[0], self.key_name, key_name)
         assert key_name in self.map_test[0]
-
-
-if __name__ == "__main__":
-    unittest.main()

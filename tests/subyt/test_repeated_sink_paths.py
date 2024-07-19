@@ -3,8 +3,6 @@ import os
 import unittest
 from pathlib import Path
 
-from conftest import run_single_test
-
 from sema.subyt import Subyt
 
 log = logging.getLogger(__name__)
@@ -45,7 +43,3 @@ class TestRepeatedSinkPaths(unittest.TestCase):
             conditional=True,
         )
         self.assertRaises(RuntimeError, subyt.process)
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)
