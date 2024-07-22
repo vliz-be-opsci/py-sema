@@ -96,7 +96,7 @@ class RDFStore(ABC):
         """
         # TODO reconsider the default below as soon as upper layers start
         # dealing with cleaning config themselves
-        # for new we ensure cleaning to fix rtdflib-jsonld parsing issue
+        # for now we ensure cleaning to fix rdflib-jsonld parsing issue
         cleaner = cleaner or default_cleaner()
         # always ensure a no-op callable
         self._cleaner: Callable = cleaner or (lambda graph: graph)
