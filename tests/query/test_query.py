@@ -26,7 +26,7 @@ from conftest import log
 
 
 @pytest.mark.parametrize(
-    "source, KGType",
+    "source_args, source_type",
     [
         (TTL_FILES_TO_TEST, FileGraphSource),
         ([BODC_ENDPOINT], SPARQLGraphSource),
@@ -34,13 +34,13 @@ from conftest import log
         ([graph], MemoryGraphSource),
     ],
 )
-def test_factory_choice(source, KGType):
-    source_KG2tbl = GraphSource.build(*source)
-    assert type(source_KG2tbl) is KGType
+def test_factory_choice(source_args, source_type):
+    source = GraphSource.build(*source_args)
+    assert type(source) is source_type
 
 
 @pytest.mark.parametrize(
-    "source, query, query_response_length",
+    "source_args, query, query_response_length",
     [
         (TTL_FILES_TO_TEST, ALL_TRIPLES_SPARQL, 20),
         (BODC_ENDPOINT, ALL_TRIPLES_SPARQL, 25),
@@ -48,11 +48,11 @@ def test_factory_choice(source, KGType):
         ([graph], ALL_TRIPLES_SPARQL, 20),
     ],
 )
-def test_query(source, query, query_response_length):
-    if isinstance(source, str):
-        source = [source]
-    source_KG2tbl = GraphSource.build(*source)
-    result = source_KG2tbl.query(query)
+def test_query(source_args, query, query_response_length):
+    if isinstance(source_args, str):
+        source_args = [source_args]
+    source = GraphSource.build(*source_args)
+    result = source.query(query)
     assert result._data is not None
     assert set(result._data[0].keys()) == set(["s", "o", "p"])
     assert len(result._data) == query_response_length
@@ -60,8 +60,8 @@ def test_query(source, query, query_response_length):
 
 
 def test_query_functions():
-    source_KG2tbl = GraphSource.build(*TTL_FILES_TO_TEST)
-    result = source_KG2tbl.query(ALL_TRIPLES_SPARQL)
+    source = GraphSource.build(*TTL_FILES_TO_TEST)
+    result = source.query(ALL_TRIPLES_SPARQL)
 
     assert type(result.to_list()) == list
     assert type(result.to_dict()) == dict
@@ -124,3 +124,12 @@ def test_full_search():
         ["uri", "identifier", "prefLabel"]
     )
     assert len(result._data) == 2
+
+
+def test_xml_response_cabt():
+    endpoint: str = "https://id.cabi.org/PoolParty/sparql/cabt"
+    query: str = "SELECT * WHERE { ?s ?p ?i. } LIMIT 3"
+    source = SPARQLGraphSource(endpoint)
+    result = source.query(query)
+    df = result.to_dataframe()
+    assert len(df) == 3

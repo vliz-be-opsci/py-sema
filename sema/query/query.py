@@ -4,7 +4,8 @@ from typing import List, Callable, Union, Iterable, Tuple, Generator
 
 import pandas as pd
 from rdflib import Graph
-from SPARQLWrapper import SPARQLWrapper
+from rdflib.query import Result
+from sema.commons.store import RDFStore, URIRDFStore
 
 from .exceptions import (
     CompatibilityCheckerNotCallable,
@@ -98,6 +99,13 @@ class QueryResult(ABC):
         raise WrongInputFormat
 
 
+def query_result_to_list_dicts(result: Result) -> list:
+    """Helper function to convert a query result to a list of dictionaries
+    :param reslist: query result
+    """
+    return [{str(v): str(row[v]) for v in result.vars} for row in result]
+
+
 class QueryResultFromListDict(QueryResult):
     """
     Class that encompasses the result from a performed query.
@@ -107,7 +115,6 @@ class QueryResultFromListDict(QueryResult):
     :param str query: query
 
     """
-
     def __init__(self, data: list, query: str = ""):
         self._data = data
         self.query = query
@@ -177,16 +184,6 @@ QueryResult.register(QueryResultFromListDict)
 
 class GraphSource(ABC):
     @abstractmethod
-    def query_result_to_list_dicts(reslist: list) -> List:
-        """
-        From the query result build a standard list of dicts,
-            where each key is the relation in the triplet.
-
-        :param reslist: list with the query.
-        """
-        pass  # pragma: no cover
-
-    @abstractmethod
     def query(self, sparql: str) -> QueryResult:
         """
         Function that queries data with the given sparql
@@ -215,7 +212,7 @@ class GraphSource(ABC):
     @staticmethod
     def build(*sources):
         """
-        Kg1tbl main builder
+        GrasphSource main builder
             export a tabular data file based on the users preferences.
         :param sources: source of graph
 
@@ -277,15 +274,11 @@ class MemoryGraphSource(GraphSource):
                 log.debug(f"parsing {f} and applying format {file_extension=}")
                 self.graph.parse(f, format=file_extension)
 
-    @staticmethod
-    def query_result_to_list_dicts(reslist: list) -> list:
-        return [{str(v): str(row[v]) for v in reslist.vars} for row in reslist]
-
     def query(self, sparql: str) -> QueryResult:
         log.debug(f"executing sparql {sparql}")
-        reslist = self.graph.query(sparql)
+        result = self.graph.query(sparql)
         return QueryResult.build(
-            MemoryGraphSource.query_result_to_list_dicts(reslist), query=sparql
+            query_result_to_list_dicts(result), query=sparql
         )
 
     @staticmethod
@@ -323,24 +316,12 @@ class SPARQLGraphSource(GraphSource):
         super().__init__()
         self.endpoints = [url for url in urls]
 
-    @staticmethod
-    def query_result_to_list_dicts(reslist: list) -> list:
-        return [
-            {k: row[k]["value"] for k in row}
-            for row in reslist["results"]["bindings"]
-        ]
-
-    def query(self, sparql: str, return_format="json") -> QueryResult:
+    def query(self, sparql: str) -> QueryResult:
         reslist = []
         for url in self.endpoints:
-            ep = SPARQLWrapper(url)
-            ep.setQuery(sparql)
-            # TODO: Allow reading the format from the endpoint.
-            ep.setReturnFormat(return_format)
-            resdict = ep.query().convert()
-            reslist = reslist + SPARQLGraphSource.query_result_to_list_dicts(
-                resdict
-            )
+            store: RDFStore = URIRDFStore(url)
+            result: Result = store.select(sparql)
+            reslist = reslist + query_result_to_list_dicts(result)
 
         query_result = QueryResult.build(reslist, query=sparql)
         return query_result
@@ -369,13 +350,12 @@ def detect_single_source_type(source: str) -> str:
     source_type = "file"
     if source.startswith("http"):
         query_ask = "ask where {?s ?p [].}"
-        ep = SPARQLWrapper(source)
-        ep.setQuery(query_ask)
-        ep.setReturnFormat("json")
-        query_info = ep.query().info()
-        content_type = query_info.get("content-type", "")
-        if "sparql" in content_type:
+        store = URIRDFStore(source)
+        try:
+            store.select(query_ask)
             source_type = "sparql-endpoint"
+        except Exception:
+            log.debug(f"tested {source} not a sparql endpoint")
     return source_type
 
 
