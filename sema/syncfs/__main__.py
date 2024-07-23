@@ -1,17 +1,19 @@
-import sys
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
 import logging
 import logging.config
-from pathlib import Path
+import sys
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
+
 from sema.commons.log.loader import load_log_config
-from .service import SyncFsTriples, DEFAULT_URN_BASE
+
+from .service import DEFAULT_URN_BASE, SyncFsTriples
 
 log = logging.getLogger(__name__)
 
 
 def get_arg_parser():
     """Defines the arguments to this module's __main__ cli script
-    by using Python's [argparse](https://docs.python.org/3/library/argparse.html)
+    by using Python's
+    [argparse](https://docs.python.org/3/library/argparse.html)
     """
     ap = ArgumentParser(
         prog="syncfs",
@@ -33,7 +35,10 @@ def get_arg_parser():
         type=str,
         action="store",
         required=True,
-        help="The path to the root folder containing the files to be synchronized.",
+        help=(
+            "The path to the root folder "
+            "containing the files to be synchronized."
+        ),
     )
     ap.add_argument(
         "-b",
@@ -43,7 +48,10 @@ def get_arg_parser():
         action="store",
         required=False,
         default=DEFAULT_URN_BASE,
-        help="The uri baseref (prefix) for the associated named-graphs of synced files.",
+        help=(
+            "The uri baseref (prefix) for the associated named-graphs "
+            "of synced files."
+        ),
     )
     ap.add_argument(
         "-s",

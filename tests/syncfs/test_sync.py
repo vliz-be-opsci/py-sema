@@ -2,10 +2,10 @@
 """ test_sync
 tests concerning the actual core sync expectations
 """
+import logging
 import random
 
 import pytest
-import logging
 from conftest import make_sample_graph, run_single_test
 
 from sema.syncfs.service import (
@@ -35,7 +35,8 @@ def test_perform_sync(base, nmapper, rdf_stores, syncfolders):
     for rdf_store, syncpath in zip(rdf_stores, syncfolders):
         rdf_store_type: str = type(rdf_store).__name__
         assert nmapper == rdf_store._nmapper
-        # note since we manipulate these along the way, we need them freshly made per rdf_store
+        # note since we manipulate these along the way,
+        # we need them freshly made per rdf_store
         graphs = [
             make_sample_graph(range(i * 10, i * 10 + graphsize))
             for i in range(1, 1 + num)
@@ -92,7 +93,7 @@ def test_perform_sync(base, nmapper, rdf_stores, syncfolders):
         log.debug(f"{rdf_store_type} :: sync folder after file delete")
         perform_sync(syncpath, rdf_store)
         log.debug(
-            f"{rdf_store_type} :: after sync after delete {rdf_store.keys =}"
+            f"{rdf_store_type} :: after sync after delete {rdf_store.keys=}"
         )
         # there should be one less in store
         fnames_in_store = rdf_store.keys
@@ -120,7 +121,7 @@ def test_perform_sync(base, nmapper, rdf_stores, syncfolders):
         log.debug(f"{rdf_store_type} :: sync folder after file update")
         perform_sync(syncpath, rdf_store)
         log.debug(
-            f"{rdf_store_type} :: after sync after update {rdf_store.keys =}"
+            f"{rdf_store_type} :: after sync after update {rdf_store.keys=}"
         )
         # still same amount of files in store
         fnames_in_store = rdf_store.keys

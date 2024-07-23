@@ -1,10 +1,10 @@
 import logging
 import logging.config
 import os
+import shutil
 import sys
 from pathlib import Path
-import shutil
-from typing import Iterable, Optional, Callable
+from typing import Callable, Iterable, Optional
 from uuid import uuid4
 
 import pytest
@@ -13,11 +13,10 @@ from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
 from sema.commons.store import (
-    RDFStore,
-    create_rdf_store,
     GraphNameMapper,
-    URIRDFStore,
     MemoryRDFStore,
+    RDFStore,
+    URIRDFStore,
 )
 
 TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
@@ -131,7 +130,7 @@ def syncfolders(store_builds) -> Iterable[Path]:
     syncpathperstore = list()
     for n, store_build in enumerate(store_builds):
         rdf_store_type: str = store_build.store_type.__name__
-        syncpathname: str = f"sync-{n+1:02d}-{rdf_store_type}"
+        syncpathname: str = f"sync-{n + 1:02d}-{rdf_store_type}"
         syncpath: Path = mainpath / syncpathname
         shutil.rmtree(str(syncpath), ignore_errors=True)  # force remove it
         syncpath.mkdir(parents=True, exist_ok=True)  # create it afresh

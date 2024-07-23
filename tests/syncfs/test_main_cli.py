@@ -2,9 +2,10 @@
 """ test_main_cli
 tests concerning the cli call functioning
 """
+import logging
 import shutil
 from uuid import uuid4
-import logging
+
 import pytest
 from conftest import TEST_INPUT_FOLDER, run_single_test
 

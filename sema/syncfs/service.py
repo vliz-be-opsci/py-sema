@@ -3,13 +3,14 @@ from logging import getLogger
 from pathlib import Path
 from typing import Dict
 
+from rdflib import Graph
+
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
     RDFStore,
     URIRDFStore,
 )
-from rdflib import Graph
 
 log = getLogger(__name__)
 
@@ -134,7 +135,8 @@ def sync_update(store: RDFStore, fpath: Path, rootpath: Path) -> None:
 
 
 def perform_sync(from_path: Path, to_store: RDFStore) -> None:
-    """synchronizes found rdf-dump files in the from_path to the RDFStore specified
+    """synchronizes found rdf-dump files
+    in the from_path to the RDFStore specified
 
     :param from_path: folder path to sync from
     :type from_path: Path
@@ -178,16 +180,19 @@ class SyncFsTriples:
     ):
         """Creates the process-wrapper instance
 
-        :param root: path to te folder to check for nested rdf dump files to be synced up.
+        :param root: path to te folder to check for
+        nested rdf dump files to be synced up.
         :type root: str
-        :param named_graph_base: the base to be used for building named_graphs in the conversion
+        :param named_graph_base: the base to be used
+        for building named_graphs in the conversion
             optional - defaults to DEFAULT_URN_BASE = "urn:sync:"
         :type named_graph_base: str
         :param read_uri: uri to the triple-store to sync to
             optional - defaults to None - leading to using an in-MemoryStore
         :type read_uri: str
         :param write_uri: uri for write operations to the triple store
-            optional - defaults to None - leading to a store that can only be read from
+            optional - defaults to None - leading
+            to a store that can only be read from
         :type write_uri: str
         """
         self.source_path: Path = Path(root)

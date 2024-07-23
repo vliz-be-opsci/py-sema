@@ -2,11 +2,11 @@
 """ test_sync_fs_triples
 tests concerning the service wrapper for sembench "SyncFsTriples"
 """
+import logging
 import shutil
 
 import pytest
 from conftest import TEST_INPUT_FOLDER, run_single_test
-import logging
 
 from sema.syncfs.service import SyncFsTriples
 
