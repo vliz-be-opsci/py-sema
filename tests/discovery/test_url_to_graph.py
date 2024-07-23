@@ -16,7 +16,10 @@ def test_ctype_to_rdf_format():
     assert ctype_to_rdf_format("text/turtle") == "turtle"
     assert ctype_to_rdf_format("application/json") is None
     assert ctype_to_rdf_format("application/octet-stream") is None
-    assert ctype_to_rdf_format("text/html") is None
+    assert ctype_to_rdf_format("text/html") is "html"
+    assert ctype_to_rdf_format("application/rdf+xml") is "xml"
+    assert ctype_to_rdf_format("text/n3") is "n3"
+    assert ctype_to_rdf_format("application/n-triples") is "nt"
 
 
 # ttl file
@@ -43,7 +46,8 @@ test_cases = [
         "uri": "https://data.arms-mbon.org/data_release_001/latest/#",
         "length": 532,
         "format": "application/json",
-    },  # add more test cases as needed
+    },
+    # add more test cases as needed
 ]
 
 
