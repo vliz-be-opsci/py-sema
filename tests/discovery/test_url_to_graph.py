@@ -16,10 +16,10 @@ def test_ctype_to_rdf_format():
     assert ctype_to_rdf_format("text/turtle") == "turtle"
     assert ctype_to_rdf_format("application/json") is None
     assert ctype_to_rdf_format("application/octet-stream") is None
-    assert ctype_to_rdf_format("text/html") is "html"
-    assert ctype_to_rdf_format("application/rdf+xml") is "xml"
-    assert ctype_to_rdf_format("text/n3") is "n3"
-    assert ctype_to_rdf_format("application/n-triples") is "nt"
+    assert ctype_to_rdf_format("text/html") == "html"
+    assert ctype_to_rdf_format("application/rdf+xml") == "xml"
+    assert ctype_to_rdf_format("text/n3") == "n3"
+    assert ctype_to_rdf_format("application/n-triples") == "nt"
 
 
 # ttl file
