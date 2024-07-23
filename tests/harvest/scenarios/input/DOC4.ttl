@@ -1,0 +1,9 @@
+@prefix ex: <http://www.example.org/>.
+
+
+<DOC4.ttl>
+    a ex:Purle ; 
+    ex:p1 "some info" ; 
+    ex:p2 "more info" ; 
+    ex:p3 "again info, didn't see that coming" ; 
+.

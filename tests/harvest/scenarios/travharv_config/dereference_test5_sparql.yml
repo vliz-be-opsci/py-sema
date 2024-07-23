@@ -1,0 +1,26 @@
+snooze-till-graph-age-minutes: 0
+prefix:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ex: http://www.example.org/
+assert:
+  - subjects:
+      literal:
+        - http://localhost:8080/DOC1.ttl
+    paths:
+      - "ex:resource / ex:subset"
+      - "ex:part"
+    # DOC 1 will be present in the graph
+  # either DOC2,3,8,5,7 will be present in the graph
+  # ex:part will always fail from DOC1
+  - subjects:
+      SPARQL: >
+        SELECT DISTINCT ?o
+        WHERE {
+            ?s ex:id ?o .
+        }
+    paths:
+      - "ex:p4"
+  # Will always FAIL
+  # DOC2 => DOC4 in graph
+  # DOC5 => DOC6 in graph
+  # Otherwise no other docs in graph

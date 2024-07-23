@@ -66,7 +66,9 @@ def get_graph_for_format(subject_url: str, formats: str, graph: Graph = None):
         headers = {"Accept": format}
         log.debug(f"requesting {subject_url} with {headers=}")
         r = session.get(subject_url, headers=headers)
-        mime_type, options = cgi.parse_header(r.headers.get("Content-Type", None))
+        mime_type, options = cgi.parse_header(
+            r.headers.get("Content-Type", None)
+        )
         log.debug(f"got {r.status_code=} {mime_type=}")
 
         if r.status_code == 200 and bool(mime_type in ACCEPTABLE_MIMETYPES):
