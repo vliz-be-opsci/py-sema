@@ -1,6 +1,7 @@
 """ test_fname_ng_conversion
 tests our expectations on translating filenames to named_graphs and back
 """
+
 import logging
 from pathlib import Path
 from typing import Iterable

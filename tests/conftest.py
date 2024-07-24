@@ -24,7 +24,6 @@ from sema.commons.store import (
 )
 from sema.harvest.store import RDFStoreAccess
 
-
 TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
 TEST_FOLDER = Path(__file__).parent
 TEST_SYNC_FOLDER = Path(__file__).parent / "__sync__"
@@ -362,4 +361,3 @@ def test_conf_fixturtes(httpd_server_base: str, all_extensions_testset):
         # ttl = g.serialize(format="turtle").strip()
         # log.debug(f"{ttl=}")
         log.debug(f"{len(g)=}")
-

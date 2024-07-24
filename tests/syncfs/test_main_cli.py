@@ -1,6 +1,7 @@
 """ test_main_cli
 tests concerning the cli call functioning
 """
+
 import logging
 import shutil
 from uuid import uuid4

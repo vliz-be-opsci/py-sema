@@ -4,8 +4,8 @@ from typing import Callable, Generator, Iterable, List, Tuple, Union
 
 import pandas as pd
 from rdflib import Graph
-from rdflib.query import Result
 from rdflib.plugins.sparql.processor import SPARQLResult
+from rdflib.query import Result
 
 from sema.commons.store import RDFStore, URIRDFStore
 
@@ -126,6 +126,7 @@ class DFBasedQueryResult(QueryResult):
     Class that encompasses the result from a performed query.
         When the result is iformatted as a pandas dataframe
     """
+
     def __init__(self, df: pd.DataFrame, query: str = ""):
         """
         :param df: the result of the query as a pandas dataframe
@@ -174,7 +175,10 @@ class SPARQLQueryResult(DFBasedQueryResult):
         and https://github.com/RDFLib/sparqlwrapper/issues/205.
         """
         return pd.DataFrame(
-            data=([None if x is None else x.toPython() for x in row] for row in result),
+            data=(
+                [None if x is None else x.toPython() for x in row]
+                for row in result
+            ),
             columns=[str(x) for x in result.vars],
         )
 

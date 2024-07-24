@@ -123,9 +123,7 @@ def test_full_search():
     result = test_source.query(qry)
     log.debug(f"result = {result}")
     assert result is not None
-    assert set(result.columns) == set(
-        ["uri", "identifier", "prefLabel"]
-    )
+    assert set(result.columns) == set(["uri", "identifier", "prefLabel"])
     assert len(result) == 2
 
 
