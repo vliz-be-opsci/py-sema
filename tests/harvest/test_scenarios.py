@@ -1,9 +1,7 @@
-#!/usr/bin/env python
 import logging
 from pathlib import Path
 
 import pytest
-from conftest import run_single_test
 
 from sema.commons.j2 import J2RDFSyntaxBuilder
 from sema.harvest import service
@@ -449,7 +447,3 @@ def test_scenario_five(
         travharv.target_store.drop_graph_for_config(
             "dereference_test5_sparql.yml"
         )
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

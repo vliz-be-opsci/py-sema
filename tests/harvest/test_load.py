@@ -1,9 +1,7 @@
-#!/usr/bin/env python
 import logging
 from pathlib import Path
 
 import pytest
-from conftest import run_single_test
 from rdflib import Graph
 
 from sema.harvest.__main__ import load_resource_into_graph
@@ -40,7 +38,3 @@ def test_insert_resource_into_graph_invalid_resource():
     resource = "invalid_resource"
     with pytest.raises(ValueError):
         load_resource_into_graph(Graph(), resource, format="text/turtle")
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

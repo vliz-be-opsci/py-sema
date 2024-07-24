@@ -1,9 +1,7 @@
-#!/usr/bin/env python
 import logging
 from pathlib import Path
 
 import pytest
-from conftest import run_single_test
 
 from sema.harvest.config_build import ConfigBuilder
 from sema.harvest.executor import Executor
@@ -31,7 +29,3 @@ def test_executor(decorated_rdf_stores):
             t_object.tasks,
             rdf_store,
         ).assert_all_paths()
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

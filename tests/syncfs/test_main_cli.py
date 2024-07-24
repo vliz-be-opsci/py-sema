@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """ test_main_cli
 tests concerning the cli call functioning
 """
@@ -7,7 +6,7 @@ import shutil
 from uuid import uuid4
 
 import pytest
-from conftest import TEST_INPUT_FOLDER, run_single_test
+from conftest import TEST_INPUT_FOLDER
 
 from sema.syncfs.__main__ import main
 
@@ -40,7 +39,3 @@ def test_main_logconf():
         argsline: str = "--root /tmp --logconf unexisting.yml"
         args_list: list = argsline.split(" ")
         main(*args_list)  # pass as individual arguments
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 """ test_fname_ng_conversion
 tests our expectations on translating filenames to named_graphs and back
 """
@@ -7,7 +6,7 @@ from pathlib import Path
 from typing import Iterable
 
 import pytest
-from conftest import TEST_FOLDER, run_single_test
+from conftest import TEST_FOLDER
 
 from sema.commons.store import RDFStore
 from sema.syncfs.service import GraphNameMapper, sync_addition
@@ -78,7 +77,3 @@ def test_get_keys_in_store(rdf_stores: Iterable[RDFStore]):
         log.debug(f"{rdf_store_type} :: {keys_in_store=}")
 
         # Add more test cases as needed
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)
