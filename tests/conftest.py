@@ -3,7 +3,6 @@ import logging.config
 import os
 import re
 import shutil
-import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from threading import Thread
@@ -11,21 +10,16 @@ from typing import Callable, Dict, Iterable, Optional
 from uuid import uuid4
 
 import pytest
+import requests
 from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
 from sema.commons.log import load_log_config
-import requests
-import yaml
-from dotenv import load_dotenv
-from rdflib import BNode, Graph, Namespace, URIRef
-
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
     RDFStore,
     URIRDFStore,
-    create_rdf_store
 )
 from sema.harvest.store import RDFStoreAccess
 
@@ -366,3 +360,14 @@ def test_conf_fixturtes(httpd_server_base: str, all_extensions_testset):
         # ttl = g.serialize(format="turtle").strip()
         # log.debug(f"{ttl=}")
         log.debug(f"{len(g)=}")
+
+
+def run_single_test(testfile):
+    enable_test_logging()
+    log.info(
+        f"Running tests in {testfile} "
+        + "with -v(erbose) and -s(no stdout capturing) "
+        + "and logging to stdout, "
+        + "level controlled by env var ${PYTEST_LOGCONF}"
+    )
+    sys.exit(pytest.main(["-v", "-s", testfile]))
