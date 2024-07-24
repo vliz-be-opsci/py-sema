@@ -2,14 +2,13 @@ import logging
 import logging.config
 import os
 import re
-
 import shutil
 import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from uuid import uuid4
 from threading import Thread
-from typing import Dict, Iterable, Optional, Callable
+from typing import Callable, Dict, Iterable, Optional
+from uuid import uuid4
 
 import pytest
 import requests
@@ -17,13 +16,11 @@ import yaml
 from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
-
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
     RDFStore,
     URIRDFStore,
-    create_rdf_store
 )
 from sema.harvest.store import RDFStoreAccess
 
