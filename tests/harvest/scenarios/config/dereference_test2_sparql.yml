@@ -1,0 +1,39 @@
+snooze-till-graph-age-minutes: 0
+prefix:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ex: http://www.example.org/
+assert:
+  - subjects:
+      literal:
+        - http://localhost:8080/DOC1.ttl
+    paths:
+      - "ex:resource / ex:subset"
+      - "ex:resource / ex:part"
+    # to assert n1:
+    # None of the resource children of DOC1 have and ex:subset & ex:part.
+    # After this step the randomly chosen resource will have let to
+    # either one of both assertions failing
+    # This means that an execution log failure on sh:focusnode DOC1.
+    # to assert n2:
+    # reassure all triples from DOC1 are loaded,
+    # this means all triples in graphs > len(triples(DOC1))
+    # assure ex:resource DOC2, DOC3, DOC8 ,DOC5, DOC7 == true
+  - subjects:
+      literal:
+        - http://localhost:8080/DOC2.ttl
+        - http://localhost:8080/DOC3.ttl
+        - http://localhost:8080/DOC5.ttl
+    paths:
+      - "ex:subset"
+      - "ex:part"
+  - subjects:
+      SPARQL: >
+        SELECT DISTINCT ?o
+        WHERE {
+            ?s ex:id ?o .
+        }
+    paths:
+      - "ex:p1"
+      - "ex:p2"
+      - "ex:p3"
+    # assure that DOC4 and DOC6 are present in the graph
