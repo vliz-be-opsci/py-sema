@@ -1,5 +1,13 @@
 import pandas as pd
 import pytest
+from conftest import log
+from const import (
+    ALL_TRIPLES_SPARQL,
+    BODC_ENDPOINT,
+    TTL_FILE_IN_URI,
+    TTL_FILES_TO_TEST,
+    graph,
+)
 
 from sema.query import (
     DEFAULT_TEMPLATES_FOLDER,
@@ -14,15 +22,11 @@ from sema.query.exceptions import (
     NotASubClass,
     WrongInputFormat,
 )
-from sema.query.query import SPARQLGraphSource, FileGraphSource, MemoryGraphSource
-from const import (
-    ALL_TRIPLES_SPARQL,
-    BODC_ENDPOINT,
-    TTL_FILE_IN_URI,
-    TTL_FILES_TO_TEST,
-    graph,
+from sema.query.query import (
+    FileGraphSource,
+    MemoryGraphSource,
+    SPARQLGraphSource,
 )
-from conftest import log
 
 
 @pytest.mark.parametrize(
@@ -128,8 +132,8 @@ def test_full_search():
 
 def test_xml_response_cabt():
     endpoint: str = "https://id.cabi.org/PoolParty/sparql/cabt"
-    query: str = "SELECT * WHERE { ?s ?p ?i. } LIMIT 3"
+    query: str = "SELECT * WHERE { ?s ?p ?i. } LIMIT 30"
     source = SPARQLGraphSource(endpoint)
     result = source.query(query)
     df = result.to_dataframe()
-    assert len(df) == 3
+    assert len(df) == 30
