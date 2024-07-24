@@ -1,7 +1,7 @@
 """ query
 
 .. module:: query
-    :synopsis: Extracting table data from knowwledge-graphs 
+    :synopsis: Extracting table data from knowwledge-graphs
         using sparql templates
 
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
@@ -11,7 +11,8 @@ import logging
 from pathlib import Path
 
 from sema.commons.j2 import J2RDFSyntaxBuilder as DefaultSparqlBuilder
-from .query import QueryResult, GraphSource
+
+from .query import GraphSource, QueryResult
 
 log = logging.getLogger(__name__)
 DEFAULT_TEMPLATES_FOLDER = (

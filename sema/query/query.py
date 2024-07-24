@@ -1,10 +1,11 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Union, Iterable, Tuple, Generator
+from typing import Callable, Generator, Iterable, List, Tuple, Union
 
 import pandas as pd
 from rdflib import Graph
 from rdflib.query import Result
+
 from sema.commons.store import RDFStore, URIRDFStore
 
 from .exceptions import (
@@ -115,6 +116,7 @@ class QueryResultFromListDict(QueryResult):
     :param str query: query
 
     """
+
     def __init__(self, data: list, query: str = ""):
         self._data = data
         self.query = query
@@ -371,4 +373,3 @@ def generator_of_source_types(*source: Union[str, Iterable]) -> Generator:
             yield detect_single_source_type(src)
         else:
             yield None
-

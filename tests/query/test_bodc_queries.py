@@ -23,7 +23,7 @@ def test_bodc_listing_knowndump_P06():
     ttl_dump = P06_DUMP_FILE
     assert (
         ttl_dump.exists()
-    ), f"need input file { str(ttl_dump) } for test to work"
+    ), f"need input file {str(ttl_dump)} for test to work"
     in_memory: GraphSource = GraphSource.build(str(ttl_dump))
     qry: str = j2sqb.build_syntax(name="bodc-listing.sparql", cc="P06")
 
@@ -36,7 +36,7 @@ def test_bodc_listing_fakedump():
     ttl_dump = FAKE_DUMP_FILE
     assert (
         ttl_dump.exists()
-    ), f"need input file { str(ttl_dump) } for test to work"
+    ), f"need input file {str(ttl_dump)} for test to work"
     in_memory: GraphSource = GraphSource.build(str(ttl_dump))
     qry: str = j2sqb.build_syntax(name="bodc-listing.sparql", cc="fake")
 

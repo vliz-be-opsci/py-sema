@@ -1,5 +1,13 @@
 import pandas as pd
 import pytest
+from conftest import log
+from const import (
+    ALL_TRIPLES_SPARQL,
+    BODC_ENDPOINT,
+    TTL_FILE_IN_URI,
+    TTL_FILES_TO_TEST,
+    graph,
+)
 
 from sema.query import (
     DEFAULT_TEMPLATES_FOLDER,
@@ -14,15 +22,11 @@ from sema.query.exceptions import (
     NotASubClass,
     WrongInputFormat,
 )
-from sema.query.query import SPARQLGraphSource, FileGraphSource, MemoryGraphSource
-from const import (
-    ALL_TRIPLES_SPARQL,
-    BODC_ENDPOINT,
-    TTL_FILE_IN_URI,
-    TTL_FILES_TO_TEST,
-    graph,
+from sema.query.query import (
+    FileGraphSource,
+    MemoryGraphSource,
+    SPARQLGraphSource,
 )
-from conftest import log
 
 
 @pytest.mark.parametrize(

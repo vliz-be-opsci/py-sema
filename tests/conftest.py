@@ -8,9 +8,8 @@ import pytest
 from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
-from sema.commons.store import RDFStore, create_rdf_store
 from sema.commons.log import load_log_config
-
+from sema.commons.store import RDFStore, create_rdf_store
 
 TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
 DCT: Namespace = Namespace("http://purl.org/dc/terms/#")

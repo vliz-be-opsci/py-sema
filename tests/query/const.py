@@ -12,7 +12,7 @@ BODC_ENDPOINT = "http://vocab.nerc.ac.uk/sparql/sparql"
 
 ABS_PARENT_PATH = Path(__file__).parent.absolute()
 SOURCES_PATH = ABS_PARENT_PATH / "sources"
-TTL_FILES_TO_TEST = glob.glob(f"{ str(SOURCES_PATH) }/*.ttl")
+TTL_FILES_TO_TEST = glob.glob(f"{str(SOURCES_PATH)}/*.ttl")
 
 for file in TTL_FILES_TO_TEST:
     graph.parse(file)

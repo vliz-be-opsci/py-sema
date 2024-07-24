@@ -7,7 +7,11 @@ from pathlib import Path
 
 import validators
 
-from sema.query import DEFAULT_TEMPLATES_FOLDER, GraphSource, DefaultSparqlBuilder
+from sema.query import (
+    DEFAULT_TEMPLATES_FOLDER,
+    DefaultSparqlBuilder,
+    GraphSource,
+)
 from sema.query.exceptions import MultipleSourceTypes
 
 log = logging.getLogger(__name__)
@@ -148,14 +152,12 @@ def check_arguments(args: argparse.Namespace):
             if src.startswith("http"):
                 if not validators.url(src):
                     raise argparse.ArgumentTypeError(
-                        f"given endpoint is not a valid url => { src }"
+                        f"given endpoint is not a valid url => {src}"
                     )
             else:
                 log.debug(str(cwd / src))
                 if not (cwd / src).exists():
-                    raise argparse.ArgumentTypeError(
-                        f"file { src } does exist"
-                    )
+                    raise argparse.ArgumentTypeError(f"file {src} does exist")
 
     # check if output path exists
     if args.output_location is not None:
