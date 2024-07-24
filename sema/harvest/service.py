@@ -6,8 +6,8 @@ from typing import List, Optional
 from sema.commons.store import RDFStore, create_rdf_store
 from sema.harvest.store import RDFStoreAccess
 
-from .config_build import TravHarvConfig, TravHarvConfigBuilder
-from .executor import TravHarvExecutor
+from .config_build import Config, ConfigBuilder
+from .executor import Executor
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class service:
         :type target_store_info: List[str]
         """
 
-        log.debug(f"config for travharv service set to {config=}")
+        log.debug(f"config for harvest service set to {config=}")
         self.config = config
 
         log.debug(f"creating core store with {target_store_info=}")
@@ -44,46 +44,40 @@ class service:
         log.debug(f"created core store with {self.target_store=}")
 
         if Path(self.config).is_dir():
-            self.travharv_config_builder = TravHarvConfigBuilder(
-                self.target_store, self.config
-            )
+            self.config_builder = ConfigBuilder(self.target_store, self.config)
         else:
             # take the parent of the config file as the config folder
             self.config_folder = self.config.parent
-            self.travharv_config_builder = TravHarvConfigBuilder(
+            self.config_builder = ConfigBuilder(
                 self.target_store, self.config_folder
             )
-        self.travharvexecutor = None
+        self.executor = None
         self.error_occurred = False
 
     def process(self):
         try:
             log.debug("running dereference tasks")
-            trav_harv_config: Optional[TravHarvConfig] = None
+            trav_harv_config: Optional[Config] = None
             # if self.config is a path to a folder then
             # we will run all configurations in the folder
             if Path(self.config).is_dir():
                 log.debug("running all configurations")
-                self.travHarvConfigList = (
-                    self.travharv_config_builder.build_from_folder()
-                )
-                log.debug(
-                    f"""self.travHarvConfigList: {self.travHarvConfigList}"""
-                )
-                for trav_harv_config in self.travHarvConfigList:
+                self.ConfigList = self.config_builder.build_from_folder()
+                log.debug(f"""self.ConfigList: {self.ConfigList}""")
+                for trav_harv_config in self.ConfigList:
                     if trav_harv_config is None:
                         continue
 
-                    self.travharvexecutor = TravHarvExecutor(
+                    self.executor = Executor(
                         trav_harv_config.configname,
                         trav_harv_config.NSM,
                         trav_harv_config.tasks,
                         self.target_store,
                     )
-                    self.travharvexecutor.assert_all_paths()
+                    self.executor.assert_all_paths()
             else:
-                trav_harv_config = (
-                    self.travharv_config_builder.build_from_config(self.config)
+                trav_harv_config = self.config_builder.build_from_config(
+                    self.config
                 )
 
                 if trav_harv_config is None:
@@ -91,13 +85,13 @@ class service:
                         f"No configuration found with name: {self.config}"
                     )
                     return
-                self.travharvexecutor = TravHarvExecutor(
+                self.executor = Executor(
                     trav_harv_config.configname,
                     trav_harv_config.NSM,
                     trav_harv_config.tasks,
                     self.target_store,
                 )
-                self.travharvexecutor.assert_all_paths()
+                self.executor.assert_all_paths()
         except Exception as e:
             log.error(e)
             log.exception(e)

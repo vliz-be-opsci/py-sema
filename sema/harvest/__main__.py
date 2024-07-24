@@ -21,7 +21,7 @@ def get_arg_parser():
     Get the argument parser for the module
     """
     parser = argparse.ArgumentParser(
-        description="travharv",
+        description="harvesting service for traversing and asserting paths",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -162,7 +162,7 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     graph: Graph = Graph()
     for inputfile in args.init:
         load_resource_into_graph(graph, inputfile, format="text/turtle")
-    store.insert(graph, "urn:travharv:context")
+    store.insert(graph, "urn:harvest:context")
 
 
 def make_service(args) -> service:

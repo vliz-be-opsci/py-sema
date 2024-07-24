@@ -13,12 +13,12 @@ from .helper import resolve_sparql
 log = logging.getLogger(__name__)
 
 
-# The syntax-builder for travharv
+# The syntax-builder for harvest
 QUERY_BUILDER: J2RDFSyntaxBuilder = J2RDFSyntaxBuilder(
     templates_folder=str(Path(__file__).parent / "templates")
 )
 
-# The default URN BASE fopr travharv
+# The default URN BASE for harvest
 DEFAULT_URN_BASE = "urn:traversal-harvesting:"
 
 

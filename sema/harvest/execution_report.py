@@ -13,7 +13,7 @@ from .helper import timestamp
 
 log = logging.getLogger(__name__)
 
-# The syntax-builder for travharv
+# The syntax-builder for harvest
 QUERY_BUILDER: J2RDFSyntaxBuilder = J2RDFSyntaxBuilder(
     templates_folder=str(Path(__file__).parent / "templates")
 )

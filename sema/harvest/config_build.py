@@ -20,9 +20,9 @@ def relative_pathname(subpath: Path, ancestorpath: Path) -> str:
     return str(subpath.absolute().relative_to(ancestorpath.absolute()))
 
 
-class TravHarvTask:
+class Task:
     """
-    A task for the travharv
+    A task to harvest
     This task contains the following:
     - SubjectDefinition class: a class that defines the subjects
     - AssertPathSet class: a class that contains a list of AssertPath objects
@@ -196,55 +196,55 @@ class AssertPath:
         return re.split(REGEXP, assert_path)
 
 
-class TravHarvConfig:
+class Config:
     """
-    Configuration for the travharv
+    Configuration for the harvest
     This class contains the following:
         - NSM: NamespaceManager object from rdflib
         - tasks: a list of tasks
         - configname: a string
     """
 
-    def __init__(self, travharv_config):
+    def __init__(self, config):
         """
-        Initialise the travharv config.
+        Initialise the  config.
 
-        :param travharv_config: The configuration for the travharv config.
-        :type travharv_config: dict
-        :return: A TravHarvConfig object.
-        :rtype: TravHarvConfig
+        :param config: The configuration for the config.
+        :type config: dict
+        :return: A Config object.
+        :rtype: Config
         """
-        self.travharv_config = travharv_config
+        self.config = config
 
     def get_config(self):
-        return self.travharv_config
+        return self.config
 
     @property
     def NSM(self):
-        return self.travharv_config["NSM"]
+        return self.config["NSM"]
 
     @property
     def tasks(self):
-        return self.travharv_config["tasks"]
+        return self.config["tasks"]
 
     @property
     def configname(self):
-        return self.travharv_config["configname"]
+        return self.config["configname"]
 
 
-class TravHarvConfigBuilder:
+class ConfigBuilder:
     def __init__(
         self, rdf_store_access: RDFStoreAccess, config_folder: str = ""
     ):
         """
-        Initialize the TravHarvConfigBuilder.
+        Initialize the ConfigBuilder.
 
         :param rdf_store_access: The RDF store access.
         :type rdf_store_access: RDFStoreAccess
         :param config_folder: The folder containing the config files.
         :type config_folder: str
-        :return: A TravHarvConfigBuilder object.
-        :rtype: TravHarvConfigBuilder
+        :return: A ConfigBuilder object.
+        :rtype: ConfigBuilder
         """
         if config_folder is None:
             config_folder = Path("config")
@@ -254,16 +254,16 @@ class TravHarvConfigBuilder:
             )
         self.config_files_folder = Path(config_folder)
         self._rdf_store_access = rdf_store_access
-        log.debug("TravHarvConfigBuilder initialized")
+        log.debug("ConfigBuilder initialized")
 
     def build_from_config(self, config_name=str):
         """
-        Build a TravHarvConfig from a given config file.
+        Build a Config from a given config file.
 
         :param config_name: The name of the config file.
         :type config_name: str
-        :return: A TravHarvConfig object.
-        :rtype: TravHarvConfig
+        :return: A Config object.
+        :rtype: Config
         """
         config_file = str(Path.cwd() / self.config_files_folder / config_name)
         dict_object = self._load_yml_to_dict(config_file)
@@ -274,16 +274,14 @@ class TravHarvConfigBuilder:
 
         log.debug(f"{config_file=}")
 
-        return self._makeTravHarvConfigPartFromDict(
-            dict_object, relative_name_config
-        )
+        return self._makeConfigPartFromDict(dict_object, relative_name_config)
 
     def build_from_folder(self):
         """
-        Build a list of TravHarvConfig objects from a given folder.
+        Build a list of Config objects from a given folder.
 
-        :return: A list of TravHarvConfig objects.
-        :rtype: list[TravHarvConfig]
+        :return: A list of Config objects.
+        :rtype: list[Config]
         """
         config_files = self._files_folder()
         configs = []
@@ -294,7 +292,7 @@ class TravHarvConfigBuilder:
             log.debug(f"{path_config_file=}")
             dict_object = self._load_yml_to_dict(path_config_file)
             configs.append(
-                self._makeTravHarvConfigPartFromDict(dict_object, config_file)
+                self._makeConfigPartFromDict(dict_object, config_file)
             )
         return configs
 
@@ -338,13 +336,13 @@ class TravHarvConfigBuilder:
             except yaml.YAMLError as exc:
                 log.exception(exc)
 
-    def _makeTravHarvConfigPartFromDict(
+    def _makeConfigPartFromDict(
         self,
         dict_object,
         name_config: str = "default",
         # TODO reconsider this "default" for name_config - not self-explaining
     ):
-        log.debug(f"Making TravHarvConfig from dict for {name_config}")
+        log.debug(f"Making Config from dict for {name_config}")
         # make it so that the assertions are always checked for lowercase
         # TODO - apply this as a general rule on the level of the yml load
         #  thus ensuring that it applies across the board
@@ -380,11 +378,11 @@ class TravHarvConfigBuilder:
 
         self.NSM = makeNSM(dict_object["prefix"])
 
-        travharvconfig = {
+        config = {
             "configname": name_config,
             "NSM": self.NSM,
             "tasks": [
-                TravHarvTask(
+                Task(
                     {
                         "subject_definition": (
                             LiteralSubjectDefinition(
@@ -406,7 +404,7 @@ class TravHarvConfigBuilder:
             ],
         }
 
-        return TravHarvConfig(travharvconfig)
+        return Config(config)
 
     def _check_snooze(self, snooze_time, name_config):
         try:

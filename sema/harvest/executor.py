@@ -2,16 +2,16 @@ import logging
 
 from sema.harvest.store import RDFStoreAccess
 
-from .config_build import TravHarvConfig
+from .config_build import Config
 from .execution_report import ExecutionReport, TaskExecutionReport
 from .path_assertion import SubjPropPathAssertion
 
 log = logging.getLogger(__name__)
 
 
-class TravHarvExecutor:
+class Executor:
     """
-    A class to represent a TravHarvExecutor.
+    A class to represent a Executor.
     This class will assert all paths
     for all subjects given for each task per config.
     """
@@ -19,7 +19,7 @@ class TravHarvExecutor:
     def __init__(
         self,
         config_filename: str,
-        NSM: TravHarvConfig.NSM,
+        NSM: Config.NSM,
         tasks: list,
         rdf_store_access: RDFStoreAccess,
     ):
@@ -35,7 +35,7 @@ class TravHarvExecutor:
         self.tasks = tasks
         self.rdf_store_access = rdf_store_access
         self.execution_report = ExecutionReport(config_filename)
-        log.debug("TravHarvExecutor initialized")
+        log.debug("Executor initialized")
         log.debug(f"Config filename: {self.config_filename}")
         log.debug(f"NSM set: {self.NSM}")
         log.debug(f"Tasks: {self.tasks}")

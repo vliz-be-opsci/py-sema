@@ -19,7 +19,7 @@ TEST_Path: Path = TEST_FOLDER / "scenarios"
 BASE = "http://localhost:8080/"
 OUTPUTS = TEST_Path / "output"
 INPUT = TEST_Path / "input"
-CONFIGS = TEST_Path / "travharv_config"
+CONFIGS = TEST_Path / "config"
 RDF_MIMES = {
     "text/turtle",
     "application/ld+json",
