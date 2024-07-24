@@ -57,9 +57,8 @@ def test_query(source_args, query, query_response_length):
         source_args = [source_args]
     source = GraphSource.build(*source_args)
     result = source.query(query)
-    assert result._data is not None
-    assert set(result._data[0].keys()) == set(["s", "o", "p"])
-    assert len(result._data) == query_response_length
+    assert result is not None
+    assert set(result.columns) == set(["s", "o", "p"])
     assert len(result) == query_response_length
 
 
@@ -123,11 +122,11 @@ def test_full_search():
     log.debug(f"query = {qry}")
     result = test_source.query(qry)
     log.debug(f"result = {result}")
-    assert result._data is not None
-    assert set(result._data[0].keys()) == set(
+    assert result is not None
+    assert set(result.columns) == set(
         ["uri", "identifier", "prefLabel"]
     )
-    assert len(result._data) == 2
+    assert len(result) == 2
 
 
 def test_xml_response_cabt():

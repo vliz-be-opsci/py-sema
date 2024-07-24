@@ -1,5 +1,4 @@
 import pytest
-from const import TTL_FILES_QUERY_RESULT
 
 from sema.query import GraphSource, QueryResult
 from sema.query.exceptions import (
@@ -7,18 +6,6 @@ from sema.query.exceptions import (
     NotASubClass,
     WrongInputFormat,
 )
-from sema.query.query import QueryResultFromListDict
-
-
-@pytest.mark.parametrize(
-    "query_response, QueryType",
-    [
-        (TTL_FILES_QUERY_RESULT, QueryResultFromListDict),
-    ],
-)
-def test_factory_choice(query_response, QueryType):
-    query_result = QueryResult.build(query_response)
-    assert type(query_result) is QueryType
 
 
 class DummyQueryResult(QueryResult):

@@ -5,6 +5,7 @@ from typing import Callable, Generator, Iterable, List, Tuple, Union
 import pandas as pd
 from rdflib import Graph
 from rdflib.query import Result
+from rdflib.plugins.sparql.processor import SPARQLResult
 
 from sema.commons.store import RDFStore, URIRDFStore
 
@@ -71,6 +72,26 @@ class QueryResult(ABC):
         """
         pass  # pragma: no cover
 
+    @abstractmethod
+    def __len__(self) -> int:
+        """
+        Returns the length of the query result.
+
+        :return: Length of the query result.
+        :rtype: int
+        """
+        pass  # pragma: no cover
+
+    @property
+    @abstractmethod
+    def columns() -> Iterable:
+        """
+        Returns the columns of the query result.
+        :return: Columns of the query result.
+        :rtype: Iterable
+        """
+        pass  # pragma: no cover
+
     registry = set()
 
     @staticmethod
@@ -100,88 +121,79 @@ class QueryResult(ABC):
         raise WrongInputFormat
 
 
-def query_result_to_list_dicts(result: Result) -> list:
-    """Helper function to convert a query result to a list of dictionaries
-    :param reslist: query result
-    """
-    return [{str(v): str(row[v]) for v in result.vars} for row in result]
-
-
-class QueryResultFromListDict(QueryResult):
+class DFBasedQueryResult(QueryResult):
     """
     Class that encompasses the result from a performed query.
-        When the result is return as a list of dictionaries.
-
-    :param list data: query result data in the form of a list of dictionaries
-    :param str query: query
-
+        When the result is iformatted as a pandas dataframe
     """
-
-    def __init__(self, data: list, query: str = ""):
-        self._data = data
+    def __init__(self, df: pd.DataFrame, query: str = ""):
+        """
+        :param df: the result of the query as a pandas dataframe
+        :type df: pd.DataFrame
+        :param query: the sparql query leading to this result
+        :type query: str
+        """
         self.query = query
-
-    def __str__(self):
-        df = self.to_dataframe()
-        _str = ""
-        if self.query:
-            _str = f"Query: \n{self.query} \n"
-        _str = _str + f"Table: \n{str(df)}"
-        return _str
-
-    def __len__(self):
-        return len(self._data)
+        self.df = df
 
     def as_csv(self, file_output_path: str, sep: str = ","):
-        data = self.to_dataframe()
-        data.to_csv(file_output_path, sep=sep, index=False)
+        self.df.to_csv(file_output_path, sep=sep, index=False)
 
     def to_list(self) -> List:
-        return self._data
+        return self.df.to_dict(orient="records")
 
     def to_dict(self) -> dict:
-        """
-        Builds a dictionary where each key is a column from the query.
-        In each key is a list with all the answer of the query.
-
-        :return: The dictionary mapping the query table
-        :rtype: dict
-        """
-        result_rows = self.to_list()
-        result_dict = {}
-        for row in result_rows:
-            columns = row.keys()
-            for key in columns:
-                # on first use
-                if key not in result_dict:
-                    # initialise as list
-                    result_dict[key] = list()
-                # append to list
-                result_dict[key] = result_dict[key] + [row[key]]
-        return result_dict
+        return self.df.to_dict(orient="list")
 
     def to_dataframe(self) -> pd.DataFrame:
-        result_df = pd.DataFrame()
-        for row in self.to_list():
-            result_df = pd.concat(
-                [result_df, pd.DataFrame(row, index=[0])], ignore_index=True
-            )
+        return self.df.copy()
 
-        return result_df
+    def __len__(self) -> int:
+        return len(self.df)
 
-    # In future the design to match UDAL will require to also expose metadata
+    @property
+    def columns(self) -> Iterable:
+        return self.df.columns
+
+    @staticmethod
+    def check_compatibility(df: pd.DataFrame, query: str) -> bool:
+        return isinstance(df, pd.DataFrame) and isinstance(query, str)
+
+
+class SPARQLQueryResult(DFBasedQueryResult):
+    """
+    Class that encompasses the result from a performed query.
+        When the result is return as a rdflib.query.Result
+    """
+
+    @staticmethod
+    def sparql_results_to_df(result: SPARQLResult) -> pd.DataFrame:
+        """
+        Export results from an rdflib SPARQL query into a `pandas.DataFrame`,
+        using Python types. See https://github.com/RDFLib/rdflib/issues/1179
+        and https://github.com/RDFLib/sparqlwrapper/issues/205.
+        """
+        return pd.DataFrame(
+            data=([None if x is None else x.toPython() for x in row] for row in result),
+            columns=[str(x) for x in result.vars],
+        )
+
+    def __init__(self, result: Result, query: str = ""):
+        """
+        :param df: the result of the query as a pandas dataframe
+        :type df: pd.DataFrame
+        :param query: the sparql query leading to this result
+        :type query: str
+        """
+        super().__init__(self.sparql_results_to_df(result), query)
+
     @staticmethod
     def check_compatibility(data, query) -> bool:
-        is_list_of_dicts = False
-        if isinstance(data, list):
-            is_list_of_dicts = True
-            for iter in data:
-                is_list_of_dicts = isinstance(iter, dict) and is_list_of_dicts
-
-        return is_list_of_dicts and isinstance(query, str)
+        return isinstance(data, Result) and isinstance(query, str)
 
 
-QueryResult.register(QueryResultFromListDict)
+QueryResult.register(DFBasedQueryResult)
+QueryResult.register(SPARQLQueryResult)
 
 
 class GraphSource(ABC):
@@ -279,9 +291,7 @@ class MemoryGraphSource(GraphSource):
     def query(self, sparql: str) -> QueryResult:
         log.debug(f"executing sparql {sparql}")
         result = self.graph.query(sparql)
-        return QueryResult.build(
-            query_result_to_list_dicts(result), query=sparql
-        )
+        return QueryResult.build(result, query=sparql)
 
     @staticmethod
     def check_compatibility(*graph):
@@ -314,19 +324,14 @@ class SPARQLGraphSource(GraphSource):
     :param url: url of the endpoint to make the GraphSource from.
     """
 
-    def __init__(self, *urls):
+    def __init__(self, url):
         super().__init__()
-        self.endpoints = [url for url in urls]
+        self.endpoint = url
 
     def query(self, sparql: str) -> QueryResult:
-        reslist = []
-        for url in self.endpoints:
-            store: RDFStore = URIRDFStore(url)
-            result: Result = store.select(sparql)
-            reslist = reslist + query_result_to_list_dicts(result)
-
-        query_result = QueryResult.build(reslist, query=sparql)
-        return query_result
+        store: RDFStore = URIRDFStore(self.endpoint)
+        result: Result = store.select(sparql)
+        return QueryResult.build(result, query=sparql)
 
     @staticmethod
     def check_compatibility(*sources):
