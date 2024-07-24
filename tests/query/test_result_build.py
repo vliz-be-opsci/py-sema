@@ -1,4 +1,5 @@
 import pytest
+from const import TTL_FILES_QUERY_RESULT
 
 from sema.query import GraphSource, QueryResult
 from sema.query.exceptions import (
@@ -7,7 +8,6 @@ from sema.query.exceptions import (
     WrongInputFormat,
 )
 from sema.query.query import QueryResultFromListDict
-from const import TTL_FILES_QUERY_RESULT
 
 
 @pytest.mark.parametrize(

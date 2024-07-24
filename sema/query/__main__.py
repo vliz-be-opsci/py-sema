@@ -7,7 +7,11 @@ from pathlib import Path
 
 import validators
 
-from sema.query import DEFAULT_TEMPLATES_FOLDER, GraphSource, DefaultSparqlBuilder
+from sema.query import (
+    DEFAULT_TEMPLATES_FOLDER,
+    DefaultSparqlBuilder,
+    GraphSource,
+)
 from sema.query.exceptions import MultipleSourceTypes
 
 log = logging.getLogger(__name__)
