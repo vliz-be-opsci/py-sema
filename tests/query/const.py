@@ -1,5 +1,4 @@
 import glob
-import json
 from pathlib import Path
 
 from rdflib import Graph
@@ -16,10 +15,6 @@ TTL_FILES_TO_TEST = glob.glob(f"{ str(SOURCES_PATH) }/*.ttl")
 
 for file in TTL_FILES_TO_TEST:
     graph.parse(file)
-
-QUERY_RESULT_PATH = str(SOURCES_PATH / "query_result.json")
-with open(QUERY_RESULT_PATH) as src:
-    TTL_FILES_QUERY_RESULT = json.load(src)
 
 TTL_FILE_IN_URI = (
     "https://raw.githubusercontent.com/"
