@@ -12,7 +12,7 @@ from .executor import TravHarvExecutor
 log = logging.getLogger(__name__)
 
 
-class TravHarv:
+class service:
     """Assert all paths for given subjects.
     Given a configuration file, assert all paths
     for all subjects in the configuration file.
@@ -41,6 +41,7 @@ class TravHarv:
         log.debug(f"creating core store with {target_store_info=}")
         core_store: RDFStore = create_rdf_store(*target_store_info)
         self.target_store = RDFStoreAccess(core_store)
+        log.debug(f"created core store with {self.target_store=}")
 
         if Path(self.config).is_dir():
             self.travharv_config_builder = TravHarvConfigBuilder(

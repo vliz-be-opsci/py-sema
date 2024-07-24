@@ -232,9 +232,7 @@ def example_graphs():
     return [make_sample_graph([i]) for i in range(10)]
 
 
-pytest.fixture(scope="session")
-
-
+@pytest.fixture()
 def decorated_rdf_stores(rdf_stores):
     return (RDFStoreAccess(rdf_store) for rdf_store in rdf_stores)
 

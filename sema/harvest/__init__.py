@@ -10,7 +10,7 @@ by dereferencing URIs and asserting paths.
 
 from .config_build import TravHarvConfig, TravHarvConfigBuilder
 from .executor import TravHarvExecutor
-from .service import TravHarv
+from .service import service
 from .store import RDFStoreAccess
 
 __all__ = [
@@ -18,5 +18,5 @@ __all__ = [
     "TravHarvConfigBuilder",
     "TravHarvConfig",
     "TravHarvExecutor",
-    "TravHarv",
+    "service",
 ]

@@ -6,10 +6,13 @@ from pathlib import Path
 
 import validators
 from rdflib import Graph
-from travharv import TravHarv
-from travharv.store import RDFStore, RDFStoreAccess
-from travharv.web_discovery import get_graph_for_format
 
+from sema.commons.log.loader import load_log_config
+from sema.discovery import get_graph_for_format
+from sema.harvest import service
+from sema.harvest.store import RDFStore, RDFStoreAccess
+
+load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -162,16 +165,14 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:travharv:context")
 
 
-def make_service(args) -> TravHarv:
+def make_service(args) -> service:
     store_info: list = args.store or []
+    log.debug(f"{args.store}")
     log.debug(f"make service for target store {store_info}")
     config = args.config[0]
     config = Path.cwd() / config
-    service: TravHarv = TravHarv(config, store_info)
-    log.debug(
-        f"target store core type {type(service.target_store._core).__name__}"
-    )
-    return service
+    new_service = service(config, store_info)
+    return new_service
 
 
 SUFFIX_TO_FORMAT = {
@@ -221,13 +222,13 @@ def main(*cli_args):
     # enable logging
     enable_logging(args)
     # build the core service
-    service: TravHarv = make_service(args)
+    new_service = make_service(args)
     # load the store initially
-    init_load(args, service.target_store)
+    init_load(args, new_service.target_store)
     # do what needs to be done
-    service.process()
+    new_service.process()
     # dump the output
-    final_dump(args, service.target_store)
+    final_dump(args, new_service.target_store)
 
 
 if __name__ == "__main__":

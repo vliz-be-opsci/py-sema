@@ -6,7 +6,7 @@ import pytest
 from conftest import run_single_test
 
 from sema.commons.j2 import J2RDFSyntaxBuilder
-from sema.harvest import TravHarv
+from sema.harvest import service
 from sema.harvest.store import RDFStoreAccess
 
 log = logging.getLogger(__name__)
@@ -121,7 +121,7 @@ def test_scenario_one(
 
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test1_sparql.yml"
-        travharv = TravHarv(
+        travharv = service(
             config,
             store,
         )
@@ -170,7 +170,7 @@ def test_scenario_two(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test2_sparql.yml"
-        travharv = TravHarv(
+        travharv = service(
             config,
             store,
         )
@@ -218,7 +218,7 @@ def test_scenario_three(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test3_sparql.yml"
-        travharv = TravHarv(
+        travharv = service(
             config,
             store,
         )
@@ -298,7 +298,7 @@ def test_scenario_four(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test4_sparql.yml"
-        travharv = TravHarv(
+        travharv = service(
             config,
             store,
         )
@@ -379,7 +379,7 @@ def test_scenario_five(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test5_sparql.yml"
-        travharv = TravHarv(
+        travharv = service(
             config,
             store,
         )
