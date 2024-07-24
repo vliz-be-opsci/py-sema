@@ -1,0 +1,9 @@
+@prefix ex: <http://www.example.org/>.
+
+
+<DOC5.ttl>
+    a ex:Blue ; 
+    ex:part [
+        ex:id <DOC6.ttl> ; 
+    ] ;  
+.

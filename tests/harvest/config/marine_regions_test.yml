@@ -1,0 +1,14 @@
+snooze-till-graph-age-minutes: 120 # why-what-concequence-unit # configs is subfolder named travharv
+prefix:
+  ex: https://example.org/whatever/
+  mr: http://marineregions.org/ns/ontology#
+assert:
+  - subjects:
+      SPARQL: >
+        SELECT ?s
+        WHERE {
+            ?s a mr:MRGeoObject .
+        }
+    paths:
+      - "mr:isPartOf / <https://schema.org/geo> / <https://schema.org/latitude>"
+      - "mr:isPartOf/ <https://schema.org/geo>/<https://schema.org/longitude>"

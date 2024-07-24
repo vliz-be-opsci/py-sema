@@ -3,3 +3,4 @@
 sema.log
 .coverage
 .env
+tests/__sync__/

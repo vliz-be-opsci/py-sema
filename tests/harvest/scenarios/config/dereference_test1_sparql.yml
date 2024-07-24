@@ -1,0 +1,25 @@
+snooze-till-graph-age-minutes: 0
+prefix:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ex: http://www.example.org/
+assert:
+  - subjects:
+      literal:
+        - http://localhost:8080/DOC1.ttl
+    paths:
+      - "ex:resource"
+  # DOC 1 should be present in the graph
+  # assert triples from DOC1
+  - subjects:
+      SPARQL: >
+        SELECT DISTINCT ?o
+        WHERE {
+            ?s ex:subset ?bn .
+            ?bn ex:id ?o .
+        }
+    paths:
+      - "ex:p1"
+      - "ex:p2"
+      - "ex:p3"
+  # This will end up in a failure to derefenence 
+  # This should be assertable in the execution report

@@ -12,6 +12,7 @@ from .store import (
     GraphNameMapper,
     MemoryRDFStore,
     RDFStore,
+    RDFStoreDecorator,
     URIRDFStore,
     timestamp,
 )
@@ -23,4 +24,5 @@ __all__ = [
     "timestamp",
     "create_rdf_store",
     "GraphNameMapper",
+    "RDFStoreDecorator",
 ]
