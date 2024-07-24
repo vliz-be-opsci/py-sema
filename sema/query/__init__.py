@@ -1,7 +1,7 @@
 """ query
 
 .. module:: query
-    :synopsis: Extracting table data from knowwledge-graphs 
+    :synopsis: Extracting table data from knowwledge-graphs
         using sparql templates
 
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>

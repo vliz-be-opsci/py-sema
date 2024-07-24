@@ -1,0 +1,8 @@
+@prefix ex: <http://www.example.org/>.
+
+
+<DOC6.ttl>
+    a ex:Purple ; 
+    ex:p1 "other information" ; 
+    ex:p4 "more other information" ; 
+.

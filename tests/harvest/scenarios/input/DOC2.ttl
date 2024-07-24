@@ -1,0 +1,10 @@
+@prefix ex: <http://www.example.org/>.
+
+
+<DOC2.ttl>
+    a ex:Green ; 
+    ex:subset [
+        ex:id <DOC4.ttl> ; 
+        ex:label "subset with identifier" ; 
+    ] ;
+.

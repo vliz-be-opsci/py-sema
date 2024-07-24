@@ -1,0 +1,15 @@
+#####graph of test 1##### 
+
+# settings:
+# retrieval of full documents
+# stopping when first assertion subject is checked
+
+# stops after assertion of first subject, 
+# because ex:subset predicate not in graph during assertion of second subject 
+
+# Excluded: DOC2, DOC3, DOC4, DOC5, DOC6, DOC7, DOC8
+
+# DOC1
+<DOC1.ttl>
+    ex:resource <DOC2.ttl> , <DOC3.ttl> , <DOC8.ttl> , <DOC5.ttl> , <DOC7.ttl> ;
+.
