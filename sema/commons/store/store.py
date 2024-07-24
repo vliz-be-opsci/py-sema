@@ -333,7 +333,9 @@ class URIRDFStore(RDFStore):
         if write_uri is None:
 
             def store_constr_ro():
-                return SPARQLStore(query_endpoint=read_uri)
+                return SPARQLStore(
+                    query_endpoint=read_uri, returnFormat="json"
+                )
 
             self._store_constr = store_constr_ro
         else:
