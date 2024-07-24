@@ -64,7 +64,7 @@ class GraphNameMapper:
 
     def get_keys_in_store(self, store) -> Iterable[str]:
         """selects those named graphs in the store.named_graphs under our base
-        and converts them into travharv config names
+        and converts them into config names
 
         :param store: the store to grab & filter the named_graphs from
         :type store: RDFStore

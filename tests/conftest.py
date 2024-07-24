@@ -1,22 +1,40 @@
 import logging
 import logging.config
 import os
+import re
+import shutil
 import sys
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from typing import Iterable, Optional
+from threading import Thread
+from typing import Dict, Iterable, Optional
 
 import pytest
+import requests
 import yaml
 from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
 from sema.commons.store import RDFStore, create_rdf_store
+from sema.harvest.store import RDFStoreAccess
 
 TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
 DCT: Namespace = Namespace("http://purl.org/dc/terms/#")
 DCT_ABSTRACT: URIRef = DCT.abstract
 SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
-
+TEST_FOLDER = Path(__file__).parent
+TEST_OUTPUT_FOLDER = TEST_FOLDER / "output"
+TEST_Path: Path = TEST_FOLDER / "harvest" / "scenarios"
+HTTPD_ROOT: Path = TEST_Path / "input"
+HTTPD_HOST: str = (
+    "localhost"  # can be '' - maybe also try '0.0.0.0' to bind all
+)
+HTTPD_PORT: int = 8080
+HTTPD_EXTENSION_MAP: Dict[str, str] = {
+    ".txt": "text/plain",
+    ".jsonld": "application/ld+json",
+    ".ttl": "text/turtle",
+}
 
 log = logging.getLogger("tests")
 
@@ -95,6 +113,15 @@ def assert_file_ingest(
     )
 
     return fg, ns, result
+
+
+@pytest.fixture()
+def outpath() -> Path:
+    # note we clean the folder at the start
+    # and keeping it at the end -- so the folder can be expected after test
+    shutil.rmtree(str(TEST_OUTPUT_FOLDER), ignore_errors=True)  # always clean
+    TEST_OUTPUT_FOLDER.mkdir(exist_ok=True, parents=True)  # and recreate
+    return TEST_OUTPUT_FOLDER
 
 
 @pytest.fixture(scope="session")
@@ -203,3 +230,102 @@ def make_sample_graph(
 @pytest.fixture()
 def example_graphs():
     return [make_sample_graph([i]) for i in range(10)]
+
+
+@pytest.fixture()
+def decorated_rdf_stores(rdf_stores):
+    return (RDFStoreAccess(rdf_store) for rdf_store in rdf_stores)
+
+
+class TestRequestHandler(SimpleHTTPRequestHandler):
+    def __init__(
+        self, request, client_address, server, *args, **kwargs
+    ) -> None:
+        super().__init__(
+            request,
+            client_address,
+            server,
+            directory=str(HTTPD_ROOT.absolute()),
+        )
+
+
+TestRequestHandler.extensions_map = HTTPD_EXTENSION_MAP
+
+
+@pytest.fixture(scope="session")
+def _mem_store_info():
+    return ()
+
+
+@pytest.fixture(scope="session")
+def _uri_store_info():
+    read_uri: str = os.getenv("TEST_SPARQL_READ_URI", None)
+    write_uri: str = os.getenv("TEST_SPARQL_WRITE_URI", read_uri)
+    if read_uri is None or write_uri is None:
+        return None
+    # else
+    return (read_uri, write_uri)
+
+
+@pytest.fixture(scope="session")
+def store_info_sets(_mem_store_info, _uri_store_info):
+    return tuple(
+        storeinfo
+        for storeinfo in (_mem_store_info, _uri_store_info)
+        if storeinfo is not None
+    )
+
+
+@pytest.fixture(scope="session")
+def httpd_server():
+    with HTTPServer((HTTPD_HOST, HTTPD_PORT), TestRequestHandler) as httpd:
+
+        def httpd_serve():
+            httpd.serve_forever()
+
+        t = Thread(target=httpd_serve)
+        t.daemon = True
+        t.start()
+
+        yield httpd
+        httpd.shutdown()
+
+
+@pytest.fixture(scope="session")
+def httpd_server_base(httpd_server: HTTPServer) -> str:
+    return f"http://{httpd_server.server_name}:{httpd_server.server_port}/"
+
+
+@pytest.fixture(scope="session")
+def all_extensions_testset():
+    return {
+        mime: f"{re.sub(r'[^0-9a-zA-Z]+', '-', mime)}.{ext}"
+        for ext, mime in HTTPD_EXTENSION_MAP.items()
+    }
+
+
+# test if all objects can be retrieved
+@pytest.mark.usefixtures("httpd_server_base", "all_extensions_testset")
+def test_conf_fixturtes(httpd_server_base: str, all_extensions_testset):
+    assert httpd_server_base
+
+    INPUT = TEST_Path / "input"
+
+    for input in Path(INPUT).glob("*"):
+        log.debug(f"{input=}")
+        # get name of file
+        name_file = input.name
+        url = f"{httpd_server_base}{name_file}"
+        log.debug(f"{url=}")
+        req = requests.get(url)
+        assert req.ok
+        ctype = req.headers.get("content-type")
+        clen = int(req.headers.get("content-length"))
+        assert clen > 0
+        log.debug(f"{clen=}")
+        log.debug(f"{ctype=}")
+
+        g = Graph().parse(url)
+        # ttl = g.serialize(format="turtle").strip()
+        # log.debug(f"{ttl=}")
+        log.debug(f"{len(g)=}")
