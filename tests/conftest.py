@@ -3,6 +3,7 @@ import logging.config
 import os
 import re
 import shutil
+import sys
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from threading import Thread
