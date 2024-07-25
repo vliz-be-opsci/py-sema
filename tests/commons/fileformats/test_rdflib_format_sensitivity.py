@@ -8,7 +8,7 @@ import pytest
 from conftest import TEST_INPUT_FOLDER, make_sample_graph
 from rdflib import Graph
 from pathlib import Path
-from sema.commons.fileformats import mime_from_filename, format_from_filename
+from sema.commons.fileformats import mime_from_filepath, format_from_filepath
 
 
 @pytest.mark.parametrize("test_path, format, mimetype", [
@@ -16,8 +16,8 @@ from sema.commons.fileformats import mime_from_filename, format_from_filename
     (TEST_INPUT_FOLDER / "issue-bnodes.jsonld", "json-ld", "application/ld+json"),
 ])
 def test_rdflib_parse_format_sensitivity(test_path: Path, format: str, mimetype: str):
-    assert format_from_filename(test_path) == format
-    assert mime_from_filename(test_path) == mimetype
+    assert format_from_filepath(test_path) == format
+    assert mime_from_filepath(test_path) == mimetype
 
     # parse by format
     gf: Graph = Graph().parse(str(test_path), format=format)
@@ -41,12 +41,12 @@ def test_rdfib_serialize_format_insenstivity(suffix, outpath):
 
     # write by format
     outbyfmt = outpath / f"test_ser_byfmt{suffix}"
-    format = format_from_filename(outbyfmt)
+    format = format_from_filepath(outbyfmt)
     g.serialize(str(outbyfmt), format=format)
 
     # write by mime
     outbymt = outpath / f"test_ser_bymt{suffix}"
-    mimetype = mime_from_filename(outbymt)
+    mimetype = mime_from_filepath(outbymt)
     g.serialize(str(outbymt), format=mimetype)
 
     # no difference!
