@@ -1,5 +1,5 @@
 import pytest
-from sema.commons.fileformats import mime_from_filename
+from sema.commons.fileformats import mime_from_filepath
 
 
 @pytest.mark.parametrize("suffix, mime", [
@@ -10,4 +10,4 @@ from sema.commons.fileformats import mime_from_filename
 )
 def test_factory_choice(suffix, mime):
     fname = f"whatever-file-name{suffix}"
-    assert mime_from_filename(fname) == mime
+    assert mime_from_filepath(fname) == mime
