@@ -5,8 +5,6 @@ import string
 import tempfile
 import unittest
 
-from conftest import run_single_test
-
 from sema.subyt.sinks import PatternedFileSink, SingleFileSink, SinkFactory
 
 log = logging.getLogger(__name__)
@@ -87,7 +85,3 @@ class TestSinks(unittest.TestCase):
                     all_content,
                     "aggregated content for all items should match",
                 )
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

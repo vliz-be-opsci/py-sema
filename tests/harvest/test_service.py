@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 from pathlib import Path
 
 import pytest
-from conftest import run_single_test
 
 from sema.harvest.service import service as TravHarv
 
@@ -46,7 +44,3 @@ def test_travharv(store_info_sets):
 
         travharv.process()
         assert not travharv.error_occurred
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

@@ -1,9 +1,7 @@
-#!/usr/bin/env python
 import logging
 from pathlib import Path
 
 import pytest
-from conftest import run_single_test
 
 from sema.harvest.__main__ import main
 
@@ -34,7 +32,3 @@ def test_main(outpath: Path, store_info_sets: tuple):
         assert dump_path.exists(), "run did not create expected output"
 
         # TODO consider some extra assertions on the result
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

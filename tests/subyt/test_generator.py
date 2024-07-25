@@ -2,8 +2,6 @@ import logging
 import os
 import unittest
 
-from conftest import run_single_test
-
 from sema.subyt.api import GeneratorSettings, Sink
 from sema.subyt.j2.generator import JinjaBasedGenerator
 from sema.subyt.sources import SourceFactory
@@ -136,7 +134,3 @@ class TestJinjaGenerator(unittest.TestCase):
             # assure all records were passed
             sink.evaluate()
         log.debug("ending test_templates")
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

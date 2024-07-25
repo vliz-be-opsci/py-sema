@@ -1,12 +1,12 @@
-#! /usr/bin/env python
 """ test_sync
 tests concerning the actual core sync expectations
 """
+
 import logging
 import random
 
 import pytest
-from conftest import make_sample_graph, run_single_test
+from conftest import make_sample_graph
 
 from sema.syncfs.service import (
     format_from_filepath,
@@ -128,7 +128,3 @@ def test_perform_sync(base, nmapper, rdf_stores, syncfolders):
         assert len(fnames_in_store) == num - 1
         # but the first should have been updated
         assert rdf_store.lastmod_ts(first_ng) > first_store_lastmod
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

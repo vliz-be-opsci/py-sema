@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 import logging
 from random import choice
 from string import ascii_letters
@@ -8,7 +7,6 @@ from urllib.parse import quote
 from uuid import uuid4
 
 import pytest
-from conftest import run_single_test
 from rdflib import BNode, Graph, Literal, URIRef
 from rdflib.query import Result
 
@@ -464,6 +462,3 @@ def test_select_property_trajectory(
         # we should just get here without an error
         assert True
 '''
-
-if __name__ == "__main__":
-    run_single_test(__file__)

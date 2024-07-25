@@ -1,6 +1,5 @@
 import logging
 
-from conftest import run_single_test
 from rdflib import Graph
 
 from sema.discovery.url_to_graph import (
@@ -57,7 +56,3 @@ def test_download_uri_cases():
         assert len(graph) > 0
         assert len(graph) == case["length"]
         # Add more assertions as needed
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

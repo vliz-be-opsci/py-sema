@@ -3,8 +3,6 @@ import random
 import unittest
 from itertools import product
 
-from conftest import run_single_test
-
 from sema.subyt.api import GeneratorSettings
 
 log = logging.getLogger(__name__)
@@ -67,7 +65,3 @@ class TestGeneratorSettings(unittest.TestCase):
                     f"'{case_mode}' <> '{case_roundtrip}'."
                 ),
             )
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

@@ -19,10 +19,9 @@ def load_log_config(logconf: str = None):
     if not logconf_path.exists():
         raise FileNotFoundError(f"Log configuration file not found: {logconf}")
 
-    if str(logconf_path).endswith(".yml"):
+    if logconf_path.suffix == ".yml":
         with open(logconf_path, "r") as f:
-            config = yaml.safe_load(f)
-            logging.config.dictConfig(config)
+            logging.config.dictConfig(yaml.load(f, Loader=yaml.SafeLoader))
         return
 
     logging.config.fileConfig(str(logconf_path))

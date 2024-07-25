@@ -1,12 +1,12 @@
-#! /usr/bin/env python
 """ test_sync_fs_triples
 tests concerning the service wrapper for sembench "SyncFsTriples"
 """
+
 import logging
 import shutil
 
 import pytest
-from conftest import TEST_INPUT_FOLDER, run_single_test
+from conftest import TEST_INPUT_FOLDER
 
 from sema.syncfs.service import SyncFsTriples
 
@@ -44,7 +44,3 @@ def test_service_wrapper(store_builds, syncfolders):
         log.debug(f"{set(rdf_store.named_graphs)=}")
         log.debug(f"{ng_set=}")
         assert len(ng_set) == len(file_set)
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)
