@@ -3,8 +3,6 @@ import unittest
 from collections.abc import Iterable
 from typing import Callable
 
-from conftest import run_single_test
-
 from sema.subyt.api import Generator, GeneratorSettings, Sink, Source
 
 log = logging.getLogger(__name__)
@@ -124,7 +122,3 @@ class TestAPIProcessor(unittest.TestCase):
         sink = CountingSink(TESTSIZE)
         fg.process(TESTNAME, inputs, generator_settings, sink)
         sink.evaluate()
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

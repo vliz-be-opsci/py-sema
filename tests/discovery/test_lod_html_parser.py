@@ -1,7 +1,5 @@
 import logging
 
-from conftest import run_single_test
-
 from sema.commons.log.loader import load_log_config
 from sema.discovery.lod_html_parser import LODAwareHTMLParser
 
@@ -98,7 +96,3 @@ def test_handle_data():
             '"Object" .'
         },
     ]
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

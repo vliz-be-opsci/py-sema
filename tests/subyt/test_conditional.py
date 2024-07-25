@@ -5,7 +5,6 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
-from conftest import run_single_test
 
 from sema.subyt import Subyt
 
@@ -95,7 +94,3 @@ class TestConditional(unittest.TestCase):
         df = pd.read_csv(str(SUBYT_TEST_FOLDER / "resources/data.csv"))
         df.at[0, "value"] = 1
         df.to_csv(str(SUBYT_TEST_FOLDER / "resources/data.csv"), index=False)
-
-
-if __name__ == "__main__":
-    run_single_test(__file__)

@@ -64,7 +64,7 @@ class GraphNameMapper:
 
     def get_keys_in_store(self, store) -> Iterable[str]:
         """selects those named graphs in the store.named_graphs under our base
-        and converts them into travharv config names
+        and converts them into config names
 
         :param store: the store to grab & filter the named_graphs from
         :type store: RDFStore
@@ -96,7 +96,7 @@ class RDFStore(ABC):
         """
         # TODO reconsider the default below as soon as upper layers start
         # dealing with cleaning config themselves
-        # for new we ensure cleaning to fix rtdflib-jsonld parsing issue
+        # for now we ensure cleaning to fix rdflib-jsonld parsing issue
         cleaner = cleaner or default_cleaner()
         # always ensure a no-op callable
         self._cleaner: Callable = cleaner or (lambda graph: graph)
@@ -333,7 +333,9 @@ class URIRDFStore(RDFStore):
         if write_uri is None:
 
             def store_constr_ro():
-                return SPARQLStore(query_endpoint=read_uri)
+                return SPARQLStore(
+                    query_endpoint=read_uri, returnFormat="json"
+                )
 
             self._store_constr = store_constr_ro
         else:

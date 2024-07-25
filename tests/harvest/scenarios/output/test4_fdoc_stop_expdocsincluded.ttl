@@ -1,0 +1,40 @@
+#####graph of test 4#####
+
+# settings:
+# retrieval of full documents
+# stopping when first assertion subject is checked
+
+# after assertion of first subject paths; included documents are: DOC1, DOC2, DOC3, DOC8
+# after assertion of second subject paths; included documents are: DOC4
+
+# Excluded: DOC5, DOC6, DOC7, DOC8
+
+# DOC1
+<DOC1.ttl>
+    ex:resource <DOC2.ttl> , <DOC3.ttl> , <DOC8.ttl> , <DOC5.ttl> , <DOC7.ttl> ;
+.
+
+# DOC2
+<DOC2.ttl>
+    a ex:Green ; 
+    ex:subset [
+        ex:id <DOC4.ttl> ; 
+        ex:label "subset with identifier" ; 
+    ] ;
+.
+
+# DOC3
+<DOC3.ttl>
+    a ex:Green ; 
+    ex:subset [
+        ex:label "subset without identifier" ; 
+    ] ;
+.
+
+# DOC4
+<DOC4.ttl>
+    a ex:Purle ; 
+    ex:p1 "some info" ; 
+    ex:p2 "more info" ; 
+    ex:p3 "again info, didn't see that coming" ; 
+.

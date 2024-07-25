@@ -1,0 +1,54 @@
+{#
+  This file contains the template for the execution report results
+  :param: context_name_graph
+#}
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX shacl: <http://www.w3.org/ns/shacl#>
+
+SELECT DISTINCT ?s ?p ?o
+{% if context_name_graph %}
+FROM <{{context_name_graph}}>
+{% endif %}
+WHERE {
+  {
+    # Find the subject with rdf:type shacl:ValidationReport
+    ?s rdf:type shacl:ValidationReport .
+    BIND(rdf:type AS ?p)
+    BIND(shacl:ValidationReport AS ?o)
+  }
+  UNION
+  {
+    # Get all nodes directly connected to the subject
+    ?subject rdf:type shacl:ValidationReport .
+    ?subject ?p ?o .
+    BIND(?subject AS ?s)
+  }
+  UNION
+  {
+    # Get all nodes connected to the connected nodes (2 levels deep)
+    ?subject rdf:type shacl:ValidationReport .
+    ?subject ?p1 ?intermediateNode1 .
+    ?intermediateNode1 ?p ?o .
+    BIND(?intermediateNode1 AS ?s)
+  }
+  UNION
+  {
+    # Get all nodes connected to the intermediate nodes (3 levels deep)
+    ?subject rdf:type shacl:ValidationReport .
+    ?subject ?p1 ?intermediateNode1 .
+    ?intermediateNode1 ?p2 ?intermediateNode2 .
+    ?intermediateNode2 ?p ?o .
+    BIND(?intermediateNode2 AS ?s)
+  }
+  UNION
+  {
+    # Get all nodes connected to the intermediate nodes (4 levels deep)
+    ?subject rdf:type shacl:ValidationReport .
+    ?subject ?p1 ?intermediateNode1 .
+    ?intermediateNode1 ?p2 ?intermediateNode2 .
+    ?intermediateNode2 ?p3 ?intermediateNode3 .
+    ?intermediateNode3 ?p ?o .
+    BIND(?intermediateNode3 AS ?s)
+  }
+}

@@ -1,0 +1,9 @@
+@prefix ex: <http://www.example.org/>.
+
+
+<DOC3.ttl>
+    a ex:Green ; 
+    ex:subset [
+        ex:label "subset without identifier" ; 
+    ] ;
+.
