@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict
 
 from rdflib import Graph
+from sema.commons.fileformats import is_supported_rdffilepath, format_from_filepath
 
 from sema.commons.store import (
     GraphNameMapper,
@@ -13,16 +14,7 @@ from sema.commons.store import (
 )
 
 log = getLogger(__name__)
-
 UTC_tz = timezone.utc
-SUFFIX_TO_FORMAT = {
-    ".ttl": "turtle",
-    ".turtle": "turtle",
-    ".jsonld": "json-ld",
-    ".json-ld": "json-ld",
-    ".json": "json-ld",
-}
-SUPPORTED_RDF_DUMP_SUFFIXES = [sfx for sfx in SUFFIX_TO_FORMAT]
 DEFAULT_URN_BASE = "urn:sync:"
 
 
@@ -37,20 +29,8 @@ def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
     return {
         str(p): datetime.fromtimestamp(p.stat().st_mtime, UTC_tz)
         for p in from_path.glob("**/*")
-        if p.is_file() and p.suffix in SUPPORTED_RDF_DUMP_SUFFIXES
+        if p.is_file() and is_supported_rdffilepath(p)
     }
-
-
-def format_from_filepath(fpath: Path) -> str:
-    """extracts the rdflib file format from the suffix of the file in fpath
-
-    :param fpath: path of file to inspect
-    :type fpath: Path
-    :returns: value for rdflib format=  for that file
-    :rtype: str
-    """
-    suffix = fpath.suffix.lower()
-    return SUFFIX_TO_FORMAT.get(suffix, None)
 
 
 def load_graph_fpath(fpath: Path, format: str = None) -> Graph:
