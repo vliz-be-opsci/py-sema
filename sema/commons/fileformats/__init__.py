@@ -6,7 +6,7 @@
 
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
 """
-from .rdffiles import format_from_filename, mime_from_filename, mime_to_format, is_supported_rdffilename, is_supported_rdffile_suffix
+from .rdffiles import format_from_filepath, mime_from_filepath, mime_to_format, is_supported_rdffilepath, is_supported_rdffile_suffix
 
 
-__ALL__ = ["format_from_filename", "mime_from_filename", "mime_to_format", "is_supported_rdffilename", "is_supported_rdffile_suffix"]
+__ALL__ = ["format_from_filepath", "mime_from_filepath", "mime_to_format", "is_supported_rdffilepath", "is_supported_rdffile_suffix"]

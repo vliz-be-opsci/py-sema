@@ -8,7 +8,7 @@ import validators
 from rdflib import Graph
 
 from sema.commons.log.loader import load_log_config
-from sema.commons.fileformats import format_from_filename
+from sema.commons.fileformats import format_from_filepath
 from sema.discovery import get_graph_for_format
 from sema.harvest import service
 from sema.harvest.store import RDFStore, RDFStoreAccess
@@ -131,7 +131,7 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
     if resource_path.is_file():
         # get triples from the file
         # determine the format of the file and use the correct parser
-        format = format_from_filename(resource_path, "turtle")
+        format = format_from_filepath(resource_path, "turtle")
         graph.parse(resource, format=format)
         return graph
 
@@ -142,7 +142,7 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
             if sub.is_dir():
                 continue  # no recursion on folders, glob **/* does already
             # else
-            format = format_from_filename(sub, "turtle")
+            format = format_from_filepath(sub, "turtle")
             load_resource_into_graph(graph, sub, format)
         return graph
 
@@ -200,7 +200,7 @@ def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
         log.debug(f"dump to file {args.dump}")
         dest = args.dump[0]
         output_path = Path.cwd() / dest
-        format = format_from_filename(output_path, format)
+        format = format_from_filepath(output_path, format)
         # then save there
         outgraph.serialize(destination=output_path, format=format)
 

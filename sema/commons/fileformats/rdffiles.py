@@ -25,20 +25,20 @@ def mime_to_format(mime: str, fallback: str = None) -> str:
     return MIME_TO_FORMAT.get(mime, fallback)
 
 
-def format_from_filename(filename: str | Path, fallback: str = None) -> str:
+def format_from_filepath(filename: str | Path, fallback: str = None) -> str:
     suffix: str = Path(filename).suffix
     return SUFFIX_TO_FORMAT.get(suffix, fallback)
 
 
-def mime_from_filename(filename: str | Path, fallback: str = None) -> str:
-    format = format_from_filename(filename, None)
+def mime_from_filepath(filename: str | Path, fallback: str = None) -> str:
+    format = format_from_filepath(filename, None)
     if format is None:
         return fallback
     # else
     return FORMAT_TO_MIME.get(format, fallback)
 
 
-def is_supported_rdffilename(filename: str) -> bool:
+def is_supported_rdffilepath(filename: str) -> bool:
     sfx: str = Path(filename).suffix
     return is_supported_rdffile_suffix(sfx)
 
