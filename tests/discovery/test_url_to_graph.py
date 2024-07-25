@@ -1,24 +1,22 @@
 import logging
 
 from rdflib import Graph
+from sema.commons.fileformats import mime_to_format
+from sema.discovery.url_to_graph import get_graph_for_format
 
-from sema.discovery.url_to_graph import (
-    ctype_to_rdf_format,
-    get_graph_for_format,
-)
 
 log = logging.getLogger(__name__)
 
 
 def test_ctype_to_rdf_format():
-    assert ctype_to_rdf_format("application/ld+json") == "json-ld"
-    assert ctype_to_rdf_format("text/turtle") == "turtle"
-    assert ctype_to_rdf_format("application/json") is None
-    assert ctype_to_rdf_format("application/octet-stream") is None
-    assert ctype_to_rdf_format("text/html") == "html"
-    assert ctype_to_rdf_format("application/rdf+xml") == "xml"
-    assert ctype_to_rdf_format("text/n3") == "n3"
-    assert ctype_to_rdf_format("application/n-triples") == "nt"
+    assert mime_to_format("application/ld+json") == "json-ld"
+    assert mime_to_format("text/turtle") == "turtle"
+    assert mime_to_format("application/json") is None
+    assert mime_to_format("application/octet-stream") is None
+    assert mime_to_format("text/html") == "html"
+    assert mime_to_format("application/rdf+xml") == "xml"
+    assert mime_to_format("text/n3") == "n3"
+    assert mime_to_format("application/n-triples") == "nt"
 
 
 # ttl file
