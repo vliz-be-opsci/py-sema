@@ -6,24 +6,11 @@ import requests
 from rdflib import Graph
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from sema.commons.fileformats import mime_to_format
 
 from .lod_html_parser import LODAwareHTMLParser
 
 log = logging.getLogger(__name__)
-
-RDF_MIME_TO_FORMAT = {
-    "application/ld+json": "json-ld",
-    "text/turtle": "turtle",
-    # todo add tests for these formats
-    "application/rdf+xml": "xml",
-    "text/n3": "n3",
-    "application/n-triples": "nt",
-    "text/html": "html",
-}
-
-
-def ctype_to_rdf_format(ctype: str) -> str:
-    return RDF_MIME_TO_FORMAT.get(ctype, None)
 
 
 def get_graph_for_format(subject_url: str, formats: str, graph: Graph = None):
@@ -140,7 +127,7 @@ def get_graph_for_format(subject_url: str, formats: str, graph: Graph = None):
                 log.info(f"script: {script}")
                 # { 'application/ld+json': '...'} | {'text/turtle': '...'}
                 for ctype, content in script.items():
-                    cformat: str = ctype_to_rdf_format(ctype)
+                    cformat: str = mime_to_format(ctype)
                     if format is None:  # ctype is not known as rdf-format
                         continue  # skip
                     log.info(f"found script with rdf {ctype=}, {cformat=}")
