@@ -4,8 +4,11 @@ from pathlib import Path
 from typing import Dict
 
 from rdflib import Graph
-from sema.commons.fileformats import is_supported_rdffilepath, format_from_filepath
 
+from sema.commons.fileformats import (
+    format_from_filepath,
+    is_supported_rdffilepath,
+)
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,

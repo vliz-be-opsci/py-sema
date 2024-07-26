@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 SUFFIX_TO_FORMAT: dict = {
     ".ttl": "turtle",
     ".turtle": "turtle",

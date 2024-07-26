@@ -6,7 +6,7 @@ class ServiceResult(ABC):
     @property
     @abstractmethod
     def success(self) -> bool:
-        """ indicates the execution of the service was succesful """
+        """indicates the execution of the service was succesful"""
         pass  # pragma: no cover
 
     def __bool__(self) -> bool:
@@ -23,7 +23,7 @@ class ServiceTrace(ABC):
 class ServiceBase(ABC):
     @abstractmethod
     def process(self) -> Tuple[ServiceResult, ServiceTrace]:
-        """ executes the service command
+        """executes the service command
         :return: a tuple of the result and the trace
         :rtype: Tuple[ServiceResult, ServiceTrace]
         """

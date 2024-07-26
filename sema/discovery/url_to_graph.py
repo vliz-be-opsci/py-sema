@@ -6,6 +6,7 @@ import requests
 from rdflib import Graph
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+
 from sema.commons.fileformats import mime_to_format
 
 from .lod_html_parser import LODAwareHTMLParser

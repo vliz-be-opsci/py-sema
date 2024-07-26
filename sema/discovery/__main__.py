@@ -1,7 +1,7 @@
-from .discovery import DiscoveryService
-from logging import getLogger
 import sys
+from logging import getLogger
 
+from .discovery import DiscoveryService
 
 log = getLogger(__name__)
 

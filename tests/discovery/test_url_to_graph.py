@@ -1,9 +1,9 @@
 import logging
 
 from rdflib import Graph
+
 from sema.commons.fileformats import mime_to_format
 from sema.discovery.url_to_graph import get_graph_for_format
-
 
 log = logging.getLogger(__name__)
 

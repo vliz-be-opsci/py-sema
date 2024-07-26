@@ -7,8 +7,8 @@ from pathlib import Path
 import validators
 from rdflib import Graph
 
-from sema.commons.log.loader import load_log_config
 from sema.commons.fileformats import format_from_filepath
+from sema.commons.log.loader import load_log_config
 from sema.discovery import get_graph_for_format
 from sema.harvest import service
 from sema.harvest.store import RDFStore, RDFStoreAccess

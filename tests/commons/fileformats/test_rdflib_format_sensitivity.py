@@ -1,21 +1,34 @@
 """
-Not really a test, but a demonstration of how rdflib's format parameter is to be used.
-Making sure we understand the sensitivity (or lack thereof) inside rdflib about 
-using mimetypes (like 'text/turtle') 
+Not really a test, but a demonstration of how rdflib's format parameter
+is to be used.
+Making sure we understand the sensitivity (or lack thereof) inside rdflib about
+using mimetypes (like 'text/turtle')
 in stead of format names (like 'turtle').
 """
+
+from pathlib import Path
+
 import pytest
 from conftest import TEST_INPUT_FOLDER, make_sample_graph
 from rdflib import Graph
-from pathlib import Path
-from sema.commons.fileformats import mime_from_filepath, format_from_filepath
+
+from sema.commons.fileformats import format_from_filepath, mime_from_filepath
 
 
-@pytest.mark.parametrize("test_path, format, mimetype", [
-    (TEST_INPUT_FOLDER / "issue-bnodes.ttl", "turtle", "text/turtle"),
-    (TEST_INPUT_FOLDER / "issue-bnodes.jsonld", "json-ld", "application/ld+json"),
-])
-def test_rdflib_parse_format_sensitivity(test_path: Path, format: str, mimetype: str):
+@pytest.mark.parametrize(
+    "test_path, format, mimetype",
+    [
+        (TEST_INPUT_FOLDER / "issue-bnodes.ttl", "turtle", "text/turtle"),
+        (
+            TEST_INPUT_FOLDER / "issue-bnodes.jsonld",
+            "json-ld",
+            "application/ld+json",
+        ),
+    ],
+)
+def test_rdflib_parse_format_sensitivity(
+    test_path: Path, format: str, mimetype: str
+):
     assert format_from_filepath(test_path) == format
     assert mime_from_filepath(test_path) == mimetype
 
@@ -31,10 +44,13 @@ def test_rdflib_parse_format_sensitivity(test_path: Path, format: str, mimetype:
     assert len(gf) == len(gm)
 
 
-@pytest.mark.parametrize("suffix", [
-    ".ttl",
-    ".jsonld",
-])
+@pytest.mark.parametrize(
+    "suffix",
+    [
+        ".ttl",
+        ".jsonld",
+    ],
+)
 @pytest.mark.usefixtures("outpath")
 def test_rdfib_serialize_format_insenstivity(suffix, outpath):
     g: Graph = make_sample_graph([1, "a", True])
