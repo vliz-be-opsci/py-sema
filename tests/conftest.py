@@ -110,14 +110,6 @@ def outpath() -> Path:
     return TEST_OUTPUT_FOLDER
 
 
-@pytest.fixture(scope="session")
-def quicktest() -> bool:
-    """bool setting indicating to skip lengthy tests
-    setting driven by setting env variable "QUICKTEST" to anything but 0 or ""
-    """
-    return bool(os.getenv("QUICKTEST", 0))
-
-
 @pytest.fixture()
 def base() -> str:
     return f"urn:test-sync:{uuid4()}:"
