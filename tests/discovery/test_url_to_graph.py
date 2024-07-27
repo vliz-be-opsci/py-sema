@@ -56,7 +56,6 @@ def test_download_uri_cases():
         format = case["format"]
         log.debug(f"{format}")
         # TODO use the new service in stead
-        # and/or rewrite the previous get_graph_ method to do so as a migration path
         graph = get_graph_for_format(uri, formats=[format])
         assert isinstance(graph, Graph)
         assert len(graph) > 0

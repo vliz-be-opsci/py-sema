@@ -1,26 +1,27 @@
+import cgi
 from logging import getLogger
 from typing import Iterable, Tuple
+from urllib.parse import urljoin
 
 from rdflib import Graph
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.models import Response
+from urllib3.util.retry import Retry
 
+from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
 from sema.commons.service import ServiceBase, ServiceResult, ServiceTrace
 from sema.commons.store import create_rdf_store
-from sema.commons.clean import check_valid_url
-from requests import Session
-from requests.models import Response
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-from urllib.parse import urljoin
-import cgi
-from .lod_html_parser import LODAwareHTMLParser
 
+from .lod_html_parser import LODAwareHTMLParser
 
 log = getLogger(__name__)
 
 
 class DiscoveryResult(ServiceResult):
     """Result of the discovery service"""
+
     def __init__(self):
         self._success = False
         self._graph = Graph()
@@ -39,6 +40,7 @@ class DiscoveryResult(ServiceResult):
 
 class DiscoveryTrace(ServiceTrace):
     """Trace of the discovery service"""
+
     def toProv(self):
         pass  # TODO - exportessential traces into prov-o format // see #63
 
@@ -56,8 +58,8 @@ class DiscoveryService(ServiceBase):
         output_format: str = None,
     ):
         # upfront checks
-        assert subject_uri, "subject_uri is required to actually discover anything about it"
-        assert check_valid_url(subject_uri), "subject_uri must be a valid URL for it to be discoverable"
+        assert subject_uri, "subject_uri required"
+        assert check_valid_url(subject_uri), "subject_uri not valid"
 
         # actual task inputs
         self.subject_uri = subject_uri
@@ -126,13 +128,18 @@ class DiscoveryService(ServiceBase):
         if mimetype not in self.SUPPORTED_MIMETYPES:
             return False
         # else
-        EXTRA_FORMATS = {"application/octet-stream": "turtle", "application/json": "json-ld"}
+        EXTRA_FORMATS = {"application/octet-stream": "turtle"}
         format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
         try:
-            self._result._graph.parse(data=content, format=format, publicID=source_url)
+            self._result._graph.parse(
+                data=content, format=format, publicID=source_url
+            )
             return True
         except Exception as e:
-            log.exception(f"failed to parse content from {source_url} in {format=}", exc_info=e)
+            log.exception(
+                f"failed to parse content from {source_url} in {format=}",
+                exc_info=e,
+            )
         return False
 
     def _extract_triples_from_response(self, resp: Response):
@@ -140,7 +147,7 @@ class DiscoveryService(ServiceBase):
         ctype_header = resp.headers.get("Content-Type", None)
         resp_mime_type, options = cgi.parse_header(ctype_header)
         log.debug(f"got {resp.status_code=} {resp_mime_type=}")
-        # TODO - check content type and parse response either through rfdlib or own lod-html-parser
+        # add triples from the response content
         if self._add_triples_from_text(resp.text, resp_mime_type, resp.url):
             return  # we are done
         # else
@@ -156,9 +163,6 @@ class DiscoveryService(ServiceBase):
                 else:
                     # Resolve the relative URL to an absolute URL
                     alt_abs_url = urljoin(resp.url, alt_url)
-                    # these should tie back into the _discover_subject method with alternative target_url
-                    # TODO unsure: should we still opt for conneg in that case? feels like no?
-                    # in that case some flag should be passed to skip those here
                     self._discover_subject(alt_abs_url)
 
             for script in parser.scripts:
@@ -166,11 +170,14 @@ class DiscoveryService(ServiceBase):
                 # if so then add it to the triplestore
                 for script_type, script_content in script.items():
                     if script_type in self.SUPPORTED_MIMETYPES:
-                        self._add_triples_from_text(script_content, script_type, resp.url)
+                        self._add_triples_from_text(
+                            script_content, script_type, resp.url
+                        )
             parser.close()
 
-
-    def _get_structured_content(self, url: str, req_mime_type: str = None) -> None:
+    def _get_structured_content(
+        self, url: str, req_mime_type: str = None
+    ) -> None:
         resp: Response = self._make_response(url, req_mime_type)
         # TODO trace and deal with non-triple content
         if resp is None:
@@ -178,7 +185,9 @@ class DiscoveryService(ServiceBase):
         # else
         self._extract_triples_from_response(resp)
 
-    def _discover_subject(self, target_url: str = None, force_types: Iterable[str] = []):
+    def _discover_subject(
+        self, target_url: str = None, force_types: Iterable[str] = []
+    ):
         """Discover triples describing the subject (assumed at subject_url)
         and add them to the result graph, using various strategies
         """
@@ -186,30 +195,33 @@ class DiscoveryService(ServiceBase):
         target_url: str = target_url or self.subject_uri
         force_types: Iterable[str] = force_types or self.request_mimes
 
-        # TODO consider rewriting this chain of strategies more elegantly / clearly
-        # -- strategy #01 do as your a told, and simply get the requested mime-types
-        # go explcitely over the mime-types that are requested (if any)
+        # TODO consider rewrite more elegantly/clearly
+        #   essentially this is chain of strategies to fallback
+        # -- strategy #01 do as your a told, pass forced mimes in conneg
+        # i.e. go explcitely over the mime-types that are requested (if any)
         for mt in force_types:
             self._get_structured_content(target_url, mt)
         if self.triples_found:
             return  # we are done
         # else
 
-        # -- strategy #02 go on and plainly get without conneg / requested mime-type
+        # -- strategy #02 do the basic thing
+        # i.e. do the plan - no conneg request
         self._get_structured_content(target_url)
         if self.triples_found:
             return  # we are done
         # else
 
-        # -- strategy #03 go on and try getting triples through remaining RDF mime-types
+        # -- strategy #03 do what we can
+        # i.e. go on and conneg over remaining known RDF mime-types
         # in this case we stop as soon as we find some triples
         for mt in set(self.SUPPORTED_MIMETYPES) - set(self.request_mimes):
             self._get_structured_content(target_url, mt)
             if self.triples_found:
                 return  # we are done
 
-        # -- strategy #04 finally just grab what we can get from a text/html request
-        # in this case we stop as soon as we find some triples
+        # -- strategy #04 do final attempt like humans
+        # i.e. just grab what we can get from a text/html request
         self._get_structured_content(target_url, "text/html")
 
     def _output_result(self):
@@ -236,7 +248,8 @@ class DiscoveryService(ServiceBase):
                 f"Error during discovery of {self.subject_uri}", exc_info=e
             )
 
-        # TODO consider checking if this whole endevaour actually got any triples on the requested subject_uri
+        # TODO check and assert actual found triples
+        # check if we actually got any triples on the requested subject_uri
         # and if not, consider setting self._result._success = False ?
 
         return self._result, self._trace
