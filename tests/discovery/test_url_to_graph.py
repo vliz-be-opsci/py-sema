@@ -23,6 +23,8 @@ def test_ctype_to_rdf_format():
 # jsonld file
 # html file with ttl file in head as full script
 # html file with jsonld file in head as script link
+# TODO use @pytest.mark.parametrize()
+
 test_cases = [
     {
         "uri": "https://www.w3.org/People/Berners-Lee/card.ttl",
@@ -53,6 +55,8 @@ def test_download_uri_cases():
         uri = case["uri"]
         format = case["format"]
         log.debug(f"{format}")
+        # TODO use the new service in stead
+        # and/or rewrite the previous get_graph_ method to do so as a migration path
         graph = get_graph_for_format(uri, formats=[format])
         assert isinstance(graph, Graph)
         assert len(graph) > 0
