@@ -7,6 +7,11 @@
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
 """
 
-from .url_to_graph import get_graph_for_format
+from .discovery import discover_subject, DiscoveryService, DiscoveryResult, DiscoveryTrace
 
-__all__ = ["get_graph_for_format"]
+__all__ = [
+    "discover_subject",
+    "DiscoveryService",
+    "DiscoveryResult",
+    "DiscoveryTrace",
+]

@@ -2,8 +2,7 @@ import logging
 
 import pytest
 from rdflib import Graph
-
-from sema.discovery.url_to_graph import get_graph_for_format
+from sema.discovery import discover_subject
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ log = logging.getLogger(__name__)
     ],
 )
 def test_discovery_case(uri, mime, length):
-    graph = get_graph_for_format(uri, formats=[mime])
+    graph = discover_subject(uri, mimetypes=[mime])
     assert isinstance(graph, Graph)
     assert len(graph) > 0
     assert len(graph) == length

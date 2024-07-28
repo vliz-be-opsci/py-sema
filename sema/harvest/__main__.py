@@ -9,8 +9,8 @@ from rdflib import Graph
 
 from sema.commons.fileformats import format_from_filepath
 from sema.commons.log.loader import load_log_config
-from sema.discovery import get_graph_for_format
 from sema.harvest import service
+from sema.harvest.url_to_graph import get_graph_for_format
 from sema.harvest.store import RDFStore, RDFStoreAccess
 
 load_log_config()

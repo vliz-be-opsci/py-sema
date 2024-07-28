@@ -1,6 +1,6 @@
 import cgi
 from logging import getLogger
-from typing import Iterable, Tuple
+from typing import Iterable, List, Tuple
 from urllib.parse import urljoin
 
 from rdflib import Graph
@@ -256,3 +256,13 @@ class DiscoveryService(ServiceBase):
         # and if not, consider setting self._result._success = False ?
 
         return self._result, self._trace
+
+
+def discover_subject(subject_url: str, mimetypes: List[str] = []):
+    service = DiscoveryService(
+        subject_uri=subject_url,
+        request_mimes=",".join(mimetypes),
+    )
+
+    r, t = service.process()
+    return r.graph if r else None
