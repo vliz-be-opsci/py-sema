@@ -23,12 +23,7 @@ class DiscoveryResult(ServiceResult):
     """Result of the discovery service"""
 
     def __init__(self):
-        self._success = False
         self._graph = Graph()
-
-    @property
-    def success(self) -> bool:
-        return self._success
 
     @property
     def graph(self) -> Graph:
@@ -36,6 +31,10 @@ class DiscoveryResult(ServiceResult):
 
     def __len__(self) -> int:
         return len(self._graph)
+
+    @property
+    def success(self) -> bool:
+        return len(self) > 0
 
 
 class DiscoveryTrace(ServiceTrace):
@@ -116,7 +115,7 @@ class DiscoveryService(ServiceBase):
 
     @property
     def triples_found(self):
-        return len(self._result.graph) > 0
+        return self._result.success
 
     def _make_response(self, url: str, req_mime_type: str = None) -> Response:
         headers = dict(Accept=req_mime_type) if req_mime_type else dict()
@@ -250,10 +249,6 @@ class DiscoveryService(ServiceBase):
             log.exception(
                 f"Error during discovery of {self.subject_uri}", exc_info=e
             )
-
-        # TODO check and assert actual found triples
-        # check if we actually got any triples on the requested subject_uri
-        # and if not, consider setting self._result._success = False ?
 
         return self._result, self._trace
 
