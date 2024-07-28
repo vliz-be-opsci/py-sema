@@ -58,8 +58,8 @@ class DiscoveryService(ServiceBase):
         output_format: str = None,
     ):
         # upfront checks
-        assert subject_uri, "subject_uri required"
-        assert check_valid_url(subject_uri), "subject_uri not valid"
+        assert subject_uri, f"{subject_uri=} required"
+        assert check_valid_url(subject_uri), f"{subject_uri=} not valid"
 
         # actual task inputs
         self.subject_uri = subject_uri
@@ -128,7 +128,10 @@ class DiscoveryService(ServiceBase):
         if mimetype not in self.SUPPORTED_MIMETYPES:
             return False
         # else
-        EXTRA_FORMATS = {"application/octet-stream": "turtle"}
+        EXTRA_FORMATS = {
+            "application/octet-stream": "turtle",
+            "application/json": "json-ld",
+        }
         format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
         try:
             self._result._graph.parse(
