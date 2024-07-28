@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
     ],
 )
 def test_discovery_case(uri, mime, length):
-    # TODO use the new service in stead
     graph = get_graph_for_format(uri, formats=[mime])
     assert isinstance(graph, Graph)
     assert len(graph) > 0
