@@ -1,8 +1,8 @@
-from logging import getLogger
 import os
 import re
 import shutil
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from logging import getLogger
 from pathlib import Path
 from threading import Thread
 from typing import Callable, Dict, Iterable, Optional
@@ -35,7 +35,8 @@ SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
 TEST_Path: Path = TEST_FOLDER / "harvest" / "scenarios"
 
 # TODO httpd usage should not be confined to harvest issues maybe?
-# so maybe move to TEST_FOLDER / "httpd"  and have specific harvest-input under there?
+# so maybe move to TEST_FOLDER / "httpd"
+# and have specific harvest-input under there?
 HTTPD_ROOT: Path = TEST_Path / "input"
 HTTPD_HOST: str = (
     # TODO test with localhost.localdomain

@@ -1,8 +1,9 @@
 import logging
-
-from typing import Dict
 from pathlib import Path
+from typing import Dict
+
 from sema.commons.service import ServiceBase, ServiceResult, ServiceTrace
+
 from .api import GeneratorSettings
 from .j2.generator import JinjaBasedGenerator
 from .sinks import SinkFactory
@@ -30,8 +31,8 @@ class SubytTrace(ServiceTrace):
 
 
 class Subyt(ServiceBase):
-    """ The main class for the subyt service.
-    """
+    """The main class for the subyt service."""
+
     def __init__(
         self,
         *,
@@ -46,7 +47,7 @@ class Subyt(ServiceBase):
         variables: Dict[str, str] = {},
         mode: str = "it",
     ) -> None:
-        """ Initialize the Subyt Service object
+        """Initialize the Subyt Service object
 
         :param template_name: the name of the template to be used,
             this should match a filename in the template_folder
@@ -70,7 +71,7 @@ class Subyt(ServiceBase):
             if source or template fils are newer than the sink file
             Default is False (no conditional processing / always run)
         :type conditional: bool | str
-        :param variables: set of extra variables to be injected into the templates
+        :param variables: variables to be injected into the templates
         :type variables: Dict[str, str]
         :param mode: the mode to be used
         :type mode: str
@@ -87,7 +88,10 @@ class Subyt(ServiceBase):
         if source:
             self._inputs.update({"_": SourceFactory.make_source(source)})
         self._inputs.update(
-            {nm: SourceFactory.make_source(src) for nm, src in extra_sources.items()}
+            {
+                nm: SourceFactory.make_source(src)
+                for nm, src in extra_sources.items()
+            }
         )
         self._conditional = bool(conditional)
         self._variables = variables

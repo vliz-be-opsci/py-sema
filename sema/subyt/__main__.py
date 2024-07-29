@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import argparse
+import sys
 from logging import getLogger
 from typing import Dict, Iterable
-import sys
 
 from sema.commons.log.loader import load_log_config
 from sema.subyt import Subyt
-
 
 log = getLogger(__name__)
 
@@ -17,7 +16,7 @@ def get_arg_parser():
     [argparse](https://docs.python.org/3/library/argparse.html)
     """
     parser = argparse.ArgumentParser(
-        description="Executes SuByT to produce LD triples by applying a template",
+        description="SuByT produces triples by applying a template",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -134,7 +133,7 @@ def args_to_dict(multi_args: Iterable[Iterable[str]]) -> Dict[str, str]:
 
 
 def make_service(args: argparse.Namespace) -> Subyt:
-    """ Make the service with the passed args"""
+    """Make the service with the passed args"""
     return Subyt(
         template_name=args.name,
         template_folder=args.templates,
