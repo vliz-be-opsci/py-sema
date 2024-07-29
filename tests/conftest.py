@@ -1,5 +1,4 @@
-import logging
-import logging.config
+from logging import getLogger
 import os
 import re
 import shutil
@@ -23,17 +22,23 @@ from sema.commons.store import (
 )
 from sema.harvest.store import RDFStoreAccess
 
-TEST_INPUT_FOLDER = Path(__file__).parent / "./input"
 TEST_FOLDER = Path(__file__).parent
-TEST_SYNC_FOLDER = Path(__file__).parent / "__sync__"
+TEST_INPUT_FOLDER = TEST_FOLDER / "input"
+TEST_OUTPUT_FOLDER = TEST_FOLDER / "output"
+TEST_SYNC_FOLDER = TEST_FOLDER / "__sync__"
+
 DCT: Namespace = Namespace("http://purl.org/dc/terms/#")
 DCT_ABSTRACT: URIRef = DCT.abstract
 SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
-TEST_FOLDER = Path(__file__).parent
-TEST_OUTPUT_FOLDER = TEST_FOLDER / "output"
+
+# TODO choose better name + apply all-caps for constants
 TEST_Path: Path = TEST_FOLDER / "harvest" / "scenarios"
+
+# TODO httpd usage should not be confined to harvest issues maybe?
+# so maybe move to TEST_FOLDER / "httpd"  and have specific harvest-input under there?
 HTTPD_ROOT: Path = TEST_Path / "input"
 HTTPD_HOST: str = (
+    # TODO test with localhost.localdomain
     "localhost"  # can be '' - maybe also try '0.0.0.0' to bind all
 )
 HTTPD_PORT: int = 8080
@@ -43,7 +48,7 @@ HTTPD_EXTENSION_MAP: Dict[str, str] = {
     ".ttl": "text/turtle",
 }
 
-log = logging.getLogger("tests")
+log = getLogger("tests")
 
 
 def enable_test_logging():
@@ -54,6 +59,7 @@ def enable_test_logging():
 enable_test_logging()  # note that this includes loading .env into os.getenv
 
 
+# TODO maybe tests that use this should use sema.commons.fileformats in stead?
 def format_from_extension(fpath: Path):
     sfx = fpath.suffix
     sfmap = {".ttl": "turtle", ".jsonld": "json-ld"}
