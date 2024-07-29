@@ -111,12 +111,16 @@ def test_check_ur_inl_str():
         "urn:",
         "urn:x:abc",
         "urn:xy:",
+        "http://localhost:1234/something",  # valid url need domain
     )
     goodurn = (
         "urn:xy:ab",
         "urn:urn:urn",
     )
-    goodurl = ("https://example.org/path.ext?pk=v#fragment",)
+    goodurl = (
+        "https://example.org/path.ext?pk=v#fragment",
+        "http://localhost.localdomain:8080/DOC1.ttl",
+    )
 
     for ba in badany:
         assert not check_valid_urn(ba)

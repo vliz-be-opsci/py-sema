@@ -5,7 +5,7 @@ prefix:
 assert:
   - subjects:
       literal:
-        - http://localhost:8080/DOC1.ttl
+        - http://localhost.localdomain:8080/DOC1.ttl
     paths:
       - "ex:resource / ex:subset"
       - "ex:resource / ex:part"
@@ -20,9 +20,9 @@ assert:
     # assure ex:resource DOC2, DOC3, DOC8 ,DOC5, DOC7 == true
   - subjects:
       literal:
-        - http://localhost:8080/DOC2.ttl
-        - http://localhost:8080/DOC3.ttl
-        - http://localhost:8080/DOC5.ttl
+        - http://localhost.localdomain:8080/DOC2.ttl
+        - http://localhost.localdomain:8080/DOC3.ttl
+        - http://localhost.localdomain:8080/DOC5.ttl
     paths:
       - "ex:subset"
       - "ex:part"

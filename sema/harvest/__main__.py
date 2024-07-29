@@ -7,10 +7,11 @@ from pathlib import Path
 import validators
 from rdflib import Graph
 
+from sema.commons.fileformats import format_from_filepath
 from sema.commons.log.loader import load_log_config
-from sema.discovery import get_graph_for_format
 from sema.harvest import service
 from sema.harvest.store import RDFStore, RDFStoreAccess
+from sema.harvest.url_to_graph import get_graph_for_format
 
 load_log_config()
 log = logging.getLogger(__name__)
@@ -130,8 +131,7 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
     if resource_path.is_file():
         # get triples from the file
         # determine the format of the file and use the correct parser
-        ext = resource_path.suffix
-        format = SUFFIX_TO_FORMAT.get(ext, "turtle")
+        format = format_from_filepath(resource_path, "turtle")
         graph.parse(resource, format=format)
         return graph
 
@@ -142,7 +142,7 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
             if sub.is_dir():
                 continue  # no recursion on folders, glob **/* does already
             # else
-            format = SUFFIX_TO_FORMAT.get(sub.suffix, "text/turtle")
+            format = format_from_filepath(sub, "turtle")
             load_resource_into_graph(graph, sub, format)
         return graph
 
@@ -175,15 +175,6 @@ def make_service(args) -> service:
     return new_service
 
 
-SUFFIX_TO_FORMAT = {
-    ".ttl": "turtle",
-    ".turtle": "turtle",
-    ".jsonld": "json-ld",
-    ".json-ld": "json-ld",
-    ".json": "json-ld",
-}
-
-
 def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
     if args.dump is None:
         log.debug("no dump expected")
@@ -209,14 +200,13 @@ def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
         log.debug(f"dump to file {args.dump}")
         dest = args.dump[0]
         output_path = Path.cwd() / dest
-        format = SUFFIX_TO_FORMAT.get(dest.split(".")[-1], format)
+        format = format_from_filepath(output_path, format)
         # then save there
         outgraph.serialize(destination=output_path, format=format)
 
 
 def main(*cli_args):
     # parse cli args
-    print(f"cli_args = {cli_args}")
     args: argparse.Namespace = get_arg_parser().parse_args(cli_args)
     log.debug(f"cli called with {args=}")
     # enable logging
