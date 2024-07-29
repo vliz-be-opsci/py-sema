@@ -48,7 +48,8 @@ python-dotenv = "*"
 pytest-cov = "*"
 
 [tool.poetry.scripts]
-py-sema = "sema.__main__:main"
+sema = "sema.__main__:main"
+sema-subyt = "sema.subyt.__main__:main"
 
 [build-system]
 requires = ["setuptools","poetry"]
