@@ -8,15 +8,15 @@
 """
 
 from .discovery import (
+    Discovery,
     DiscoveryResult,
-    DiscoveryService,
     DiscoveryTrace,
     discover_subject,
 )
 
 __all__ = [
     "discover_subject",
-    "DiscoveryService",
+    "Discovery",
     "DiscoveryResult",
     "DiscoveryTrace",
 ]

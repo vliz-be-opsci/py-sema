@@ -1,15 +1,15 @@
 import sys
 from logging import getLogger
 
-from .discovery import DiscoveryService
+from sema.discovery import Discovery
 
 log = getLogger(__name__)
 
 
-def main(*args_list):
+def main(*args_list) -> bool:
     log.debug(f"discovery::main({args_list=})")
     # TODO actually use args_list and argsparser to replace hardcoding below
-    service = DiscoveryService(subject_uri="https://data.emobon.embrc.eu/")
+    service = Discovery(subject_uri="https://data.emobon.embrc.eu/")
     result, trace = service.process()
     return bool(result)
 

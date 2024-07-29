@@ -44,7 +44,7 @@ class DiscoveryTrace(ServiceTrace):
         pass  # TODO - exportessential traces into prov-o format // see #63
 
 
-class DiscoveryService(ServiceBase):
+class Discovery(ServiceBase):
     def __init__(
         self,
         *,
@@ -256,7 +256,7 @@ class DiscoveryService(ServiceBase):
 
 
 def discover_subject(subject_url: str, mimetypes: List[str] = []):
-    service = DiscoveryService(
+    service = Discovery(
         subject_uri=subject_url,
         request_mimes=",".join(mimetypes),
     )
