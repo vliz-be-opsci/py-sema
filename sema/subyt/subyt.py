@@ -8,8 +8,10 @@ from .sources import SourceFactory
 log = logging.getLogger(__name__)
 
 
-class Subyt:
-    def __init__(
+class Subyt:  # TODO subclass ServiceBase from sema.commons.service
+    # TODO - add docstrings
+
+    def __init__(  # TODO apply pattern to only have basic yml str/dict arguments
         self,
         template_name: str,
         template_folder: str,

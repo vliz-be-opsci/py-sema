@@ -128,6 +128,7 @@ def get_arg_parser():
 
 
 def make_service(args: argparse.Namespace) -> Generator:
+    # TODO use new service class in stead
     template_folder = args.templates
     return JinjaBasedGenerator(template_folder)
 
@@ -155,7 +156,7 @@ def vars_to_dict(vars: list) -> dict:
     return {name: value for [name, value] in vars}
 
 
-def main():
+def main():  # TODO allow passing cli_args for testing
     """
     The main entry point to this module.
     """
@@ -197,4 +198,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # TODO pass the sys.argv[:1]
+    # TODO handle exit code
