@@ -5,8 +5,8 @@ import rdflib
 import validators
 from rdflib.namespace import NamespaceManager
 
-from sema.harvest.url_to_graph import get_graph_for_format
 from sema.harvest.store import RDFStoreAccess
+from sema.harvest.url_to_graph import get_graph_for_format
 
 from .config_build import AssertPath
 from .execution_report import (

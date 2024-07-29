@@ -153,6 +153,8 @@ class DiscoveryService(ServiceBase):
         if self._add_triples_from_text(resp.text, resp_mime_type, resp.url):
             return  # we are done
         # else
+        # TODO retrieve FAIR-Signpost link from Header
+        # else
         if resp_mime_type == "text/html":
             parser = LODAwareHTMLParser()
             parser.feed(resp.text)

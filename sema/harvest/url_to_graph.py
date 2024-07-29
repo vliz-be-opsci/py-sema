@@ -1,4 +1,5 @@
 from logging import getLogger
+
 from sema.discovery import discover_subject
 
 log = getLogger(__name__)

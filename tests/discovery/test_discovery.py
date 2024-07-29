@@ -2,6 +2,7 @@ import logging
 
 import pytest
 from rdflib import Graph
+
 from sema.discovery import discover_subject
 
 log = logging.getLogger(__name__)
