@@ -29,7 +29,8 @@ class SinkFactory:
         force_output: bool = False,
         allow_repeated_sink_paths: bool = False,
     ) -> Sink:
-        if identifier is None:
+        identifier = identifier or '-'
+        if identifier == '-':
             if allow_repeated_sink_paths:
                 log.warning(
                     "repeated sink paths do not apply to StdOutSink, "
