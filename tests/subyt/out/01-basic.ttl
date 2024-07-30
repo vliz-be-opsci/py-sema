@@ -1,6 +1,9 @@
 # expected output files are split by lines with leading # marks
 #---- 01
-@prefix ex: <https://example.org/01-basic/> .
+@prefix ex: <https://example.org/01-basic/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/>.
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
 <https://vliz.be/code/pysubyt/test/item#1>
   a ex:test ;
   ex:name 'one'^^xsd:string;
@@ -19,7 +22,10 @@ lijnen'''@nl;
 
   ex:position '0'^^xsd:integer.
 #---- 02
-@prefix ex: <https://example.org/01-basic/> .
+@prefix ex: <https://example.org/01-basic/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/>.
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
 <https://vliz.be/code/pysubyt/test/item#2>
   a ex:test ;
   ex:name 'two'^^xsd:string;
@@ -27,7 +33,10 @@ lijnen'''@nl;
   schema:description 'enkel nl'@nl;
   ex:position '1'^^xsd:integer.
 #---- 03
-@prefix ex: <https://example.org/01-basic/> .
+@prefix ex: <https://example.org/01-basic/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/>.
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
 <https://vliz.be/code/pysubyt/test/item#3>
   a ex:test ;
   ex:name 'three'^^xsd:string;

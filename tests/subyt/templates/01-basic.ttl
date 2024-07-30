@@ -11,7 +11,10 @@
     - input-file: data.csv
 #}
 
-@prefix ex: <https://example.org/01-basic/{{ME}}> .
+@prefix ex: <https://example.org/01-basic/{{ME}}>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix schema: <http://schema.org/>.
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
 <{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_)}}>
   a ex:test ;
   ex:name {{_.name | xsd('string')}};

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 import argparse
-import logging
-import logging.config
 import sys
+from logging import getLogger
+from typing import Dict, Iterable
 
 from sema.commons.log.loader import load_log_config
+from sema.subyt import Subyt
 
-from .api import Generator, GeneratorSettings, Sink
-from .j2.generator import JinjaBasedGenerator
-from .sinks import SinkFactory
-from .sources import SourceFactory
+log = getLogger(__name__)
 
 
 def get_arg_parser():
@@ -18,7 +16,7 @@ def get_arg_parser():
     [argparse](https://docs.python.org/3/library/argparse.html)
     """
     parser = argparse.ArgumentParser(
-        description="Produces LD triples a Template",
+        description="SuByT produces triples by applying a template",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -57,8 +55,8 @@ def get_arg_parser():
         metavar=("NAME", "VALUE"),  # meaning/purpose of those arguments
         action="append",  # multiple -v can be combined
         help=(
-            "Multiple entries will add different named"
-            " variables to the templating process"
+            "Multiple entries will add different named "
+            "variables to the templating process"
         ),
     )
 
@@ -76,8 +74,8 @@ def get_arg_parser():
         metavar="FILE",  # meaning of the argument
         action="store",
         help=(
-            "Specifies the base input set to run over."
-            " Shorthand for -s _ FILE"
+            "Specifies the base input set to run over. "
+            "Shorthand for -s _ FILE"
         ),
     )
     parser.add_argument(
@@ -127,74 +125,48 @@ def get_arg_parser():
     return parser
 
 
-def make_service(args: argparse.Namespace) -> Generator:
-    template_folder = args.templates
-    return JinjaBasedGenerator(template_folder)
+def args_to_dict(multi_args: Iterable[Iterable[str]]) -> Dict[str, str]:
+    """
+    Converts a list of lists of strings to a dictionary.
+    """
+    return {k: v for [k, v] in multi_args} if multi_args else {}
 
 
-def make_sources(args: argparse.Namespace) -> dict:
-    inputs = dict()
-    if args.input is not None:
-        inputs["_"] = SourceFactory.make_source(args.input)
-    if args.set is not None:
-        for [key, file_name] in args.set:
-            inputs[key] = SourceFactory.make_source(file_name)
-    return inputs
-
-
-def make_sink(args: argparse.Namespace) -> Sink:
-    return SinkFactory.make_sink(
-        args.output, args.force, args.allow_repeated_sink_paths
+def make_service(args: argparse.Namespace) -> Subyt:
+    """Make the service with the passed args"""
+    return Subyt(
+        template_name=args.name,
+        template_folder=args.templates,
+        source=args.input,
+        extra_sources=args_to_dict(args.set),
+        sink=args.output,
+        overwrite_sink=args.force,
+        allow_repeated_sink_paths=args.allow_repeated_sink_paths,
+        conditional=args.conditional,
+        variables=args_to_dict(args.var),
+        mode=args.mode,
     )
 
 
-def vars_to_dict(vars: list) -> dict:
-    if not vars:
-        return None
-    # else
-    return {name: value for [name, value] in vars}
-
-
-def main():
+def main(*args_list) -> bool:
     """
     The main entry point to this module.
     """
-    args = get_arg_parser().parse_args()
+    log.debug(f"discovery::main({args_list=})")
+    args = get_arg_parser().parse_args(args_list)
     load_log_config(args.logconf)
-    log = logging.getLogger(__name__)
-    service = make_service(args)
-    generator_settings = GeneratorSettings(args.mode)
-    vars_dict = vars_to_dict(args.var)
-    inputs = make_sources(args)
-    sink = make_sink(args)
 
     try:
-        log.debug(f"service  = {service}")
-        log.debug(f"generator_settings = {generator_settings}")
-        log.debug(f"variables = {vars_dict}")
-        log.debug(f"inputs   = {inputs}")
-        log.debug(f"sink     = {sink}")
-
-        service.process(
-            args.name,
-            inputs,
-            generator_settings,
-            sink,
-            vars_dict,
-            args.conditional,
-        )
-
+        subyt = make_service(args)
+        r, t = subyt.process()
         log.debug("processing done")
-
+        return bool(r)
     except Exception as e:
-        errmsg = f"sema.subyt processing failed due to {e}"
-        log.error(errmsg)
-        log.exception(e)
-        sys.exit(1)
-
+        log.exception("sema.subyt processing failed", exc_info=e)
     finally:
-        sink.close()
+        subyt._sink.close()  # TODO investigate suspicious location for this
 
 
 if __name__ == "__main__":
-    main()
+    success: bool = main(*sys.argv[1:])
+    sys.exit(0 if success else 1)

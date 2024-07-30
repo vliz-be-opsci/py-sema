@@ -1,4 +1,4 @@
-import logging
+from logging.config import dictConfig, fileConfig
 from pathlib import Path
 
 import yaml
@@ -21,7 +21,7 @@ def load_log_config(logconf: str = None):
 
     if logconf_path.suffix == ".yml":
         with open(logconf_path, "r") as f:
-            logging.config.dictConfig(yaml.load(f, Loader=yaml.SafeLoader))
+            dictConfig(yaml.load(f, Loader=yaml.SafeLoader))
         return
-
-    logging.config.fileConfig(str(logconf_path))
+    # else
+    fileConfig(str(logconf_path))
