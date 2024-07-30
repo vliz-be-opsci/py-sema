@@ -40,6 +40,15 @@ class DiscoveryResult(ServiceResult):
 class DiscoveryTrace(ServiceTrace):
     """Trace of the discovery service"""
 
+    def __init__(self) -> None:
+        super().__init__()
+
+    def add_attempt(self, url: str, mime_type: str, response: Response):
+        pass  # TODO - add an attempt to retrieve structured content
+
+    def update_count(self, url: str, mime_type: str, count: int):
+        pass  # TODO - update the count of triples
+
     def toProv(self):
         pass  # TODO - exportessential traces into prov-o format // see #63
 
@@ -77,8 +86,8 @@ class Discovery(ServiceBase):
             self._named_graph = named_graph
         if output_file:
             self._output_file = output_file
-            self._output_format = output_format or format_from_filepath(
-                output_file
+            self._output_format = (
+                output_format or format_from_filepath(output_file) or "turtle"
             )
 
         # state intialization
@@ -183,11 +192,12 @@ class Discovery(ServiceBase):
         self, url: str, req_mime_type: str = None
     ) -> None:
         resp: Response = self._make_response(url, req_mime_type)
-        # TODO trace and deal with non-triple content
+        self._trace.add_attempt(url, req_mime_type, resp)
         if resp is None:
             return  # nothing to extract
         # else
         self._extract_triples_from_response(resp)
+        self._trace.update_count(url, req_mime_type, len(self._result))
 
     def _discover_subject(
         self, target_url: str = None, force_types: Iterable[str] = []
@@ -234,8 +244,11 @@ class Discovery(ServiceBase):
             self._store.add_graph(g, self._named_graph)
 
         if self._output_file:
-            # TODO cover export to stdout requested as output_file == "-"
-            g.serialize(self._output_file, format=self._output_format)
+            if self._output_file == "-":
+                content = g.serialize(format=self._output_format)
+                print(content)
+            else:
+                g.serialize(self._output_file, format=self._output_format)
 
     def process(self) -> Tuple[ServiceResult, ServiceTrace]:
         assert self._result is None, "Service has already been executed"
