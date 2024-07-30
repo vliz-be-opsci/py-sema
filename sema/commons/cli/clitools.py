@@ -40,3 +40,8 @@ class SemaArgsParser(ArgumentParser):
     def args_to_dict(multi_args: Iterable[Iterable[str]]) -> Dict[str, str]:
         """Converts a list of lists of strings to a dictionary."""
         return {k: v for [k, v] in multi_args} if multi_args else {}
+
+    @staticmethod
+    def args_joined(multi_args: Iterable[str], c: str = ",") -> str:
+        """joins a list of strings into a single string."""
+        return c.join(multi_args) if multi_args else None
