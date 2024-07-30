@@ -3,7 +3,8 @@ from logging import getLogger
 
 from pyshacl import validate
 
-from sema.harvest import service as TravHarv
+from sema.harvest import service as Harvest
+from sema.query import service as Query
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 
@@ -29,13 +30,12 @@ class EyereasonerHandler(TaskHandler):
         raise NotImplementedError
 
 
-class Pykg2tblHandler(TaskHandler):
+class QueryHandler(TaskHandler):
     def handle(self, task):
-        # TODO: implement
-        raise NotImplementedError
+        Query(**task.args).process()
 
 
-class PyshaclHandler(TaskHandler):
+class ShaclHandler(TaskHandler):
     def handle(self, task):
         conforms, _, _ = validate(
             data_graph=os.path.join(
@@ -58,19 +58,19 @@ class PyshaclHandler(TaskHandler):
         return conforms
 
 
-class PysubytHandler(TaskHandler):
+class SubytHandler(TaskHandler):
     def handle(self, task):
         Subyt(**task.args).process()
 
 
-class PySyncFsTriplesHandler(TaskHandler):
+class SyncFsTriplesHandler(TaskHandler):
     def handle(self, task):
         SyncFsTriples(**task.args).process()
 
 
-class PyTravHarvHandler(TaskHandler):
+class HarvestHandler(TaskHandler):
     def handle(self, task):
-        TravHarv(**task.args).process()
+        Harvest(**task.args).process()
 
 
 class RMLHandler(TaskHandler):

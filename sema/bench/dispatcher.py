@@ -1,17 +1,17 @@
 from sema.bench.handler import (
-    PyshaclHandler,
-    PysubytHandler,
-    PySyncFsTriplesHandler,
-    PyTravHarvHandler,
+    ShaclHandler,
+    SubytHandler,
+    SyncFsTriplesHandler,
+    HarvestHandler,
 )
 
 
 class TaskDispatcher:
     func_to_handler = {
-        "pysubyt": PysubytHandler,
-        "pyshacl": PyshaclHandler,
-        "py-sync-fs-triples": PySyncFsTriplesHandler,
-        "py-trav-harv": PyTravHarvHandler,
+        "subyt": SubytHandler,
+        "shacl": ShaclHandler,
+        "sync-fs-triples": SyncFsTriplesHandler,
+        "harvest": HarvestHandler,
     }
 
     def dispatch(self, task):

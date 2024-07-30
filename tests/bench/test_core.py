@@ -1,8 +1,16 @@
 #! /usr/bin/env python
+import os
+import time
+import unittest
 from pathlib import Path
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
-from sema.bench.core import Sembench
+from sema.bench.core import (
+    ConfigFileEventHandler,
+    Sembench,
+    locations_from_environ,
+)
 
 
 class TestSembench(TestCase):
@@ -159,7 +167,90 @@ class TestSembench(TestCase):
     """
 
 
-if __name__ == "__main__":
-    from util4tests import run_single_test
+class TestConfigFileEventHandler(unittest.TestCase):
+    def setUp(self):
+        self.sembench_config_path = "/path/to/sembench.yaml"
+        self.func = MagicMock()
+        self.event_handler = ConfigFileEventHandler(
+            self.sembench_config_path, self.func
+        )
 
-    run_single_test(__file__)
+    def test_on_modified_same_src_path(self):
+        event = MagicMock()
+        event.src_path = self.sembench_config_path
+        os.environ["PYSEMBENCH_WATCHDOG_TIME"] = "0"
+
+        with patch("time.time", return_value=2):
+            self.event_handler.on_modified(event)
+
+        self.func.assert_called_once()
+
+    def test_on_modified_different_src_path(self):
+        event = MagicMock()
+        event.src_path = "/path/to/other.yaml"
+        os.environ["PYSEMBENCH_WATCHDOG_TIME"] = "0"
+
+        with patch("time.time", return_value=2):
+            self.event_handler.on_modified(event)
+
+        self.func.assert_not_called()
+
+    def test_on_modified_time_elapsed_less_than_2_seconds(self):
+        event = MagicMock()
+        event.src_path = self.sembench_config_path
+        os.environ["PYSEMBENCH_WATCHDOG_TIME"] = str(time.time())
+
+        with patch("time.time", return_value=time.time() + 1):
+            self.event_handler.on_modified(event)
+
+        self.func.assert_not_called()
+
+    def test_on_modified_exception_raised(self):
+        event = MagicMock()
+        event.src_path = self.sembench_config_path
+        os.environ["PYSEMBENCH_WATCHDOG_TIME"] = "0"
+        self.func.side_effect = Exception("Something went wrong")
+
+        with self.assertRaises(Exception):
+            self.event_handler.on_modified(event)
+
+        self.func.assert_called_once()
+
+    def tearDown(self):
+        del os.environ["PYSEMBENCH_WATCHDOG_TIME"]
+
+
+class TestLocationsFromEnviron(unittest.TestCase):
+    def test_locations_from_environ_empty(self):
+        os.environ.clear()
+        result = locations_from_environ()
+        self.assertEqual(result, {})
+
+    def test_locations_from_environ_single_location(self):
+        os.environ["SEMBENCH_HOME_PATH"] = "/path/to/home"
+        result = locations_from_environ()
+        self.assertEqual(
+            result,
+            {
+                "home": "/path/to/home",
+                "input": "/path/to/input",
+                "output": "/path/to/output",
+            },
+        )
+
+    def test_locations_from_environ_multiple_locations(self):
+        os.environ["SEMBENCH_HOME_PATH"] = "/path/to/home"
+        os.environ["SEMBENCH_INPUT_PATH"] = "/path/to/input"
+        os.environ["SEMBENCH_OUTPUT_PATH"] = "/path/to/output"
+        result = locations_from_environ()
+        expected = {
+            "home": "/path/to/home",
+            "input": "/path/to/input",
+            "output": "/path/to/output",
+        }
+        self.assertEqual(result, expected)
+
+    def test_locations_from_environ_invalid_key(self):
+        os.environ["INVALID_KEY_PATH"] = "/path/to/invalid"
+        result = locations_from_environ()
+        self.assertEqual(result, {})
