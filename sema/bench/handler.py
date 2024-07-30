@@ -4,13 +4,13 @@ from logging import getLogger
 from pyshacl import validate
 
 from sema.harvest import service as Harvest
-from sema.query import service as Query
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 
 logger = getLogger(__name__)
 
 # TODO - for subyt and syncfs, import service from sema
+# from sema.query import service as Query
 
 
 class TaskHandler:
@@ -32,7 +32,9 @@ class EyereasonerHandler(TaskHandler):
 
 class QueryHandler(TaskHandler):
     def handle(self, task):
-        Query(**task.args).process()
+        # TODO: implement
+        # Query(**task.args).process()
+        raise NotImplementedError
 
 
 class ShaclHandler(TaskHandler):
