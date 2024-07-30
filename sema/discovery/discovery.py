@@ -1,7 +1,9 @@
 import cgi
+from abc import ABC
 from logging import getLogger
 from typing import Iterable, List, Tuple
 from urllib.parse import urljoin
+from datetime import datetime
 
 from rdflib import Graph
 from requests import Session
@@ -39,18 +41,41 @@ class DiscoveryResult(ServiceResult):
 
 class DiscoveryTrace(ServiceTrace):
     """Trace of the discovery service"""
-
     def __init__(self) -> None:
         super().__init__()
+        self._event_list = list()
 
-    def add_attempt(self, url: str, mime_type: str, response: Response):
-        pass  # TODO - add an attempt to retrieve structured content
+    class TraceEvent(ABC):
+        def __init__(self, msg) -> None:
+            super().__init__()
+            self.ts = datetime.now()
+            self.msg = msg
+
+    class ContentRetrievedEvent(TraceEvent):
+        def __init__(self, url: str, mime_type: str, response: Response):
+            super().__init__("Content Retrieved")
+            self.url = url
+            self.mime_type = mime_type
+            self.response = response
+
+    class CountUpdateEvent(TraceEvent):
+        def __init__(self, url: str, mime_type: str, count: int):
+            super().__init__("Count Update")
+            self.url = url
+            self.mime_type = mime_type
+            self.count = count
+
+    def _add_event(self, event: TraceEvent):
+        self._event_list.append(event)
+
+    def register_content_retrieved(self, url: str, mime_type: str, response: Response):
+        self._add_event(self.ContentRetrievedEvent(url, mime_type, response))
 
     def update_count(self, url: str, mime_type: str, count: int):
-        pass  # TODO - update the count of triples
+        self._add_event(self.CountUpdateEvent(url, mime_type, count))
 
     def toProv(self):
-        pass  # TODO - exportessential traces into prov-o format // see #63
+        pass  # TODO - export essential traces into prov-o format // see #63
 
 
 class Discovery(ServiceBase):
@@ -127,6 +152,7 @@ class Discovery(ServiceBase):
         return self._result.success
 
     def _make_response(self, url: str, req_mime_type: str = None) -> Response:
+        """Make a request to the url and return the response"""
         headers = dict(Accept=req_mime_type) if req_mime_type else dict()
         log.debug(f"requesting {url} with {headers=}")
         resp = self.session.get(url, headers=headers)
@@ -192,7 +218,7 @@ class Discovery(ServiceBase):
         self, url: str, req_mime_type: str = None
     ) -> None:
         resp: Response = self._make_response(url, req_mime_type)
-        self._trace.add_attempt(url, req_mime_type, resp)
+        self._trace.register_content_retrieved(url, req_mime_type, resp)
         if resp is None:
             return  # nothing to extract
         # else
@@ -211,6 +237,7 @@ class Discovery(ServiceBase):
 
         # TODO consider rewrite more elegantly/clearly
         #   essentially this is chain of strategies to fallback
+
         # -- strategy #01 do as your a told, pass forced mimes in conneg
         # i.e. go explcitely over the mime-types that are requested (if any)
         for mt in force_types:
