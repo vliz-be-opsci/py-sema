@@ -97,6 +97,15 @@ def get_arg_parser():
         help="Specifies the output format",
     )
 
+    # args.accept_zero
+    # -z/--accept-zero
+    parser.add_argument(
+        "-z",
+        "--accept-zero",
+        action="store_true",
+        help="Accept zero triples as success",
+    )
+
     return parser
 
 
@@ -133,7 +142,7 @@ def main(*args_list) -> bool:
 
     discovery = make_service(args)
     result, trace = discovery.process()
-    return bool(result)
+    return bool(result) or args.accept_zero
 
 
 if __name__ == "__main__":

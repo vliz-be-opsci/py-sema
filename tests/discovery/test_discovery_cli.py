@@ -93,3 +93,12 @@ def test_cli(capfd):
     assert len(out) > 0
     g = Graph().parse(data=out, format=output_format)
     assert len(g) > 0
+
+@pytest.mark.parametrize("switch, expected_success", [("-z", True), ("", False)])
+def test_cli_no_triples(capfd, switch, expected_success):
+    subject_uri = "http://www.vliz.be"  # there are no triples here
+    cli_line = f"{subject_uri} {switch}"
+    success: bool = main(*cli_line.split())
+    assert success == expected_success
+    out, err = capfd.readouterr()
+    assert len(out) == 0
