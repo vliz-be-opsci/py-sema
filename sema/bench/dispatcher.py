@@ -1,8 +1,8 @@
 from sema.bench.handler import (
+    HarvestHandler,
     ShaclHandler,
     SubytHandler,
     SyncFsTriplesHandler,
-    HarvestHandler,
 )
 
 
