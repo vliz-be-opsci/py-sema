@@ -8,6 +8,7 @@
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
 """
 
+from .mimetypes import to_mimetype
 from .rdffiles import (
     format_from_filepath,
     is_supported_rdffile_suffix,
@@ -22,4 +23,5 @@ __all__ = [
     "mime_to_format",
     "is_supported_rdffilepath",
     "is_supported_rdffile_suffix",
+    "to_mimetype",
 ]
