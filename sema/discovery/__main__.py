@@ -7,7 +7,6 @@ from sema.commons.cli import Namespace, SemaArgsParser
 from sema.commons.fileformats import to_mimetype
 from sema.discovery import Discovery
 
-
 log = getLogger(__name__)
 
 
@@ -21,21 +20,21 @@ def get_arg_parser():
         "Discovery gets structured content associated to the subject-uri",
     )
 
-    # args.url 
+    # args.url
     # is either first positional argument or -u/--url,
     parser.add_argument(
         "url",
         nargs="?",
         action="store",
         metavar="URL",
-        help="The subject URI to discover"
+        help="The subject URI to discover",
     )
     parser.add_argument(
         "-u",
         "--url",
         metavar="URL",
         action="store",
-        help="The subject URI to discover"
+        help="The subject URI to discover",
     )
 
     # args.request_mimes
@@ -45,7 +44,7 @@ def get_arg_parser():
         "--request-mimes",
         metavar="MIME",
         action="append",
-        help="Comma-separated list of acceptable MIME types. Can be repeated."
+        help="Comma-separated list of acceptable MIME types. Can be repeated.",
     )
 
     # args.read_uri
@@ -55,7 +54,7 @@ def get_arg_parser():
         "--read-uri",
         metavar="URI",
         action="store",
-        help="read-URI to triple store to use"
+        help="read-URI to triple store to use",
     )
 
     # args.write_uri
@@ -65,7 +64,7 @@ def get_arg_parser():
         "--write-uri",
         metavar="URI",
         action="store",
-        help="write-URI to triple store to use"
+        help="write-URI to triple store to use",
     )
 
     # args.graph
@@ -75,7 +74,7 @@ def get_arg_parser():
         "--graph",
         metavar="URI",
         action="store",
-        help="Named graph to use in the triple store"
+        help="Named graph to use in the triple store",
     )
 
     # args.output
@@ -95,7 +94,7 @@ def get_arg_parser():
         "--format",
         metavar="FORMAT",
         action="store",
-        help="Specifies the output format"
+        help="Specifies the output format",
     )
 
     return parser
@@ -113,7 +112,7 @@ def normalise_mime_type_requests(request_mimes: Iterable | str) -> str:
     # treat as sequence, possibly some of them in single string format
     request_mimes = SemaArgsParser.args_joined(request_mimes)
     request_mimes = request_mimes.split(",") if request_mimes else []
-    return ','.join({normalise_mime_type_requests(mt) for mt in request_mimes})
+    return ",".join({normalise_mime_type_requests(mt) for mt in request_mimes})
 
 
 def make_service(args: Namespace) -> Discovery:
