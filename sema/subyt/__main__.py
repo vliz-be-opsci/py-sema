@@ -144,7 +144,7 @@ def main(*args_list) -> bool:
 
     try:
         subyt = make_service(args)
-        r, t = subyt.process()
+        r = subyt.process()
         log.debug("processing done")
         return bool(r)
     except Exception as e:
