@@ -11,7 +11,12 @@ from urllib3.util.retry import Retry
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
-from sema.commons.service import ServiceBase, ServiceResult, Trace, StatusMonitor
+from sema.commons.service import (
+    ServiceBase,
+    ServiceResult,
+    StatusMonitor,
+    Trace,
+)
 from sema.commons.store import create_rdf_store
 
 from .lod_html_parser import LODAwareHTMLParser
