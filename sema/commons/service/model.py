@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from logging import getLogger
-from typing import Callable
+from typing import Any, Callable
 
 log = getLogger(__name__)
 
@@ -29,7 +29,7 @@ class StatusMonitor(ABC):
 
     @property
     @abstractmethod
-    def status(self):
+    def status(self) -> Any:
         pass
 
 
@@ -169,7 +169,6 @@ class Trace:
                     ), f"{type(monitor).__name__} not a proper StatusMonitor"
                     target._trace = trc_cls(monitor)
                 resp = fn(target, *args, **kwargs)
-                print(f"end tracer.init {resp=}")
                 return resp
 
             return wrapped_init
