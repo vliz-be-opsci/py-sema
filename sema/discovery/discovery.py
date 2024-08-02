@@ -1,9 +1,7 @@
 import cgi
-from abc import ABC
 from logging import getLogger
-from typing import Iterable, List, Tuple
+from typing import Iterable, List
 from urllib.parse import urljoin
-from datetime import datetime
 
 from rdflib import Graph
 from requests import Session
@@ -13,7 +11,7 @@ from urllib3.util.retry import Retry
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
-from sema.commons.service import ServiceBase, ServiceResult, ServiceTrace
+from sema.commons.service import ServiceBase, ServiceResult, Trace, StatusMonitor
 from sema.commons.store import create_rdf_store
 
 from .lod_html_parser import LODAwareHTMLParser
@@ -21,7 +19,7 @@ from .lod_html_parser import LODAwareHTMLParser
 log = getLogger(__name__)
 
 
-class DiscoveryResult(ServiceResult):
+class DiscoveryResult(ServiceResult, StatusMonitor):
     """Result of the discovery service"""
 
     def __init__(self):
@@ -32,50 +30,15 @@ class DiscoveryResult(ServiceResult):
         return self._graph
 
     def __len__(self) -> int:
-        return len(self._graph)
+        return len(self.graph)
+
+    @property
+    def status(self) -> int:
+        return len(self)
 
     @property
     def success(self) -> bool:
-        return len(self) > 0
-
-
-class DiscoveryTrace(ServiceTrace):
-    """Trace of the discovery service"""
-    def __init__(self) -> None:
-        super().__init__()
-        self._event_list = list()
-
-    class TraceEvent(ABC):
-        def __init__(self, msg) -> None:
-            super().__init__()
-            self.ts = datetime.now()
-            self.msg = msg
-
-    class ContentRetrievedEvent(TraceEvent):
-        def __init__(self, url: str, mime_type: str, response: Response):
-            super().__init__("Content Retrieved")
-            self.url = url
-            self.mime_type = mime_type
-            self.response = response
-
-    class CountUpdateEvent(TraceEvent):
-        def __init__(self, url: str, mime_type: str, count: int):
-            super().__init__("Count Update")
-            self.url = url
-            self.mime_type = mime_type
-            self.count = count
-
-    def _add_event(self, event: TraceEvent):
-        self._event_list.append(event)
-
-    def register_content_retrieved(self, url: str, mime_type: str, response: Response):
-        self._add_event(self.ContentRetrievedEvent(url, mime_type, response))
-
-    def update_count(self, url: str, mime_type: str, count: int):
-        self._add_event(self.CountUpdateEvent(url, mime_type, count))
-
-    def toProv(self):
-        pass  # TODO - export essential traces into prov-o format // see #63
+        return self.status > 0
 
 
 class Discovery(ServiceBase):
@@ -116,7 +79,7 @@ class Discovery(ServiceBase):
             )
 
         # state intialization
-        self._result, self._trace = None, None
+        self._result = DiscoveryResult()
 
     SUPPORTED_MIMETYPES = {
         "application/ld+json",
@@ -125,7 +88,7 @@ class Discovery(ServiceBase):
     }
 
     @staticmethod
-    def make_http_session():
+    def _make_http_session():
         """Create a requests session with retry logic"""
         total_retry = 8
         session = Session()
@@ -144,7 +107,7 @@ class Discovery(ServiceBase):
     def session(self):
         """Access to reusable http session fro executing requests"""
         if not hasattr(self, "_session"):
-            self._session = self.make_http_session()
+            self._session = self._make_http_session()
         return self._session
 
     @property
@@ -214,16 +177,16 @@ class Discovery(ServiceBase):
                         )
             parser.close()
 
+    @Trace.by(Trace.Event)
     def _get_structured_content(
         self, url: str, req_mime_type: str = None
-    ) -> None:
+    ) -> Response:
         resp: Response = self._make_response(url, req_mime_type)
-        self._trace.register_content_retrieved(url, req_mime_type, resp)
         if resp is None:
             return  # nothing to extract
         # else
         self._extract_triples_from_response(resp)
-        self._trace.update_count(url, req_mime_type, len(self._result))
+        return resp  # note the return will be reigstered in the event-trace
 
     def _discover_subject(
         self, target_url: str = None, force_types: Iterable[str] = []
@@ -277,12 +240,8 @@ class Discovery(ServiceBase):
             else:
                 g.serialize(self._output_file, format=self._output_format)
 
-    def process(self) -> Tuple[ServiceResult, ServiceTrace]:
-        assert self._result is None, "Service has already been executed"
-
-        self._result = DiscoveryResult()
-        self._trace = DiscoveryTrace()
-
+    @Trace.init(Trace, monitor_attr="_result")
+    def process(self) -> ServiceResult:
         try:
             self._discover_subject()
             self._output_result()
@@ -291,8 +250,7 @@ class Discovery(ServiceBase):
             log.exception(
                 f"Error during discovery of {self.subject_uri}", exc_info=e
             )
-
-        return self._result, self._trace
+        return self._result
 
 
 def discover_subject(subject_url: str, mimetypes: List[str] = []):
@@ -301,5 +259,5 @@ def discover_subject(subject_url: str, mimetypes: List[str] = []):
         request_mimes=",".join(mimetypes),
     )
 
-    r, t = service.process()
+    r = service.process()
     return r.graph if r else None

@@ -1,5 +1,4 @@
 import pytest
-from conftest import log
 from rdflib import Graph
 
 from sema.discovery.__main__ import (

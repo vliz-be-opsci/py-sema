@@ -5,6 +5,7 @@ from typing import Iterable
 
 from sema.commons.cli import Namespace, SemaArgsParser
 from sema.commons.fileformats import to_mimetype
+from sema.commons.service import Trace
 from sema.discovery import Discovery
 
 log = getLogger(__name__)
@@ -141,7 +142,9 @@ def main(*args_list) -> bool:
     args = get_arg_parser().parse_args(args_list)
 
     discovery = make_service(args)
-    result, trace = discovery.process()
+    result = discovery.process()
+    trace: Trace = Trace.extract(discovery)
+    # TODO do export the trace
     return bool(result) or args.accept_zero
 
 

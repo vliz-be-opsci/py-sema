@@ -10,7 +10,6 @@
 from .discovery import (
     Discovery,
     DiscoveryResult,
-    DiscoveryTrace,
     discover_subject,
 )
 
@@ -18,5 +17,4 @@ __all__ = [
     "discover_subject",
     "Discovery",
     "DiscoveryResult",
-    "DiscoveryTrace",
 ]
