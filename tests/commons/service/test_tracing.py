@@ -1,12 +1,22 @@
-import pytest
 from logging import getLogger
-from sema.commons.service import ServiceBase, Trace, TraceMode, ServiceResult, StatusMonitor, RestartException
 from random import randint
 
+import pytest
+
+from sema.commons.service import (
+    RestartException,
+    ServiceBase,
+    ServiceResult,
+    StatusMonitor,
+    Trace,
+    TraceMode,
+)
 
 log = getLogger(__name__)
-NUM_CALLS = randint(1, 7)  # at least do things once
-NUM_RUNS = randint(2, 7)   # by running at least twice, we force the double-start exception
+# at least do things once
+NUM_CALLS = randint(1, 7)
+# run at least twice, to force the double-start exception
+NUM_RUNS = randint(2, 7)
 
 
 class CaseResult(ServiceResult, StatusMonitor):
@@ -53,11 +63,25 @@ def service_factory(mode: TraceMode):
     "mode, ex_cnt_dist_trace, ex_results, ex_event_sizes, ex_cnt_err",
     [
         (TraceMode.ONCE, 1, [NUM_CALLS], [NUM_CALLS], NUM_RUNS - 1),
-        (TraceMode.KEEP, 1, [(i+1)*NUM_CALLS for i in range(NUM_RUNS)], [(i+1)*NUM_CALLS for i in range(NUM_RUNS)], 0),
-        (TraceMode.REFRESH, NUM_RUNS, [(i+1)*NUM_CALLS for i in range(NUM_RUNS)], [NUM_CALLS for i in range(NUM_RUNS)], 0),
+        (
+            TraceMode.KEEP,
+            1,
+            [(i + 1) * NUM_CALLS for i in range(NUM_RUNS)],
+            [(i + 1) * NUM_CALLS for i in range(NUM_RUNS)],
+            0,
+        ),
+        (
+            TraceMode.REFRESH,
+            NUM_RUNS,
+            [(i + 1) * NUM_CALLS for i in range(NUM_RUNS)],
+            [NUM_CALLS for i in range(NUM_RUNS)],
+            0,
+        ),
     ],
 )
-def test_trace_modes(mode, ex_cnt_dist_trace, ex_results, ex_event_sizes, ex_cnt_err):
+def test_trace_modes(
+    mode, ex_cnt_dist_trace, ex_results, ex_event_sizes, ex_cnt_err
+):
     Service = service_factory(mode)
     service = Service()
 
@@ -71,17 +95,29 @@ def test_trace_modes(mode, ex_cnt_dist_trace, ex_results, ex_event_sizes, ex_cnt
             result = service.process()
             log.debug(f"test({mode} :: run {i} {result=}")
             assert result.success, f"test({mode} :: run {i} failed"
-            assert result._count == ex_results[i], f"test({mode} :: run {i} count mismatch {result._count} != {ex_results[i]}"
+            assert result._count == ex_results[i], (
+                f"test({mode} :: run {i} count mismatch "
+                f"{result._count} != {ex_results[i]}"
+            )
 
             trace = Trace.extract(service)
             log.debug(f"test({mode} :: run {i} {trace=}")
             assert trace is not None, f"test({mode} :: run {i} trace is None"
-            assert len(trace._events) == ex_event_sizes[i], f"test({mode} :: run {i} event size mismatch {len(trace._events)} != {ex_event_sizes[i]}"
+            assert len(trace._events) == ex_event_sizes[i], (
+                f"test({mode} :: run {i} event size mismatch "
+                f"{len(trace._events)} != {ex_event_sizes[i]}"
+            )
 
             trace_instances.add(trace)
             log.debug(f"test({mode} :: run {i} done - {len(trace_instances)=}")
         except RestartException:
             error_count += 1
 
-    assert len(trace_instances) == ex_cnt_dist_trace, f"test({mode} :: distinct trace instances mismatch {len(trace_instances)} != {ex_cnt_dist_trace}"
-    assert error_count == ex_cnt_err, f"test({mode} :: error count mismatch {error_count} != {ex_cnt_err}"
+    assert len(trace_instances) == ex_cnt_dist_trace, (
+        f"test({mode} :: distinct trace instances mismatch "
+        f"{len(trace_instances)} != {ex_cnt_dist_trace}"
+    )
+    assert error_count == ex_cnt_err, (
+        f"test({mode} :: error count mismatch "
+        f"{error_count} != {ex_cnt_err}"
+    )

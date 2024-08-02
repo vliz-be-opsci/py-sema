@@ -1,4 +1,11 @@
-from .model import ServiceBase, ServiceResult, Trace, TraceMode, StatusMonitor, RestartException
+from .model import (
+    RestartException,
+    ServiceBase,
+    ServiceResult,
+    StatusMonitor,
+    Trace,
+    TraceMode,
+)
 
 __all__ = [
     "ServiceBase",
