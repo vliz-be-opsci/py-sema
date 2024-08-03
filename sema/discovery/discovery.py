@@ -20,6 +20,7 @@ from sema.commons.service import (
 from sema.commons.store import create_rdf_store
 
 from .lod_html_parser import LODAwareHTMLParser
+from .linkheaders import extract_link_headers
 
 log = getLogger(__name__)
 
@@ -156,13 +157,17 @@ class Discovery(ServiceBase):
         if self._add_triples_from_text(resp.text, resp_mime_type, resp.url):
             return  # we are done
         # else
-        # TODO retrieve FAIR-Signpost link from Header
+        # check for FAIR-SIGNPOST links in the headers
+        links = extract_link_headers(resp, rel="describedby")
+        log.debug(f"found {len(links) if links else 0} fair-signposted links in the headers")
+        if links is not None:
+            for alt_abs_url in links:
+                self._discover_subject(alt_abs_url)
         # else
         if resp_mime_type == "text/html":
             parser = LODAwareHTMLParser()
             parser.feed(resp.text)
             log.info(f"found {len(parser.links)} links in the html file")
-            # TODO this does not seem to consider links from the http headers?
             for alt_url in parser.links:
                 # check first if the link is absolute or relative
                 if alt_url.startswith("http"):
