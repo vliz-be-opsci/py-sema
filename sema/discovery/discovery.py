@@ -19,8 +19,8 @@ from sema.commons.service import (
 )
 from sema.commons.store import create_rdf_store
 
-from .lod_html_parser import LODAwareHTMLParser
 from .linkheaders import extract_link_headers
+from .lod_html_parser import LODAwareHTMLParser
 
 log = getLogger(__name__)
 
@@ -159,8 +159,8 @@ class Discovery(ServiceBase):
         # else
         # check for FAIR-SIGNPOST links in the headers
         links = extract_link_headers(resp, rel="describedby")
-        log.debug(f"found {len(links) if links else 0} fair-signposted links in the headers")
         if links is not None:
+            log.debug(f"found {len(links)} signposted links in the headers")
             for alt_abs_url in links:
                 self._discover_subject(alt_abs_url)
         # else
