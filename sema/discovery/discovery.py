@@ -169,13 +169,8 @@ class Discovery(ServiceBase):
             parser.feed(resp.text)
             log.info(f"found {len(parser.links)} links in the html file")
             for alt_url in parser.links:
-                # check first if the link is absolute or relative
-                if alt_url.startswith("http"):
-                    alt_abs_url = alt_url
-                else:
-                    # Resolve the relative URL to an absolute URL
-                    alt_abs_url = urljoin(resp.url, alt_url)
-                    self._discover_subject(alt_abs_url)
+                alt_abs_url = urljoin(resp.url, alt_url)
+                self._discover_subject(alt_abs_url)
 
             for script in parser.scripts:
                 # parse the script and check if it is json-ld or turtle
