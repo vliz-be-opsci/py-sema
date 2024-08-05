@@ -137,9 +137,18 @@ class Discovery(ServiceBase):
         }
         format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
         try:
-            self._result._graph.parse(
+            g: Graph = Graph().parse(
                 data=content, format=format, publicID=source_url
             )
+            log.debug(f"parsed {len(g)} triples from {source_url} in {format=}")
+            # Note: pure application/json parsing will not fail,
+            # but simply return an empty graph
+            # still we attempt that case because e.g. github pages
+            # will serve jsonld as json
+            if len(g) == 0:
+                return False
+            # else
+            self._result._graph += g
             return True
         except Exception as e:
             log.exception(
@@ -152,9 +161,10 @@ class Discovery(ServiceBase):
         # note we can be sure the response is ok, as we checked that before
         ctype_header = resp.headers.get("Content-Type", None)
         resp_mime_type, options = cgi.parse_header(ctype_header)
-        log.debug(f"got {resp.status_code=} {resp_mime_type=}")
+        log.debug(f"extract from {resp.url=} in format {resp_mime_type=}")
         # add triples from the response content
         if self._add_triples_from_text(resp.text, resp_mime_type, resp.url):
+            log.debug(f"added {len(self._result)} triples from {resp.url}")
             return  # we are done
         # else
         # check for FAIR-SIGNPOST links in the headers
@@ -208,6 +218,7 @@ class Discovery(ServiceBase):
 
         # -- strategy #01 do as your a told, pass forced mimes in conneg
         # i.e. go explcitely over the mime-types that are requested (if any)
+        log.debug(f"discovery #01 trying {force_types=} for {target_url=}")
         for mt in force_types:
             self._get_structured_content(target_url, mt)
         if self.triples_found:
@@ -216,6 +227,7 @@ class Discovery(ServiceBase):
 
         # -- strategy #02 do the basic thing
         # i.e. do the plan - no conneg request
+        log.debug(f"discovery #02 plain request for {target_url=}")
         self._get_structured_content(target_url)
         if self.triples_found:
             return  # we are done
@@ -224,13 +236,16 @@ class Discovery(ServiceBase):
         # -- strategy #03 do what we can
         # i.e. go on and conneg over remaining known RDF mime-types
         # in this case we stop as soon as we find some triples
-        for mt in set(self.SUPPORTED_MIMETYPES) - set(self.request_mimes):
+        remain_types = set(self.SUPPORTED_MIMETYPES) - set(force_types)
+        log.debug(f"discovery #03 trying {remain_types=} for {target_url=}")
+        for mt in remain_types:
             self._get_structured_content(target_url, mt)
             if self.triples_found:
                 return  # we are done
 
         # -- strategy #04 do final attempt like humans
         # i.e. just grab what we can get from a text/html request
+        log.debug(f"discovery #04 trying text/html for {target_url=}")
         self._get_structured_content(target_url, "text/html")
 
     def _output_result(self):
@@ -249,6 +264,10 @@ class Discovery(ServiceBase):
     def process(self) -> ServiceResult:
         try:
             self._discover_subject()
+            log.debug(
+                f"done with {self.subject_uri=} "
+                f"discovered {len(self._result)} triples"
+            )
             self._output_result()
             self._result._success = True
         except Exception as e:
@@ -256,6 +275,10 @@ class Discovery(ServiceBase):
                 f"Error during discovery of {self.subject_uri}", exc_info=e
             )
         return self._result
+
+    def export_trace(self, output_path: str) -> None:
+        trace: Trace = Trace.extract(self)
+        log.debug(f"TODO dump {trace=} to {output_path=}")
 
 
 def discover_subject(subject_url: str, mimetypes: List[str] = []):
