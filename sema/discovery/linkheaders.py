@@ -9,11 +9,12 @@ log = getLogger(__name__)
 
 def extract_link_headers(resp: Response, rel=None) -> Set[str]:
     """Extract the links from the HTTP headers of the response."""
+    baseurl: str = resp.url
     link_header = resp.headers.get("Link", None)
     if link_header is None:
+        log.debug(f"no link header at {baseurl=}")
         return None
     # else
-    baseurl: str = resp.url
     log.debug(f"extracting links from {link_header=}")
     links = set()
     for link_str in link_header.split(","):
@@ -23,5 +24,5 @@ def extract_link_headers(resp: Response, rel=None) -> Set[str]:
         if rel is None or f"rel={rel}" in remainder:
             log.debug(f"adding matching link {link=} relative to {baseurl=}")
             links.add(urljoin(baseurl, link))
-
+    log.debug(f"extracted {links=} from {baseurl=}")
     return links
