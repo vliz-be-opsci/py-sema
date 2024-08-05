@@ -1,0 +1,9 @@
+my_resolved_task:
+  func: R
+  args:
+    plain: "no resolve going on"
+    skip: "keep {one} unresolved"
+    noop: !resolve "nothing to resolve"
+    one: !resolve unquoted {one}/1
+    two: !resolve "quoted {two}/2"
+    twelve: !resolve "{one}{two}/12"

@@ -1,0 +1,39 @@
+@prefix sh:     <http://www.w3.org/ns/shacl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+schema:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ;
+    sh:property [
+        sh:path schema:givenName ;
+        sh:datatype xsd:string ;
+        sh:name "given name" ;
+    ] ;
+    sh:property [
+        sh:path schema:birthDate ;
+        sh:lessThan schema:deathDate ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path schema:gender ;
+        sh:in ( "female" "male" "nonbinary" "self-descr" ) ;
+    ] ;
+    sh:property [
+        sh:path schema:address ;
+        sh:node schema:AddressShape ;
+    ] .
+
+schema:AddressShape
+    a sh:NodeShape ;
+    sh:closed true ;
+    sh:property [
+        sh:path schema:streetAddress ;
+        sh:datatype xsd:string ;
+    ] ;
+    sh:property [
+        sh:path schema:postalCode ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 10000 ;
+        sh:maxInclusive 99999 ;
+    ] .
