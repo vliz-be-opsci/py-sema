@@ -107,6 +107,16 @@ def get_arg_parser():
         help="Accept zero triples as success",
     )
 
+    # args.trace
+    # -t/--trace
+    parser.add_argument(
+        "-t",
+        "--trace",
+        metavar="PATH",
+        action="store",
+        help="Location to store the trace of the discovery",
+    )
+
     return parser
 
 
@@ -143,9 +153,9 @@ def main(*args_list) -> bool:
 
     discovery = make_service(args)
     result = discovery.process()
-    trace: Trace = Trace.extract(discovery)
-    # TODO do export the trace if flag is set
-    print(trace)
+    # export the trace if flag is set
+    if args.trace:
+        discovery.export_trace(args.trace)
     return bool(result) or args.accept_zero
 
 
