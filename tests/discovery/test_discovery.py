@@ -1,9 +1,9 @@
 import logging
+from typing import List, Tuple
 
 import pytest
 from rdflib import Graph
 from uritemplate import URITemplate
-from typing import List, Tuple
 
 from sema.discovery import discover_subject
 

@@ -140,7 +140,9 @@ class Discovery(ServiceBase):
             g: Graph = Graph().parse(
                 data=content, format=format, publicID=source_url
             )
-            log.debug(f"parsed {len(g)} triples from {source_url} in {format=}")
+            log.debug(
+                f"parsed {len(g)} triples from {source_url} in {format=}"
+            )
             # Note: pure application/json parsing will not fail,
             # but simply return an empty graph
             # still we attempt that case because e.g. github pages

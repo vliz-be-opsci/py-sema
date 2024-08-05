@@ -5,7 +5,6 @@ from typing import Iterable
 
 from sema.commons.cli import Namespace, SemaArgsParser
 from sema.commons.fileformats import to_mimetype
-from sema.commons.service import Trace
 from sema.discovery import Discovery
 
 log = getLogger(__name__)
