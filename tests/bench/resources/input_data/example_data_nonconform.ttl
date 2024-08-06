@@ -1,0 +1,13 @@
+@prefix : <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/ns#Bob> a :Person ;
+    :address <http://example.org/ns#BobsAddress> ;
+    :birthDate "1971-07-07" ;
+    :deathDate "1968-09-10" ;
+    :familyName "Junior" ;
+    :givenName "Robert" .
+
+<http://example.org/ns#BobsAddress> :postalCode 9404 ;
+    :streetAddress "1600 Amphitheatre Pkway" .
+
