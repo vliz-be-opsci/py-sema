@@ -4,10 +4,7 @@ from typing import Iterable, List
 from urllib.parse import urljoin
 
 from rdflib import Graph
-from requests import Session
-from requests.adapters import HTTPAdapter
 from requests.models import Response
-from urllib3.util.retry import Retry
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
@@ -18,6 +15,7 @@ from sema.commons.service import (
     Trace,
 )
 from sema.commons.store import create_rdf_store
+from sema.commons.web import make_http_session
 
 from .linkheaders import extract_link_headers
 from .lod_html_parser import LODAwareHTMLParser
@@ -95,19 +93,7 @@ class Discovery(ServiceBase):
 
     @staticmethod
     def _make_http_session():
-        """Create a requests session with retry logic"""
-        total_retry = 8
-        session = Session()
-        retry = Retry(
-            total=total_retry,
-            backoff_factor=0.4,
-            status_forcelist=[500, 502, 503, 504, 429],
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        session.mount("http://", adapter)
-        session.mount("https://", adapter)
-
-        return session
+        return make_http_session()
 
     @property
     def session(self):

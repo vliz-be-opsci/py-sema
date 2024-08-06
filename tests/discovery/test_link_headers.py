@@ -52,6 +52,7 @@ def test_link_headers():
 
     response: Response = requests.get(httpbin_url)
     assert isinstance(response, Response)
+    assert response.ok, f"httpbin response not ok: {response.status_code=}"
     log.debug(f"{response.url=}")
 
     received_headers = extract_link_headers(response, rel="describedby")
