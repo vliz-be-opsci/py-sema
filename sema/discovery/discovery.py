@@ -97,7 +97,7 @@ class Discovery(ServiceBase):
 
     @property
     def session(self):
-        """Access to reusable http session fro executing requests"""
+        """Access to reusable http session for executing requests"""
         if not hasattr(self, "_session"):
             self._session = self._make_http_session()
         return self._session
