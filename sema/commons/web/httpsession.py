@@ -5,6 +5,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 
+# TODP consider lowering this default retry-count + allowing env variable override
 def make_http_session(
     total_retry: int = 8,
     backoff_factor: float = 0.4,

@@ -5,6 +5,8 @@ from urllib.parse import urljoin
 
 from rdflib import Graph
 from requests.models import Response
+from requests.exceptions import RetryError
+from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
@@ -110,7 +112,11 @@ class Discovery(ServiceBase):
         """Make a request to the url and return the response"""
         headers = dict(Accept=req_mime_type) if req_mime_type else dict()
         log.debug(f"requesting {url} with {headers=}")
-        resp = self.session.get(url, headers=headers)
+        try:
+            resp = self.session.get(url, headers=headers)
+        except (ResponseError, RetryError) as e:  # if retry strategy gives up
+            log.exception(f"FAILED request {url} with {headers=} ", exc_info=e)
+            return None
         return resp if resp.ok else None
 
     def _add_triples_from_text(self, content, mimetype, source_url):
