@@ -1,6 +1,5 @@
 import sys
 from logging import getLogger
-from typing import Iterable
 
 from sema.commons.cli import Namespace, SemaArgsParser
 from sema.commons.web import ConnegEvaluation
@@ -15,7 +14,7 @@ def get_arg_parser():
     """
     parser = SemaArgsParser(
         "sema-conneg",
-        "Conneg Evaluator checks the conneg features available on the passed url",
+        "Conneg Evaluator checks the url for available conneg features",
     )
 
     # args.url
@@ -42,7 +41,10 @@ def get_arg_parser():
         "--request-variants",
         metavar="[MIME[;PROFILE]?,]+",
         action="append",
-        help="Comma-separated list of acceptable MIME;PROFILE variants. Can be repeated.",
+        help=(
+            "Comma-separated list of acceptable MIME;PROFILE variants. "
+            "Can be repeated."
+        ),
     )
 
     # args.output

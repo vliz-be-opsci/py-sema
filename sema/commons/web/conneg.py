@@ -79,8 +79,8 @@ class FoundVariants(ServiceResult, StatusMonitor):
 
     def __str__(self) -> str:
         out = "#FoundVariants:\n"
-        out += f"#  requested: {','.join(f'{mt};{pf}' for mt, pf in self.requested)}\n"
-        out += f"#  detected : {','.join(f'{mt};{pf}' for mt, pf in self.detected)}\n"
+        out += f"#  requested: #{len(self.requested)}\n"
+        out += f"#  detected : #{len(self.detected)}\n"
         out += f"#  variants : #{len(self.variants)}\n"
         out += f"#-----\n{self.as_csv()}"
         return out
@@ -161,7 +161,8 @@ class ConnegEvaluation(ServiceBase):
         log.debug(f"request for {self.url} ended at {resp.url}")
         if not resp.ok:
             log.debug(
-                f"FAILED request {self.url} with {headers=} > {resp.status_code}"
+                f"FAILED request {self.url} with {headers=} "
+                f"> {resp.status_code}"
             )
             return None
         # else
@@ -206,7 +207,7 @@ SELECT ?mime ?profile WHERE {{
     def _check_variants(self):
         """Check the available variants against the requested variants"""
         already_done = set()
-        # run over the requested variants first, then the remaining detected variants
+        # go over the requested variants, then the remaining detected variants
         for mime_type, profile in self._found.requested + self._found.detected:
             if (mime_type, profile) in already_done:
                 continue

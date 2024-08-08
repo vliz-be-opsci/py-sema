@@ -221,12 +221,14 @@ def test_conneg_eval(url, expected):
 
         assert result, f"For {url} :: Expected a positive result, got {result}"
 
-        assert (
-            len(result) > 0
-        ), f"For {url} :: Expected at least one variant, probably detection is broken."
-        assert len(result) == len(
-            expected
-        ), f"For {url} :: Expected {len(expected)} variants, got {len(result)}"
+        assert len(result) > 0, (
+            f"For {url} :: Expected at least one variant, "
+            "probably detection is broken."
+        )
+        assert len(result) == len(expected), (
+            f"For {url} :: Expected {len(expected)} variants, "
+            f"got {len(result)} in stead."
+        )
 
         for exp_mime, exp_profile, exp_suffix in expected:
             variant_key = (exp_mime, exp_profile)
@@ -269,9 +271,10 @@ def test_conneg_eval(url, expected):
                         format=exp_mime,
                         publicID=variant["response"].url,
                     )
-                    assert (
-                        len(g) > 0
-                    ), f"Empty graph for {(exp_mime, exp_profile)} variant for {url}"
+                    assert len(g) > 0, (
+                        f"Empty graph for {(exp_mime, exp_profile)} "
+                        f"variant for {url}"
+                    )
                 except Exception as e:
                     log.exception(
                         f"FAILED to parse {exp_mime} variant for {url}",

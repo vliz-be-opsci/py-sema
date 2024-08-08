@@ -9,20 +9,31 @@ from sema.commons.web.conneg_cli import SemaArgsParser, get_arg_parser, main
     [
         ("-v text/turtle", {"request_variants": "text/turtle"}),
         (
-            "-v text/turtle;http://example.org#prof-ttl,application/ld+json -o -",
+            (
+                "-v text/turtle;"
+                "http://example.org#prof-ttl,application/ld+json "
+                "-o -"
+            ),
             {
-                "request_variants": "text/turtle;http://example.org#prof-ttl,application/ld+json",
+                "request_variants": (
+                    "text/turtle;"
+                    "http://example.org#prof-ttl,application/ld+json"
+                ),
                 "output": "-",
             },
         ),
         (
             (
                 "http://example.org/ "
-                "-v text/turtle,application/ld+json;http://example.org#prof-jsonld -v application/json;http://example.org#prof-json"
+                "-v text/turtle,application/ld+json;"
+                "http://example.org#prof-jsonld "
+                "-v application/json;http://example.org#prof-json"
             ),
             {
                 "request_variants": (
-                    "text/turtle,application/ld+json;http://example.org#prof-jsonld,application/json;http://example.org#prof-json"
+                    "text/turtle,application/ld+json;"
+                    "http://example.org#prof-jsonld,"
+                    "application/json;http://example.org#prof-json"
                 ),
                 "url": "http://example.org/",
             },
@@ -60,5 +71,5 @@ def test_cli(capfd):
     assert success
     out, err = capfd.readouterr()
     assert len(out) > 0
-    # TODO parse the csv output with pandas and check some of the expected outcome
+    # TODO parse the csv output and check some of the expected outcome
     log.debug(out)
