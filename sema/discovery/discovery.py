@@ -4,8 +4,8 @@ from typing import Iterable, List
 from urllib.parse import urljoin
 
 from rdflib import Graph
-from requests.models import Response
 from requests.exceptions import RetryError
+from requests.models import Response
 from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url

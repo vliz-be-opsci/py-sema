@@ -1,21 +1,23 @@
 import cgi
+from logging import getLogger
 from pathlib import Path
-from typing import Dict, Tuple, Any, List
-from sema.commons.fileformats import mime_to_format
+from typing import Any, Dict, List, Tuple
+
+from rdflib import Graph
+from requests.exceptions import RetryError
+from requests.models import Response
+from urllib3.exceptions import ResponseError
+
 from sema.commons.clean import check_valid_url
+from sema.commons.fileformats import mime_to_format
 from sema.commons.service import (
     ServiceBase,
     ServiceResult,
     StatusMonitor,
     Trace,
 )
-from requests.models import Response
-from requests.exceptions import RetryError
-from urllib3.exceptions import ResponseError
-from .httpsession import make_http_session
-from logging import getLogger
-from rdflib import Graph
 
+from .httpsession import make_http_session
 
 log = getLogger(__name__)
 
@@ -31,12 +33,22 @@ class FoundVariants(ServiceResult, StatusMonitor):
     def set_detected(self, detected: List[Tuple[str, str]]):
         self.detected = detected or []
 
-    def add_variant(self, *, mime_type: str, profile: str, response: Response = None) -> None:
+    def add_variant(
+        self, *, mime_type: str, profile: str, response: Response = None
+    ) -> None:
         key = (mime_type or "", profile or "")
         assert key not in self.variants, f"Variant {key} already added"
-        response_mime = cgi.parse_header(response.headers['Content-Type'])[0] if response else None
-        cdispval, cdispparams = cgi.parse_header(response.headers.get('Content-Disposition', ''))
-        cdispfile = cdispparams.get('filename') if cdispval == 'attachment' else None
+        response_mime = (
+            cgi.parse_header(response.headers["Content-Type"])[0]
+            if response
+            else None
+        )
+        cdispval, cdispparams = cgi.parse_header(
+            response.headers.get("Content-Disposition", "")
+        )
+        cdispfile = (
+            cdispparams.get("filename") if cdispval == "attachment" else None
+        )
 
         self.variants[key] = dict(
             mime_type=mime_type,
@@ -54,15 +66,14 @@ class FoundVariants(ServiceResult, StatusMonitor):
     def success(self) -> bool:
         expected_unique_variants = set(self.requested + self.detected)
         # success requires
-        return (
-            expected_unique_variants == self.variants.keys() and
-            all(v['status'] == 200 for v in self.variants.values())
+        return expected_unique_variants == self.variants.keys() and all(
+            v["status"] == 200 for v in self.variants.values()
         )
 
     @property
     def status(self) -> int:
         return len(self)
-    
+
     def __len__(self) -> int:
         return len(self.variants)
 
@@ -76,12 +87,20 @@ class FoundVariants(ServiceResult, StatusMonitor):
 
     def as_csv(self, url: str = None) -> str:
         out = ""
-        outfields = ['mime_type', 'profile', 'inRequested', 'inDetected', 'status', 'match_mime', 'filename',]
+        outfields = [
+            "mime_type",
+            "profile",
+            "inRequested",
+            "inDetected",
+            "status",
+            "match_mime",
+            "filename",
+        ]
         out += "url," if url else ""
-        out += ','.join(outfields) + "\n"
+        out += ",".join(outfields) + "\n"
         for v in self.variants.values():
             out += f"{url}," if url else ""
-            out += ','.join(str(v[fld]) for fld in outfields) + "\n"
+            out += ",".join(str(v[fld]) for fld in outfields) + "\n"
         return out
 
 
@@ -99,13 +118,17 @@ class ConnegEvaluation(ServiceBase):
         # actual task inputs
         self.url = url
         # split string to list of tuples
-        request_variants = [
-            (mt.strip(), pf.strip())
-            for mt, pf in (              # since profile is optional, we:
-                (v+";").split(";")[:2]   # force semicolon and keep only 2
-                for v in request_variants.split(",")
-            )
-        ] if request_variants else []
+        request_variants = (
+            [
+                (mt.strip(), pf.strip())
+                for mt, pf in (  # since profile is optional, we:
+                    (v + ";").split(";")[:2]  # force semicolon and keep only 2
+                    for v in request_variants.split(",")
+                )
+            ]
+            if request_variants
+            else []
+        )
 
         # internal state
         self._found = FoundVariants(request_variants)
@@ -117,23 +140,29 @@ class ConnegEvaluation(ServiceBase):
             self._session = make_http_session()
         return self._session
 
-    def _get_variant_response(self, mime_type: str = None, profile: str = None) -> Response:
+    def _get_variant_response(
+        self, mime_type: str = None, profile: str = None
+    ) -> Response:
         """Get the content of the resource with the requested variant"""
         headers = dict()
         if mime_type:
-            headers['Accept'] = mime_type
+            headers["Accept"] = mime_type
         if profile:
-            headers['Accept-profile'] = profile
+            headers["Accept-profile"] = profile
         log.debug(f"requesting {self.url} with {headers=}")
         try:
             resp = self.session.get(self.url, headers=headers)
         except (ResponseError, RetryError) as e:
-            log.exception(f"FAILED request {self.url} with {headers=} ", exc_info=e)
+            log.exception(
+                f"FAILED request {self.url} with {headers=} ", exc_info=e
+            )
             return None
 
         log.debug(f"request for {self.url} ended at {resp.url}")
         if not resp.ok:
-            log.debug(f"FAILED request {self.url} with {headers=} > {resp.status_code}")
+            log.debug(
+                f"FAILED request {self.url} with {headers=} > {resp.status_code}"
+            )
             return None
         # else
         return resp
@@ -154,15 +183,19 @@ SELECT ?mime ?profile WHERE {{
 
     def _detect_variants(self) -> None:
         """Detect the available variants for the resource"""
-        resp = self._get_variant_response("text/turtle", "http://www.w3.org/ns/dx/conneg/altr")
+        resp = self._get_variant_response(
+            "text/turtle", "http://www.w3.org/ns/dx/conneg/altr"
+        )
         if resp is None:
             log.debug(f"no variants detected for {self.url}")
             return
         # else
-        mime_type, options = cgi.parse_header(resp.headers['Content-Type'])
+        mime_type, options = cgi.parse_header(resp.headers["Content-Type"])
         fmt = mime_to_format(mime_type)
         g = Graph().parse(data=resp.text, format=fmt, publicID=resp.url)
-        log.debug(f"for {self.url} found variants >>\n{g.serialize(format='turtle')}")
+        log.debug(
+            f"for {self.url} found variants >>\n{g.serialize(format='turtle')}"
+        )
         sparql = self.variants_query(self.url)
         matches: List[Tuple[str]] = [
             tuple(str(u) for u in r) for r in g.query(sparql)
@@ -179,7 +212,9 @@ SELECT ?mime ?profile WHERE {{
                 continue
             already_done.add((mime_type, profile))
             resp = self._get_variant_response(mime_type, profile)
-            self._found.add_variant(mime_type=mime_type, profile=profile, response=resp)
+            self._found.add_variant(
+                mime_type=mime_type, profile=profile, response=resp
+            )
 
     @Trace.init(Trace)
     def process(self) -> FoundVariants:

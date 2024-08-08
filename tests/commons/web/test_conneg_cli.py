@@ -1,11 +1,7 @@
 import pytest
 from conftest import log
 
-from sema.commons.web.conneg_cli import (
-    SemaArgsParser,
-    get_arg_parser,
-    main,
-)
+from sema.commons.web.conneg_cli import SemaArgsParser, get_arg_parser, main
 
 
 @pytest.mark.parametrize(
@@ -38,7 +34,9 @@ def test_args(args_line, expected):
     assert parser is not None
     ns = parser.parse_args(args_line.split(" "))
     args = vars(ns)
-    args["request_variants"] = SemaArgsParser.args_joined(args["request_variants"])
+    args["request_variants"] = SemaArgsParser.args_joined(
+        args["request_variants"]
+    )
     assert set(expected.items()).issubset(set(args.items()))
 
 
