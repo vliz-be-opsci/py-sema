@@ -12,6 +12,8 @@ from sema.discovery.__main__ import (
 @pytest.mark.parametrize(
     "args_line, expected",
     [
+        ("http://demo.me/", {"url": "http://demo.me/"}),
+        ("-u http://demo.me/", {"url_option": "http://demo.me/"}),
         ("-m text/turtle", {"request_mimes": "text/turtle"}),
         (
             "-m text/turtle,application/ld+json -o -",
@@ -40,7 +42,9 @@ def test_args(args_line, expected):
     ns = parser.parse_args(args_line.split(" "))
     args = vars(ns)
     args["request_mimes"] = SemaArgsParser.args_joined(args["request_mimes"])
-    assert set(expected.items()).issubset(set(args.items()))
+    expected_set = set(expected.items())
+    args_set = set(args.items())
+    assert expected_set.issubset(args_set), f"{expected_set=} not in {args_set=}"
 
 
 @pytest.mark.parametrize(

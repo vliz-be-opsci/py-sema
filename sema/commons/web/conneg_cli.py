@@ -18,7 +18,7 @@ def get_arg_parser():
     )
 
     # args.url
-    # is either first positional argument or -u/--url,
+    # first positional argument (optional)
     parser.add_argument(
         "url",
         nargs="?",
@@ -26,9 +26,12 @@ def get_arg_parser():
         metavar="URL",
         help="The URL to evaluate",
     )
+    # args.url_option
+    # -u/--url
     parser.add_argument(
         "-u",
         "--url",
+        dest="url_option",
         metavar="URL",
         action="store",
         help="The URL to evaluate",
@@ -84,7 +87,7 @@ def get_arg_parser():
 def make_service(args: Namespace) -> ConnegEvaluation:
     """Make the service with the passed args"""
     return ConnegEvaluation(
-        url=args.url,
+        url=args.url or args.url_option,
         request_variants=SemaArgsParser.args_joined(args.request_variants),
     )
 
@@ -95,8 +98,12 @@ def main(*args_list) -> bool:
     connegeval = make_service(args)
     result = connegeval.process()
     # export the result
-    if args.output:
-        connegeval.export_result(args.output, args.format)
+    if len(result) == 0:
+        log.debug(f"no variants detected for {args.url}")
+        print("WARNING, no variants obtained. No result to output.", file=sys.stderr)
+    else:
+        if args.output:
+            connegeval.export_result(args.output, args.format)
     # export the trace if flag is set
     if args.dump:
         connegeval.dump_variants(args.dump)

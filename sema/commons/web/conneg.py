@@ -193,6 +193,10 @@ SELECT ?mime ?profile WHERE {{
         # else
         mime_type, options = cgi.parse_header(resp.headers["Content-Type"])
         fmt = mime_to_format(mime_type)
+        if fmt not in ["turtle", "n3", "json-ld"]:
+            log.debug(f"unsupported format {fmt=} for {self.url}")
+            return
+        # else
         g = Graph().parse(data=resp.text, format=fmt, publicID=resp.url)
         log.debug(
             f"for {self.url} found variants >>\n{g.serialize(format='turtle')}"

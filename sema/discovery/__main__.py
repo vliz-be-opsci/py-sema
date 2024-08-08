@@ -21,7 +21,7 @@ def get_arg_parser():
     )
 
     # args.url
-    # is either first positional argument or -u/--url,
+    # optional first positional argument
     parser.add_argument(
         "url",
         nargs="?",
@@ -29,10 +29,13 @@ def get_arg_parser():
         metavar="URL",
         help="The subject URI to discover",
     )
+    # args.url_option
+    # -u/--url
     parser.add_argument(
         "-u",
         "--url",
         metavar="URL",
+        dest="url_option",
         action="store",
         help="The subject URI to discover",
     )
@@ -137,7 +140,7 @@ def normalise_mime_type_requests(request_mimes: Iterable | str) -> str:
 def make_service(args: Namespace) -> Discovery:
     """Make the service with the passed args"""
     return Discovery(
-        subject_uri=args.url,
+        subject_uri=args.url or args.url_option,
         request_mimes=normalise_mime_type_requests(args.request_mimes),
         read_uri=args.read_uri,
         write_uri=args.write_uri,

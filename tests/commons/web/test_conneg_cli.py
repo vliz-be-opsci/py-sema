@@ -7,6 +7,10 @@ from sema.commons.web.conneg_cli import SemaArgsParser, get_arg_parser, main
 @pytest.mark.parametrize(
     "args_line, expected",
     [
+        ("http://example.org/1", {"url": "http://example.org/1"}),
+        ("-u http://example.org/2", {"url_option": "http://example.org/2"}),
+        ("--url http://example.org/3", {"url_option": "http://example.org/3"}),
+        ("http://example.org/pos --url http://example.org/opt", {"url": "http://example.org/pos", "url_option": "http://example.org/opt"}),
         ("-v text/turtle", {"request_variants": "text/turtle"}),
         (
             (
@@ -48,7 +52,9 @@ def test_args(args_line, expected):
     args["request_variants"] = SemaArgsParser.args_joined(
         args["request_variants"]
     )
-    assert set(expected.items()).issubset(set(args.items()))
+    expected_set = set(expected.items())
+    args_set = set(args.items())
+    assert expected_set.issubset(args_set), f"{expected_set=} not in {args_set=}"
 
 
 def test_help(capfd):
