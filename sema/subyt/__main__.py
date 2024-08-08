@@ -138,7 +138,7 @@ def make_service(args: Namespace) -> Subyt:
     )
 
 
-def main(*args_list) -> bool:
+def _main(*args_list) -> bool:
     """The main entry point to this module."""
     args = get_arg_parser().parse_args(args_list)
 
@@ -153,6 +153,10 @@ def main(*args_list) -> bool:
         subyt._sink.close()  # TODO investigate suspicious location for this
 
 
-if __name__ == "__main__":
+def main():
     success: bool = main(*sys.argv[1:])
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()

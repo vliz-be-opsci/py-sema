@@ -150,7 +150,7 @@ def make_service(args: Namespace) -> Discovery:
     )
 
 
-def main(*args_list) -> bool:
+def _main(*args_list) -> bool:
     args = get_arg_parser().parse_args(args_list)
 
     discovery = make_service(args)
@@ -161,6 +161,10 @@ def main(*args_list) -> bool:
     return bool(result) or args.accept_zero
 
 
-if __name__ == "__main__":
-    success: bool = main(*sys.argv[1:])
+def main():
+    success: bool = _main(*sys.argv[1:])
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()

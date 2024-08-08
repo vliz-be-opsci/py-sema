@@ -3,8 +3,8 @@ from rdflib import Graph
 
 from sema.discovery.__main__ import (
     SemaArgsParser,
+    _main,
     get_arg_parser,
-    main,
     normalise_mime_type_requests,
 )
 
@@ -44,7 +44,9 @@ def test_args(args_line, expected):
     args["request_mimes"] = SemaArgsParser.args_joined(args["request_mimes"])
     expected_set = set(expected.items())
     args_set = set(args.items())
-    assert expected_set.issubset(args_set), f"{expected_set=} not in {args_set=}"
+    assert expected_set.issubset(args_set), (
+        f"{expected_set=} " f"not in {args_set=}"
+    )
 
 
 @pytest.mark.parametrize(
@@ -77,7 +79,7 @@ def test_normalise_mime_type_requests(args_line, expected):
 def test_help(capfd):
     help_line: str = "--help"
     with pytest.raises(SystemExit) as caught:
-        success: bool = main(*help_line.split())
+        success: bool = _main(*help_line.split())
         assert not success
         assert caught.value.code == 0
         assert caught.type == SystemExit
@@ -90,7 +92,7 @@ def test_cli(capfd):
     subject_uri = "http://data.emobon.embrc.eu/"
     output_format = "json-ld"
     cli_line = f"{subject_uri} -o - -f {output_format}"
-    success: bool = main(*cli_line.split())
+    success: bool = _main(*cli_line.split())
     assert success
     out, err = capfd.readouterr()
     assert len(out) > 0
@@ -104,7 +106,7 @@ def test_cli(capfd):
 def test_cli_no_triples(capfd, switch, expected_success):
     subject_uri = "http://www.vliz.be"  # there are no triples here
     cli_line = f"{subject_uri} {switch}"
-    success: bool = main(*cli_line.split())
+    success: bool = _main(*cli_line.split())
     assert success == expected_success
     out, err = capfd.readouterr()
     assert len(out) == 0

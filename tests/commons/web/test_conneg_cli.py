@@ -1,7 +1,7 @@
 import pytest
 from conftest import log
 
-from sema.commons.web.conneg_cli import SemaArgsParser, get_arg_parser, main
+from sema.commons.web.conneg_cli import SemaArgsParser, _main, get_arg_parser
 
 
 @pytest.mark.parametrize(
@@ -10,7 +10,13 @@ from sema.commons.web.conneg_cli import SemaArgsParser, get_arg_parser, main
         ("http://example.org/1", {"url": "http://example.org/1"}),
         ("-u http://example.org/2", {"url_option": "http://example.org/2"}),
         ("--url http://example.org/3", {"url_option": "http://example.org/3"}),
-        ("http://example.org/pos --url http://example.org/opt", {"url": "http://example.org/pos", "url_option": "http://example.org/opt"}),
+        (
+            "http://example.org/pos --url http://example.org/opt",
+            {
+                "url": "http://example.org/pos",
+                "url_option": "http://example.org/opt",
+            },
+        ),
         ("-v text/turtle", {"request_variants": "text/turtle"}),
         (
             (
@@ -54,13 +60,15 @@ def test_args(args_line, expected):
     )
     expected_set = set(expected.items())
     args_set = set(args.items())
-    assert expected_set.issubset(args_set), f"{expected_set=} not in {args_set=}"
+    assert expected_set.issubset(args_set), (
+        f"{expected_set=} " f"not in {args_set=}"
+    )
 
 
 def test_help(capfd):
     help_line: str = "--help"
     with pytest.raises(SystemExit) as caught:
-        success: bool = main(*help_line.split())
+        success: bool = _main(*help_line.split())
         assert not success
         assert caught.value.code == 0
         assert caught.type == SystemExit
@@ -73,7 +81,7 @@ def test_cli(capfd):
     url = "https://marineinfo.org/id/person/38476"
     output_format = "csv"
     cli_line = f"{url} -o - -f {output_format}"
-    success: bool = main(*cli_line.split())
+    success: bool = _main(*cli_line.split())
     assert success
     out, err = capfd.readouterr()
     assert len(out) > 0

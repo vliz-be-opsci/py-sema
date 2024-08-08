@@ -92,15 +92,16 @@ def make_service(args: Namespace) -> ConnegEvaluation:
     )
 
 
-def main(*args_list) -> bool:
+def _main(*args_list) -> bool:
     args = get_arg_parser().parse_args(args_list)
 
     connegeval = make_service(args)
     result = connegeval.process()
     # export the result
     if len(result) == 0:
-        log.debug(f"no variants detected for {args.url}")
-        print("WARNING, no variants obtained. No result to output.", file=sys.stderr)
+        log.warning(
+            f"No variants obtained for {args.url}. " "No result to output."
+        )
     else:
         if args.output:
             connegeval.export_result(args.output, args.format)
@@ -110,6 +111,10 @@ def main(*args_list) -> bool:
     return bool(result)
 
 
-if __name__ == "__main__":
-    success: bool = main(*sys.argv[1:])
+def main():
+    success: bool = _main(*sys.argv[1:])
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()
