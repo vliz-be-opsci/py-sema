@@ -3,6 +3,10 @@ import cgi
 import os
 from hashlib import sha256
 from pathlib import Path
+from typing import Tuple
+from urllib.parse import urlparse
+
+from sema.commons.fileformats import suffix_for_mime
 
 from .httpsession import make_http_session
 
@@ -32,7 +36,7 @@ def save_web_content(
     mime_type: str,
     profile: str,
     content: str,
-) -> None:
+) -> str:
     assert url is not None
     mime_type = mime_type or "application/octet-stream"
     profile = profile or ""
@@ -45,10 +49,27 @@ def save_web_content(
     os.setxattr(filepath, "user.web.url", url.encode("utf-8"))
     os.setxattr(filepath, "user.web.mime_type", mime_type.encode("utf-8"))
     os.setxattr(filepath, "user.web.profile", profile.encode("utf-8"))
+    return str(filepath.absolute())
 
 
-def make_unique_filename(*args) -> str:
+def make_unique_filename(url: str, mime_type: str, *args) -> str:
+    base = args_to_unique(url, mime_type, *args)
+    id, suffix = extract_name_parts(url, mime_type)
+    return f"{base}-{id}{suffix}"
+
+
+def extract_name_parts(url: str, mime_type: str) -> Tuple[str, str]:
+    suffix = suffix_for_mime(mime_type)
+    # urlparse - drop .ext - split - remove empty - keep max two - rejoin
+    id = "-".join(
+        [p for p in urlparse(url).path.split(".")[0].split("/") if p][-2:]
+    )
+    return id, suffix
+
+
+def args_to_unique(*args) -> str:
+    N: int = 13  # number of bytes of hash to keep
     # aggregate any input as bytes, hash them
     b = "".join(str(a) for a in args).encode("utf-8")
     # hash - b64 safe encode - truncate - byte to string decode - return
-    return base64.urlsafe_b64encode(sha256(b).digest())[:13].decode()
+    return base64.urlsafe_b64encode(sha256(b).digest())[:N].decode()
