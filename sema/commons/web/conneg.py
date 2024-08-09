@@ -17,6 +17,7 @@ from sema.commons.service import (
     Trace,
 )
 
+from .download_to_file import save_web_content
 from .httpsession import make_http_session
 
 log = getLogger(__name__)
@@ -244,5 +245,26 @@ SELECT ?mime ?profile WHERE {{
 
     def dump_variants(self, dump_path: str) -> None:
         """Dump the obtained variants to the path"""
-        # TODO implement this full dump of the content to various files
-        ...
+        dump_path = Path(dump_path)
+        dump_path.mkdir(parents=True, exist_ok=True)
+        variant_filenames = [
+            v["filename"]
+            for v in self._found.variants.values()
+            if v["filename"]
+        ]
+        all_unique_filenames = bool(
+            len(set(variant_filenames)) == len(variant_filenames)
+        )
+        for v in self._found.variants.values():
+            content = v["content"]
+            if not v["content"]:
+                continue
+            # else
+            save_web_content(
+                dump_path,
+                v["filename"] if all_unique_filenames else None,
+                self.url,
+                v["mime_type"],
+                v["profile"],
+                content,
+            )
