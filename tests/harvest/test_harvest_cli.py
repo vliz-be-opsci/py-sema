@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from sema.harvest.__main__ import main
+from sema.harvest.__main__ import _main
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ def test_main(outpath: Path, store_info_sets: tuple):
             argsline += f" --store {store_part}"
 
         log.debug(f"testing equivlnt of python -m harvest {argsline}")
-        main(*argsline.split(" "))  # pass as individual arguments
+        _main(*argsline.split(" "))  # pass as individual arguments
         assert dump_path.exists(), "run did not create expected output"
 
         # TODO consider some extra assertions on the result

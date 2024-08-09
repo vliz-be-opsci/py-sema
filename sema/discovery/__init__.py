@@ -7,16 +7,10 @@
 .. moduleauthor:: "Open Science Team VLIZ vzw" <opsci@vliz.be>
 """
 
-from .discovery import (
-    DiscoveryResult,
-    DiscoveryService,
-    DiscoveryTrace,
-    discover_subject,
-)
+from .discovery import Discovery, DiscoveryResult, discover_subject
 
 __all__ = [
     "discover_subject",
-    "DiscoveryService",
+    "Discovery",
     "DiscoveryResult",
-    "DiscoveryTrace",
 ]

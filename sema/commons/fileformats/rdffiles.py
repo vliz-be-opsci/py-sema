@@ -24,6 +24,10 @@ def mime_to_format(mime: str, fallback: str = None) -> str:
     return MIME_TO_FORMAT.get(mime, fallback)
 
 
+def mime_from_format(format: str, fallback: str = None) -> str:
+    return FORMAT_TO_MIME.get(format, fallback)
+
+
 def format_from_filepath(filename: str | Path, fallback: str = None) -> str:
     suffix: str = Path(filename).suffix
     return SUFFIX_TO_FORMAT.get(suffix, fallback)

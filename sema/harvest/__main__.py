@@ -21,6 +21,8 @@ def get_arg_parser():
     """
     Get the argument parser for the module
     """
+    # TODO use the SemaArgsParser from sema.commons.cli
+    # TODO register sema-harvest as a console-script in project.toml
     parser = argparse.ArgumentParser(
         description="harvesting service for traversing and asserting paths",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -83,6 +85,8 @@ def get_arg_parser():
         ),
     )
 
+    # TODO remove this when using the SemaArgsParser
+    # it already handles the logconf setup
     parser.add_argument(
         "-l",
         "--logconf",
@@ -205,9 +209,12 @@ def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
         outgraph.serialize(destination=output_path, format=format)
 
 
-def main(*cli_args):
+def _main(*cli_args):
     # parse cli args
     args: argparse.Namespace = get_arg_parser().parse_args(cli_args)
+
+    # TODO remove this when using the SemaArgsParser
+    # it already does this logging & the logconf setup
     log.debug(f"cli called with {args=}")
     # enable logging
     enable_logging(args)
@@ -221,7 +228,9 @@ def main(*cli_args):
     final_dump(args, new_service.target_store)
 
 
+def main():
+    _main(*sys.argv[1:])
+
+
 if __name__ == "__main__":
-    # getting the cli_args here and passing them to main
-    # this make the main() testable without shell subprocess
-    main(*sys.argv[1:])
+    main()

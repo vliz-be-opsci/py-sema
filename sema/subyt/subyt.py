@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Dict
 
-from sema.commons.service import ServiceBase, ServiceResult, ServiceTrace
+from sema.commons.service import ServiceBase, ServiceResult, Trace
 
 from .api import GeneratorSettings
 from .j2.generator import JinjaBasedGenerator
@@ -21,13 +21,6 @@ class SubytResult(ServiceResult):
     @property
     def success(self) -> bool:
         return self._success
-
-
-class SubytTrace(ServiceTrace):
-    """Trace of the subyt service"""
-
-    def toProv(self):
-        pass  # TODO - export essential traces into prov-o format // see #63
 
 
 class Subyt(ServiceBase):
@@ -105,13 +98,10 @@ class Subyt(ServiceBase):
 
         # internal statGraph()e
         self._generator = JinjaBasedGenerator(template_folder)
-        self._result, self._trace = None, None
-
-    def process(self) -> None:
-        assert self._result is None, "Service already processed"
         self._result = SubytResult()
-        self._trace = SubytTrace()
 
+    @Trace.init(Trace)
+    def process(self) -> None:
         self._generator.process(
             template_name=self.template_name,
             inputs=self._inputs,
@@ -122,4 +112,4 @@ class Subyt(ServiceBase):
         )
         self._result._success = True
 
-        return self._result, self._trace
+        return self._result

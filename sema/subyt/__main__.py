@@ -1,31 +1,21 @@
 # -*- coding: utf-8 -*-
-import argparse
 import sys
 from logging import getLogger
-from typing import Dict, Iterable
 
-from sema.commons.log.loader import load_log_config
+from sema.commons.cli import Namespace, SemaArgsParser
 from sema.subyt import Subyt
 
 log = getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """
     Defines the arguments to this script by using Python's
     [argparse](https://docs.python.org/3/library/argparse.html)
     """
-    parser = argparse.ArgumentParser(
-        description="SuByT produces triples by applying a template",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    parser.add_argument(
-        "-l",
-        "--logconf",
-        type=str,
-        action="store",
-        help="location of the logging config (yml) to use",
+    parser = SemaArgsParser(
+        "sema-subyt",
+        "SuByT produces triples by applying a template",
     )
 
     parser.add_argument(
@@ -68,6 +58,7 @@ def get_arg_parser():
         default=".",  # local working directory
         help="Passes the context folder holding all the templates",
     )
+
     parser.add_argument(
         "-i",
         "--input",
@@ -78,6 +69,7 @@ def get_arg_parser():
             "Shorthand for -s _ FILE"
         ),
     )
+
     parser.add_argument(
         "-o",
         "--output",
@@ -85,6 +77,7 @@ def get_arg_parser():
         action="store",
         help="Specifies where to write the output, can use {uritemplate}.",
     )
+
     parser.add_argument(
         "-f",
         "--force",
@@ -95,6 +88,7 @@ def get_arg_parser():
             "if output files already exist."
         ),
     )
+
     parser.add_argument(
         "-m",
         "--mode",
@@ -108,6 +102,7 @@ def get_arg_parser():
                 2. ig vs. no-ig: to be implemented;
                 3. fl vs. no-fl: to be implemented.""",
     )
+
     parser.add_argument(
         "-r",
         "--allow-repeated-sink-paths",
@@ -115,6 +110,7 @@ def get_arg_parser():
         action="store_true",
         help=("Allow repeated sink paths in case of duplicated data items."),
     )
+
     parser.add_argument(
         "-c",
         "--conditional",
@@ -122,43 +118,33 @@ def get_arg_parser():
         action="store_true",
         help=("Execute only when input has been updated. Abort otherwise."),
     )
+
     return parser
 
 
-def args_to_dict(multi_args: Iterable[Iterable[str]]) -> Dict[str, str]:
-    """
-    Converts a list of lists of strings to a dictionary.
-    """
-    return {k: v for [k, v] in multi_args} if multi_args else {}
-
-
-def make_service(args: argparse.Namespace) -> Subyt:
+def make_service(args: Namespace) -> Subyt:
     """Make the service with the passed args"""
     return Subyt(
         template_name=args.name,
         template_folder=args.templates,
         source=args.input,
-        extra_sources=args_to_dict(args.set),
+        extra_sources=SemaArgsParser.args_to_dict(args.set),
         sink=args.output,
         overwrite_sink=args.force,
         allow_repeated_sink_paths=args.allow_repeated_sink_paths,
         conditional=args.conditional,
-        variables=args_to_dict(args.var),
+        variables=SemaArgsParser.args_to_dict(args.var),
         mode=args.mode,
     )
 
 
-def main(*args_list) -> bool:
-    """
-    The main entry point to this module.
-    """
-    log.debug(f"discovery::main({args_list=})")
+def _main(*args_list) -> bool:
+    """The main entry point to this module."""
     args = get_arg_parser().parse_args(args_list)
-    load_log_config(args.logconf)
 
     try:
         subyt = make_service(args)
-        r, t = subyt.process()
+        r = subyt.process()
         log.debug("processing done")
         return bool(r)
     except Exception as e:
@@ -167,6 +153,10 @@ def main(*args_list) -> bool:
         subyt._sink.close()  # TODO investigate suspicious location for this
 
 
-if __name__ == "__main__":
+def main():
     success: bool = main(*sys.argv[1:])
     sys.exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    main()
