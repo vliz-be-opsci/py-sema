@@ -155,8 +155,7 @@ def _main(*args_list) -> bool:
 
     discovery = make_service(args)
     result = discovery.process()
-    # export the trace if flag is set
-    if args.trace:
+    if args.trace:  # export the trace if flag is set
         discovery.export_trace(args.trace)
     return bool(result) or args.accept_zero
 
