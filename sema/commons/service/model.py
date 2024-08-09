@@ -85,8 +85,12 @@ class Trace:
                 f"( {self.listargs}, {self.dictargs} ) -> {self.returns}"
             )
 
+    @property
+    def events(self):
+        return self._events
+
     @staticmethod
-    def by(evt_cls: type):
+    def by(evt_cls: type, name: str = None):
         """decorator factory, uses the passed event-class
         to be applied in the decoration of the function-call
         :param evt_cls: the class of the event to be added to the trace.
@@ -103,8 +107,9 @@ class Trace:
             :param fn: the function to be wrapped and traced.
             """
             assert isinstance(fn, Callable), "fn must be a callable"
+            evtname = name or fn.__name__
             log.debug(
-                f"decorator Trace.by wrapper for {fn.__name__} "
+                f"decorator Trace.by wrapper for {fn.__name__} as {evtname}"
                 f"with {evt_cls.__name__}"
             )
 
@@ -114,7 +119,7 @@ class Trace:
                 event to the trace."""
                 resp = fn(target, *args, **kwargs)
                 target._trace.add_event(
-                    evt_cls(fn.__name__, resp, *args, **kwargs)
+                    evt_cls(evtname, resp, *args, **kwargs)
                 )
                 return resp
 
