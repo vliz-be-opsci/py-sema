@@ -67,52 +67,56 @@ def expected_marine_info_variants(type_id: str):
 @pytest.mark.parametrize(
     "url, expected",
     (
-        (
-            "https://marineinfo.org/id/person/38476",
-            expected_marine_info_variants("person-38476"),
-        ),
-        (
-            "https://marineinfo.org/id/collection/619",
-            expected_marine_info_variants("collection-619"),
-        ),
-        (
-            "https://marineinfo.org/id/institute/36",
-            expected_marine_info_variants("institute-36"),
-        ),
-        (
-            "https://marineinfo.org/id/project/5315",
-            expected_marine_info_variants("project-5315"),
-        ),
-        (
-            "https://marineinfo.org/id/publication/307837",
-            expected_marine_info_variants("publication-307837"),
-        ),
-        (
-            "https://marineinfo.org/id/dataset/90",
-            expected_marine_info_variants("dataset-90")
-            | {
-                (
-                    "text/xml",
-                    "https://marineinfo.org/ns/profile#gcmd",
-                    "-dataset-90-gcmd.xml",
-                ),
-                (
-                    "text/xml",
-                    "https://marineinfo.org/ns/profile#inspire",
-                    "-dataset-90-inspire.xml",
-                ),
-                (
-                    "text/xml",
-                    "https://marineinfo.org/ns/profile#eml-2.1.1",
-                    "-dataset-90-eml2.1.1.xml",
-                ),
-                (
-                    "text/xml",
-                    "https://marineinfo.org/ns/profile#eml-2.2.0",
-                    "-dataset-90-eml2.2.0.xml",
-                ),
-            },
-        ),
+        # 2024-08-08 -- marineinfo.org is showing conneg issues
+        # - see https://vliz.atlassian.net/browse/IMIS-1586
+        # - see https://vliz.atlassian.net/browse/IMIS-1587
+        # when fixed these test cases can be added again
+        # (
+        #     "https://marineinfo.org/id/person/38476",
+        #     expected_marine_info_variants("person-38476"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/collection/619",
+        #     expected_marine_info_variants("collection-619"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/institute/36",
+        #     expected_marine_info_variants("institute-36"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/project/5315",
+        #     expected_marine_info_variants("project-5315"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/publication/307837",
+        #     expected_marine_info_variants("publication-307837"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/dataset/90",
+        #     expected_marine_info_variants("dataset-90")
+        #     | {
+        #         (
+        #             "text/xml",
+        #             "https://marineinfo.org/ns/profile#gcmd",
+        #             "-dataset-90-gcmd.xml",
+        #         ),
+        #         (
+        #             "text/xml",
+        #             "https://marineinfo.org/ns/profile#inspire",
+        #             "-dataset-90-inspire.xml",
+        #         ),
+        #         (
+        #             "text/xml",
+        #             "https://marineinfo.org/ns/profile#eml-2.1.1",
+        #             "-dataset-90-eml2.1.1.xml",
+        #         ),
+        #         (
+        #             "text/xml",
+        #             "https://marineinfo.org/ns/profile#eml-2.2.0",
+        #             "-dataset-90-eml2.2.0.xml",
+        #         ),
+        #     },
+        # ),
         (
             "http://vocab.nerc.ac.uk/collection/S25/current/BE006521/",
             {
@@ -194,13 +198,6 @@ def expected_marine_info_variants(type_id: str):
             },
         ),
     ),
-)
-@pytest.mark.skip(
-    reason=(
-        "2024-08-08 -- marineinfo.org is showing conneg issues "
-        "see https://vliz.atlassian.net/browse/IMIS-1586 "
-        "see https://vliz.atlassian.net/browse/IMIS-1587"
-    )
 )
 def test_conneg_eval(url, expected):
     # repeating the test without any and with all ...
