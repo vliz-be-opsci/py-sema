@@ -1,5 +1,6 @@
 import cgi
 from logging import getLogger
+from pathlib import Path
 from typing import Iterable, List
 from urllib.parse import urljoin
 
@@ -17,7 +18,7 @@ from sema.commons.service import (
     Trace,
 )
 from sema.commons.store import create_rdf_store
-from sema.commons.web import make_http_session
+from sema.commons.web import make_http_session, save_web_content
 
 from .linkheaders import extract_link_headers
 from .lod_html_parser import LODAwareHTMLParser
@@ -186,7 +187,7 @@ class Discovery(ServiceBase):
                         )
             parser.close()
 
-    @Trace.by(Trace.Event)
+    @Trace.by(Trace.Event, name="StructuredContentEvent")
     def _get_structured_content(
         self, url: str, req_mime_type: str = None
     ) -> Response:
@@ -270,9 +271,59 @@ class Discovery(ServiceBase):
             )
         return self._result
 
-    def export_trace(self, output_path: str) -> None:
+    def export_trace(self, dump_path: str) -> None:
         trace: Trace = Trace.extract(self)
-        log.debug(f"TODO dump {trace=} to {output_path=}")
+        assert trace is not None
+        log.debug(f"dumping {len(trace.events)=} to {dump_path=}")
+        # make dump_path folder
+        dump_path = Path(dump_path)
+        dump_path.mkdir(parents=True, exist_ok=True)
+
+        # run over traced content and save the content + assemble outcsv
+        outcsv = (
+            "ts,discovery_status,url,resp_url,"
+            "mime_type,response_status,content_length,dumpfile\n"
+        )
+        for evt_reg in trace.events:
+            ts = evt_reg["ts"]
+            status = evt_reg["status"]
+            evt = evt_reg["event"]
+            if evt.name == "StructuredContentEvent":
+                # arg expansion trick: pad with [None]* minimal size,
+                # and ignore any excess in *_
+                url, mime_type, *_ = evt.listargs + (None,) * 2
+                resp: Response = evt.returns
+                resp_url = resp.url if resp else url
+                resp_content = resp.text if resp else ""
+                resp_status = resp.status_code if resp else None
+                resp_mime = (
+                    cgi.parse_header(resp.headers["Content-Type"])[0]
+                    if resp
+                    else None
+                )
+                outpath = (
+                    save_web_content(
+                        dump_path,
+                        None,
+                        resp_url,
+                        resp_mime or mime_type,
+                        None,
+                        resp_content,
+                    )
+                    if resp_content
+                    else None
+                )
+
+                log.debug(f"saved {len(resp_content)} chars to {outpath=}")
+                outcsv += (
+                    f"{ts},{status},{url},{resp_url},{mime_type},"
+                    f"{resp_status},{len(resp_content)},{outpath}\n"
+                )
+
+        # make csv file with the trace
+        csvfile = dump_path / "trace.csv"
+        with open(csvfile, "w") as f:
+            f.write(outcsv)
 
 
 def discover_subject(subject_url: str, mimetypes: List[str] = []):
