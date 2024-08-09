@@ -41,3 +41,29 @@ def to_mimetype(key: str) -> str:
     mt = EXTRA_KEY_TO_MIME_MAP.get(key, None)
     log.debug(f"found at last {mt=}")
     return mt
+
+
+MIME_TO_SUFFIX: dict = {
+    "application/ld+json": ".jsonld",
+    "application/json": ".json",
+    "application/rdf+xml": ".rdf",
+    "application/n-triples": ".nt",
+    "text/turtle": ".ttl",
+    "text/plain": ".txt",
+    "text/xml": ".xml",
+    "text/html": ".html",
+    "text/n3": ".n3",
+    "image/png": ".png",
+    "image/jpeg": ".jpg",
+}
+
+
+def suffix_for_mime(mime: str, fallback: str = ".bin") -> str:
+    suffix = MIME_TO_SUFFIX.get(mime, None)
+    if suffix:
+        return suffix
+    # else
+    if mime.startswith("text/"):
+        return ".txt"
+    # else
+    return fallback
