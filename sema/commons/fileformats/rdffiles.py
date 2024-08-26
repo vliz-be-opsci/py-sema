@@ -7,14 +7,15 @@ SUFFIX_TO_FORMAT: dict = {
     ".json-ld": "json-ld",
     ".json": "json-ld",
     ".rdf": "xml",
+    ".n3": "n3",
 }
 SUPPORTED_RDFFILE_SUFFIXES: set = SUFFIX_TO_FORMAT.keys()
 MIME_TO_FORMAT: dict = {
     "application/ld+json": "json-ld",
-    "text/turtle": "turtle",
     "application/rdf+xml": "xml",
-    "text/n3": "n3",
     "application/n-triples": "nt",
+    "text/turtle": "turtle",
+    "text/n3": "n3",
     "text/html": "html",
 }
 FORMAT_TO_MIME: dict = {v: k for k, v in MIME_TO_FORMAT.items()}
@@ -22,6 +23,10 @@ FORMAT_TO_MIME: dict = {v: k for k, v in MIME_TO_FORMAT.items()}
 
 def mime_to_format(mime: str, fallback: str = None) -> str:
     return MIME_TO_FORMAT.get(mime, fallback)
+
+
+def mime_from_format(format: str, fallback: str = None) -> str:
+    return FORMAT_TO_MIME.get(format, fallback)
 
 
 def format_from_filepath(filename: str | Path, fallback: str = None) -> str:

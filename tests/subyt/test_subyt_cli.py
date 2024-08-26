@@ -5,7 +5,7 @@ import pytest
 from rdflib import Graph
 
 from sema.commons.log import logconf_path
-from sema.subyt.__main__ import main
+from sema.subyt.__main__ import _main
 
 MY_FOLDER = Path(__file__).parent
 TEMPLATES_FOLDER = MY_FOLDER / "templates"
@@ -15,7 +15,7 @@ DATA_FOLDER = MY_FOLDER / "in"
 def test_help(capfd):
     help_line: str = "--help"
     with pytest.raises(SystemExit) as caught:
-        success: bool = main(*help_line.split())
+        success: bool = _main(*help_line.split())
         assert not success
         assert caught.value.code == 0
         assert caught.type == SystemExit
@@ -51,7 +51,7 @@ def test_cli(capfd):
         f" {setpart} {varpart}"
         f" --output -"
     )
-    success: bool = main(*cli_line.split())
+    success: bool = _main(*cli_line.split())
     assert success
     out, err = capfd.readouterr()
     assert len(out) > 0
