@@ -154,7 +154,7 @@ def _main(*args_list) -> bool:
 
 
 def main():
-    success: bool = main(*sys.argv[1:])
+    success: bool = _main(*sys.argv[1:])
     sys.exit(0 if success else 1)
 
 
