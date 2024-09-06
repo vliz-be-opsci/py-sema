@@ -29,3 +29,23 @@ def test_executor(decorated_rdf_stores):
             t_object.tasks,
             rdf_store,
         ).assert_all_paths()
+
+
+@pytest.mark.usefixtures("decorated_rdf_stores")
+def test_executor_star_config(decorated_rdf_stores):
+    for rdf_store in decorated_rdf_stores:
+        # first make config_builder
+        configbuilder = ConfigBuilder(
+            rdf_store,
+            str(TEST_CONFIG_FOLDER),
+        )
+
+        t_object = configbuilder.build_from_config("star_config.yml")
+
+        # extract values from t_object and pass them to executor
+        Executor(
+            t_object.configname,
+            t_object.NSM,
+            t_object.tasks,
+            rdf_store,
+        ).assert_all_paths()

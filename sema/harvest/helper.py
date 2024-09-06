@@ -1,11 +1,13 @@
 import re
 from datetime import datetime, timezone
 from typing import Dict, List
-
+import logging
 from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import NamespaceManager
 
 from sema.commons.clean import check_valid_uri
+
+log = logging.getLogger(__name__)
 
 
 def timestamp():
@@ -53,7 +55,17 @@ def ppath_split(ppath: str) -> List[str]:
 
 
 def resolve_ppaths(ppaths: List[str], nsm: NamespaceManager):
-    return [
-        " / ".join(resolve_uri(part, nsm).n3() for part in ppath_split(ppath))
-        for ppath in ppaths
-    ]
+
+    toreturn = []
+    for ppath in ppaths:
+        log.debug(f"{ppath=}")
+        if ppath == "*":
+            toreturn.append("*")
+        else:
+            toreturn.append(
+                " / ".join(
+                    resolve_uri(part, nsm).n3() for part in ppath_split(ppath)
+                )
+            )
+
+    return toreturn
