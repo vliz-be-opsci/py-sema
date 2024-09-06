@@ -14,5 +14,5 @@ jobs:
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
-          repository: owner/target-repo
+          repository: vliz-be-opsci/k-gap
           event-type: trigger-event
