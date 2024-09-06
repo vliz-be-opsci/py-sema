@@ -1,7 +1,8 @@
+import logging
 import re
 from datetime import datetime, timezone
 from typing import Dict, List
-import logging
+
 from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import NamespaceManager
 
