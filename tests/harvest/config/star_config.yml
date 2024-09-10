@@ -12,6 +12,7 @@ assert:
     paths:
       - "mr:hasGeometry"
       - "mr:isPartOf / <https://schema.org/geo> / <https://schema.org/latitude>"
+      - "*"
   - subjects:
       SPARQL: >
         SELECT ?s
