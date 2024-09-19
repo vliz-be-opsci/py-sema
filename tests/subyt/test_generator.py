@@ -132,9 +132,9 @@ class TestJinjaGenerator(unittest.TestCase):
                     vars_dict={"my_domain": "realexample.org"},
                 )
             except Exception as e:
-                log.error(f"failed to process template: {e}")
                 log.exception(e)
-                raise e
+                log.exception("failed to process template")
+                raise
 
             # assure all records were passed
             sink.evaluate()
