@@ -100,9 +100,16 @@ def xsd_format_uri(content, quote, suffix):
 
 def xsd_format_string(content, quote, suffix):
     # deal with escapes -- note: uses rdflib implementation
-    content = Literal(str(content)).n3()
+    # fmt: off
+    # do a regex replce of axectly \\ or ' or " to \\\\ or \' or \"
+    # not regular replace since we don't want \n to be replaced
+    content = re.sub(r"\\(?=" + re.escape(quote) + r")", lambda m: "\\" + m.group(), str(content))
+
+    # fmt: on
     if "\n" in content or quote in content:
+        content = content.replace(quote, "\\" + quote)
         quote = quote * 3  # make long quote variant
+        # make sure that the quote is escaped in the content
     assert quote not in content, (
         "ttl format error: still having "
         f"applied quote format {quote} in text content"

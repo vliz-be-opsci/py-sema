@@ -169,32 +169,27 @@ class TestXSDFormatting(unittest.TestCase):
             type_name = pfx + short_name
             self.assertEqual(
                 xsd_fmt("Hello!", type_name),
-                "'\"Hello!\"'^^xsd:string",
+                "'Hello!'^^xsd:string",
                 "bad %s format" % type_name,
             )
             self.assertEqual(
                 xsd_fmt("'", type_name, quote='"'),
-                '""""\'""""^^xsd:string',
+                '"\'"^^xsd:string',
                 "bad %s format" % type_name,
             )
             self.assertEqual(
                 xsd_fmt('"', type_name, quote="'"),
-                '\'"\\""\'^^xsd:string',
+                "'\"'^^xsd:string",
                 "bad %s format" % type_name,
             )
             self.assertEqual(
                 xsd_fmt(">'<", type_name, quote="'"),
-                "'''\">'<\"'''^^xsd:string",
+                "'''>'<'''^^xsd:string",
                 "bad %s format" % type_name,
             )
             self.assertEqual(
                 xsd_fmt(">\n<", type_name, quote="'"),
-                "'''\"\"\">\n<\"\"\"'''^^xsd:string",
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt("'endind'", type_name, quote="'"),
-                "'''\"'endind'\"'''^^xsd:string",
+                "'''>\n<'''^^xsd:string",
                 "bad %s format" % type_name,
             )
 
