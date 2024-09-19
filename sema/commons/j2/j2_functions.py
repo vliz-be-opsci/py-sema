@@ -109,7 +109,6 @@ def xsd_format_string(content, quote, suffix):
     if "\n" in content or quote in content:
         content = content.replace(quote, "\\" + quote)
         quote = quote * 3  # make long quote variant
-        # make sure that the quote is escaped in the content
     assert quote not in content, (
         "ttl format error: still having "
         f"applied quote format {quote} in text content"
