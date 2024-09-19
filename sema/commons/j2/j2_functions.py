@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from datetime import date, datetime
 
 from dateutil import parser
-from rdflib import Literal
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
@@ -103,7 +102,8 @@ def xsd_format_string(content, quote, suffix):
     # fmt: off
     # do a regex replce of axectly \\ or ' or " to \\\\ or \' or \"
     # not regular replace since we don't want \n to be replaced
-    content = re.sub(r"\\(?=" + re.escape(quote) + r")", lambda m: "\\" + m.group(), str(content))
+    content = re.sub(r"\\(?=" + re.escape(quote) + r")",
+                     lambda m: "\\" + m.group(), str(content))
 
     # fmt: on
     if "\n" in content or quote in content:
