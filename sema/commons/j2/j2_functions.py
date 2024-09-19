@@ -3,6 +3,7 @@ from collections.abc import Iterable
 from datetime import date, datetime
 
 from dateutil import parser
+from rdflib import Literal
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
@@ -98,18 +99,10 @@ def xsd_format_uri(content, quote, suffix):
 
 
 def xsd_format_string(content, quote, suffix):
-    # deal with escapes -- note: code is odd to read,
-    #   but this escapes single \ to double \\
-    content = str(content).replace("\\", "\\\\")
+    # deal with escapes -- note: uses rdflib implementation
+    content = Literal(str(content)).n3()
     if "\n" in content or quote in content:
-        triplus_pattern = r"([']{3}[']*)" if quote == "'" else r'(["]{3}["]*)'
-        esc_qt = "\\" + quote  # escaped quote
         quote = quote * 3  # make long quote variant
-        content = re.sub(
-            triplus_pattern,  # find sequences of 3 or more quotes...
-            lambda x: esc_qt * len(x.group()),  # and have each of them escaped
-            content,  # so all ''' should become \'\'\' in the content
-        )
     assert quote not in content, (
         "ttl format error: still having "
         f"applied quote format {quote} in text content"
