@@ -185,7 +185,7 @@ class TestXSDFormatting(unittest.TestCase):
             # fmt: off
             self.assertEqual(
                 xsd_fmt(">'<", type_name, quote="'"),
-                "'''>\\'<'''^^xsd:string",
+                "'''>\'<'''^^xsd:string",
                 "bad %s format" % type_name,
             )
             # fmt: on

@@ -98,7 +98,6 @@ def xsd_format_uri(content, quote, suffix):
 
 
 def xsd_format_string(content, quote, suffix):
-    # deal with escapes -- note: uses rdflib implementation
     # fmt: off
     # do a regex replce of axectly \\ or ' or " to \\\\ or \' or \"
     # not regular replace since we don't want \n to be replaced
@@ -107,10 +106,10 @@ def xsd_format_string(content, quote, suffix):
 
     # fmt: on
     if "\n" in content or quote in content:
-        content = content.replace(quote, "\\" + quote)
         quote = quote * 3  # make long quote variant
     assert quote not in content, (
         "ttl format error: still having "
+        f"quote {quote} in text content {content}"
         f"applied quote format {quote} in text content"
     )
     return xsd_value(content, quote, "xsd:string", suffix)
