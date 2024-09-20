@@ -216,7 +216,7 @@ class TestXSDFormatting(unittest.TestCase):
             )
             self.assertEqual(
                 xsd_fmt("ceci n'est pas une texte", "@fr"),
-                "'ceci n\\\'est pas une texte'@fr",
+                "'ceci n\\'est pas une texte'@fr",
                 "bad language-string formatting with quote-escapes",
             )
             self.assertEqual(
