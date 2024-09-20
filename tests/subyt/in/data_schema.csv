@@ -8,4 +8,4 @@ y,"Longitude",xsd:double,geo:lon
 country,"Country",xsd:string,ex:country,
 txt_nl,"text in Dutch",@nl,ex:text,
 txt_fr,"text in French",@fr,ex:text,
-txt_en,"text in English",@en,ext:text,
+txt_en,"text in English",@en,ex:text,
