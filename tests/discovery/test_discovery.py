@@ -24,7 +24,7 @@ DIRECT_CASES: List[Tuple[str, str, int]] = [
     (
         "https://data.arms-mbon.org/",
         "text/turtle",
-        112,
+        115,
     ),
     (
         "https://data.arms-mbon.org/data_release_001/latest/#",
