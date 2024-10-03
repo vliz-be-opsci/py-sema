@@ -27,6 +27,8 @@ startup: ## prepares environment for using poetry (a core dependency for this pr
 
 install:  ## install this package in the current environment
 	@poetry install
+	@echo "Installing Playwright browsers..."
+    @poetry run playwright install
 
 init: startup install  ## initial prepare of the environment for local execution of the package
 

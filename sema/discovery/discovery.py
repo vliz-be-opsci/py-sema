@@ -3,6 +3,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import Iterable, List
 from urllib.parse import urljoin
+from playwright.sync_api import sync_playwright
 
 from rdflib import Graph
 from requests.exceptions import RetryError
@@ -109,6 +110,19 @@ class Discovery(ServiceBase):
     def triples_found(self):
         return self._result.success
 
+    def _fetch_with_playwright(self, url: str) -> str:
+        """Fetch the content of the url using playwright"""
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(url)
+            # Wait for the page to load and scripts to execute
+            page.wait_for_load_state("networkidle")
+            # Get the modified HTML
+            modified_html = page.content()
+            browser.close()
+            return modified_html
+
     def _make_response(self, url: str, req_mime_type: str = None) -> Response:
         """Make a request to the url and return the response"""
         headers = dict(Accept=req_mime_type) if req_mime_type else dict()
@@ -152,6 +166,35 @@ class Discovery(ServiceBase):
             )
         return False
 
+    def _parse_url_content(self, resp_text: str, resp_url: str):
+
+        l_s_dict = {"links": 0, "scripts": 0}
+
+        parser = LODAwareHTMLParser()
+        parser.feed(resp_text)
+        log.info(f"found {len(parser.links)} links in the html file")
+        l_s_dict["links"] = len(parser.links)
+        for alt_url in parser.links:
+            alt_abs_url = urljoin(resp_url, alt_url)
+            self._discover_subject(alt_abs_url)
+
+        log.debug(f"found {len(parser.scripts)} scripts in the html file")
+        l_s_dict["scripts"] = len(parser.scripts)
+
+        for script in parser.scripts:
+            # parse the script and check if it is json-ld or turtle
+            # if so then add it to the triplestore
+            for script_type, script_content in script.items():
+                log.debug(f"found script of type {script_type}")
+                log.debug(f"script content: {script_content}")
+                if script_type in self.SUPPORTED_MIMETYPES:
+                    self._add_triples_from_text(
+                        script_content, script_type, resp_url
+                    )
+        parser.close()
+
+        return l_s_dict
+
     def _extract_triples_from_response(self, resp: Response):
         # note we can be sure the response is ok, as we checked that before
         ctype_header = resp.headers.get("Content-Type", None)
@@ -170,22 +213,26 @@ class Discovery(ServiceBase):
                 self._discover_subject(alt_abs_url)
         # else
         if resp_mime_type == "text/html":
-            parser = LODAwareHTMLParser()
-            parser.feed(resp.text)
-            log.info(f"found {len(parser.links)} links in the html file")
-            for alt_url in parser.links:
-                alt_abs_url = urljoin(resp.url, alt_url)
-                self._discover_subject(alt_abs_url)
+            log.debug(f"parsing html content from {resp.url}")
 
-            for script in parser.scripts:
-                # parse the script and check if it is json-ld or turtle
-                # if so then add it to the triplestore
-                for script_type, script_content in script.items():
-                    if script_type in self.SUPPORTED_MIMETYPES:
-                        self._add_triples_from_text(
-                            script_content, script_type, resp.url
-                        )
-            parser.close()
+            l_s_dict = self._parse_url_content(resp.text, resp.url)
+
+            if l_s_dict["links"] == 0 and l_s_dict["scripts"] == 0:
+                log.info(
+                    f"no links or scripts found in the html content of {resp.url}"
+                )
+                # if no scripts are found, try to extract the content
+                # using playwright
+                try:
+                    content = self._fetch_with_playwright(resp.url)
+                    log.debug(
+                        f"content fetched from {resp.url} with playwright"
+                    )
+                    self._parse_url_content(content, resp.url)
+                except Exception as e:
+                    log.exception(
+                        f"Failed to fetch content from {resp.url}", exc_info=e
+                    )
 
     @Trace.by(Trace.Event, name="StructuredContentEvent")
     def _get_structured_content(
