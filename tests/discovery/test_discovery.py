@@ -1,11 +1,13 @@
-import pytest
 import logging
 import os
 import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
+
+import pytest
 from rdflib import Graph
 from uritemplate import URITemplate
+
 from sema.discovery import discover_subject
 
 log = logging.getLogger(__name__)
