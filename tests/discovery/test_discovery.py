@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import Dict, List, Tuple
 
 import pytest
@@ -53,8 +54,11 @@ def wrap_signpost_uri(uri: str) -> str:
 
 
 @pytest.mark.fixture("httpd_server_base")
-def test_discovery_cases(httpd_server_base: str):
+def test_discovery_cases(httpd_server_base: str) -> None:
     assert httpd_server_base
+    assert re.match(
+        r"^https?://[\w.-]+(?::\d+)?/?$", httpd_server_base
+    ), f"Invalid httpd_server_base: {httpd_server_base}"
 
     for to_search, mime, length in DIRECT_CASES:
         full_uri = f"{httpd_server_base}{to_search}"
