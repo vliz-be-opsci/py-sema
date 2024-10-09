@@ -1,0 +1,9 @@
+- url: "http://example.com"
+  type: "example"
+  options:
+    param1: "value1"
+    param2: "value2"
+- url: "http://another.com/another"
+  type: "example"
+  options:
+    paramA: "valueA"
