@@ -32,7 +32,7 @@ DCT_ABSTRACT: URIRef = DCT.abstract
 SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
 
 # TODO choose better name + apply all-caps for constants
-TEST_Path: Path = TEST_FOLDER / "root_http_server"
+TEST_Path: Path = TEST_FOLDER / "data" / "localhost_http_documentroot"
 
 # TODO httpd usage should not be confined to harvest issues maybe?
 # so maybe move to TEST_FOLDER / "httpd"
