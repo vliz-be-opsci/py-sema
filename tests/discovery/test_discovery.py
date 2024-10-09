@@ -1,7 +1,5 @@
 import logging
 import os
-import threading
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 from typing import Dict, List, Tuple
 
 import pytest
@@ -23,49 +21,25 @@ HTTPD_EXTENSION_MAP: Dict[str, str] = {
     ".html": "text/html",
 }
 
-
 # Update DIRECT_CASES to use local URIs with a domain
 DIRECT_CASES: List[Tuple[str, str, int]] = [
     (
-        "http://localhost:8000/card.ttl",
+        "card.ttl",
         "text/turtle",
         86,
     ),
     (
-        "http://localhost:8000/mrgid.jsonld",
+        "mrgid.jsonld",
         "application/ld+json",
         99,
     ),
     (
-        "http://localhost:8000/homepage.html",
+        "homepage.html",
         "text/turtle",
         83,
     ),
     (
-        "http://localhost:8000/rocrate.html",
-        "application/json",
-        532,
-    ),
-]
-
-REMOTE_CASES: List[Tuple[str, str, int]] = [
-    (
-        "https://www.w3.org/People/Berners-Lee/card.ttl",
-        "text/turtle",
-        86,
-    ),
-    (
-        "https://marineregions.org/mrgid/3293.jsonld",
-        "application/ld+json",
-        99,
-    ),
-    (
-        "https://data.arms-mbon.org/",
-        "text/turtle",
-        115,
-    ),
-    (
-        "https://data.arms-mbon.org/data_release_001/latest/#",
+        "rocrate.html",
         "application/json",
         532,
     ),
@@ -78,41 +52,17 @@ def wrap_signpost_uri(uri: str) -> str:
     return link
 
 
-# Wrap direct cases into signposted cases
-SIGNPOSTED_CASES = list()
-for uri, mime, length in DIRECT_CASES:
-    link = wrap_signpost_uri(uri)
-    SIGNPOSTED_CASES.append((link, mime, length))
+@pytest.mark.fixture("httpd_server_base")
+def test_discovery_cases(httpd_server_base: str):
+    assert httpd_server_base
 
-ALL_CASES = REMOTE_CASES + SIGNPOSTED_CASES
+    for to_search, mime, length in DIRECT_CASES:
+        full_uri = f"{httpd_server_base}{to_search}"
+        wrapped_uri = wrap_signpost_uri(full_uri)
+        graph = discover_subject(full_uri, mimetypes=[mime])
+        assert isinstance(graph, Graph)
+        assert len(graph) == length
 
-
-class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
-    def guess_type(self, path):
-        ext = os.path.splitext(path)[1]
-        return HTTPD_EXTENSION_MAP.get(ext, super().guess_type(path))
-
-
-@pytest.fixture(scope="module", autouse=True)
-def http_server():
-    # Change working directory to the test files directory
-    os.chdir(TEST_FILES_DIR)
-
-    # Set up and start the HTTP server
-    handler = CustomHTTPRequestHandler
-    httpd = HTTPServer(("0.0.0.0", 8000), handler)
-
-    thread = threading.Thread(target=httpd.serve_forever)
-    thread.start()
-
-    yield
-
-    httpd.shutdown()
-    thread.join()
-
-
-@pytest.mark.parametrize("uri, mime, length", ALL_CASES)
-def test_discovery_case(uri, mime, length):
-    graph = discover_subject(uri, mimetypes=[mime])
-    assert isinstance(graph, Graph)
-    assert len(graph) > 0
+        graph = discover_subject(wrapped_uri, mimetypes=[mime])
+        assert isinstance(graph, Graph)
+        assert len(graph) == length

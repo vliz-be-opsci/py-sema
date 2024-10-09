@@ -32,12 +32,12 @@ DCT_ABSTRACT: URIRef = DCT.abstract
 SELECT_ALL_SPO = "SELECT ?s ?p ?o WHERE { ?s ?p ?o . }"
 
 # TODO choose better name + apply all-caps for constants
-TEST_Path: Path = TEST_FOLDER / "harvest" / "scenarios"
+TEST_Path: Path = TEST_FOLDER / "root_http_server"
 
 # TODO httpd usage should not be confined to harvest issues maybe?
 # so maybe move to TEST_FOLDER / "httpd"
 # and have specific harvest-input under there?
-HTTPD_ROOT: Path = TEST_Path / "input"
+HTTPD_ROOT: Path = TEST_Path
 HTTPD_HOST: str = (
     # TODO test with localhost.localdomain
     "localhost"  # can be '' - maybe also try '0.0.0.0' to bind all
@@ -347,7 +347,7 @@ def all_extensions_testset():
 def test_conf_fixturtes(httpd_server_base: str, all_extensions_testset):
     assert httpd_server_base
 
-    INPUT = TEST_Path / "input"
+    INPUT = TEST_Path
 
     for input in Path(INPUT).glob("*"):
         log.debug(f"{input=}")
