@@ -2,6 +2,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from sema.query import DEFAULT_TEMPLATES_FOLDER
 
+# Use the same templates folder as the main code to ensure consistency
 TEST_TEMPLATES_FOLDER = DEFAULT_TEMPLATES_FOLDER
 
 file_system_loader = FileSystemLoader(TEST_TEMPLATES_FOLDER)
