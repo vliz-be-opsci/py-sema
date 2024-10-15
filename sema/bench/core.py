@@ -10,9 +10,9 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
-from sema.commons.service import ServiceBase, ServiceResult, Trace
 from sema.bench.dispatcher import TaskDispatcher
 from sema.bench.task import Task
+from sema.commons.service import ServiceBase, ServiceResult, Trace
 
 log = getLogger(__name__)
 
@@ -20,7 +20,7 @@ log = getLogger(__name__)
 class SembenchResult(ServiceResult):
     """Result of the sembench service"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._success = False
 
     @property
@@ -232,6 +232,7 @@ class Sembench(ServiceBase):
                     seconds=int(self.scheduler_interval_seconds),
                 )
                 scheduler.start()
-                # TODO: technically unreachable code since the scheduler never stops running
+                # TODO: technically unreachable code
+                # #since the scheduler never stops running
                 # check if I can rewrite this to be more clear
                 self._result._success = True

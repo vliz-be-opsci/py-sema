@@ -1,21 +1,22 @@
-# -*- coding: utf-8 -*-
 import sys
 from logging import getLogger
 
-from sema.commons.cli import Namespace, SemaArgsParser
 from sema.bench.core import Sembench
+from sema.commons.cli import Namespace, SemaArgsParser
 
 log = getLogger(__name__)
 
 
 def get_arg_parser() -> SemaArgsParser:
     """
-    Defines the arguments to this script by using Python's
-    [argparse](https://docs.python.org/3/library/argparse.html)
+    Defines the arguments to this script using Python's argparse module.
+
+    See the argparse docs: https://docs.python.org/3/library/argparse.html
     """
     parser = SemaArgsParser(
         "sema-bench",
-        "Bench is a tool to orchestrate the execution of multiple services from py-sema.",
+        "Bench is a tool to orchestrate the execution of multiple services "
+        "from py-sema.",
     )
 
     # locations , dict of key value pairs of locations in filesystem
@@ -24,12 +25,15 @@ def get_arg_parser() -> SemaArgsParser:
         "--locations",
         action="store",
         default=None,
-        help="Dict of keyed paths to various filesystem locations with specific roles, such as 'home', 'input', 'output', ...",
+        help=(
+            "Dict of keyed paths to various filesystem locations with specific"
+            "roles, such as 'home', 'input', 'output', ..."
+        ),
     )
 
     # config path
     parser.add_argument(
-        "cp",
+        "-cp",
         "--config-path",
         action="store",
         required=True,
@@ -42,7 +46,7 @@ def get_arg_parser() -> SemaArgsParser:
         "--config-name",
         action="store",
         default="sembench.yaml",
-        help="Name of the sembench configuration file. (default: sembench.yaml)",
+        help="Name of the sembench config file. (default: sembench.yaml)",
     )
 
     # scheduler interval
@@ -58,9 +62,7 @@ def get_arg_parser() -> SemaArgsParser:
     parser.add_argument(
         "-w",
         "--watch",
-        action="store",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Watch the config file for changes.",
     )
 
@@ -68,9 +70,7 @@ def get_arg_parser() -> SemaArgsParser:
     parser.add_argument(
         "-ff",
         "--fail-fast",
-        action="store",
-        type=bool,
-        default=False,
+        action="store_true",
         help="Fail fast if any service fails.",
     )
 
@@ -87,19 +87,19 @@ def make_service(args: Namespace) -> Sembench:
     )
 
 
-def _main(*args_list) -> bool:
+def _main(*args_list: str) -> bool:
     args = get_arg_parser().parse_args(args_list)
 
     try:
         sembench = make_service(args)
         sembench.run()
     except Exception as e:
-        log.exception("sema.bench processing failed", exc_info=e)
+        log.exception("sema.bench processing failed")
         return False
     return True
 
 
-def main():
+def main() -> None:
     success: bool = _main(*sys.argv[1:])
     sys.exit(0 if success else 1)
 
