@@ -1,6 +1,7 @@
-import sys
 import logging
+# import sys
 from pathlib import Path
+
 from sema.check import service
 
 log = logging.getLogger(__name__)

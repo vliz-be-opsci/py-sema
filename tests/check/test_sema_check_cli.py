@@ -1,13 +1,13 @@
-import sys
 import logging
+import sys
 from pathlib import Path
+
 from sema.check.__main__ import main as query_main
 
 log = logging.getLogger(__name__)
 
 
-def test_main():
-    log.info(f"test_main_check")
+def test_main() -> None:
 
     input_folder = Path(__file__).parent / "test_files"
     output_formats = ["csv", "html", "yml"]
@@ -17,9 +17,9 @@ def test_main():
         original_argv = sys.argv
         try:
             # Set sys.argv to simulate command-line arguments
-            sys.argv = ["sema-check"] + cli_line.split()
+            sys.argv = ["sema-check", *cli_line.split()]
             success: bool = query_main(sys.argv)
-            # assert success, f"sema-check failed for output format: {output}"
+            assert success, f"sema-check failed for output format: {output}"
         finally:
             # Restore the original sys.argv
             sys.argv = original_argv

@@ -1,6 +1,7 @@
 # your_submodule/sinks/html_sink.py
 
 from typing import List
+
 from ..testing.base import TestResult
 
 

@@ -1,11 +1,7 @@
-# your_submodule/__main__.py
-
-# your_submodule/cli.py
-import sys
 from logging import getLogger
 
-from sema.commons.cli import Namespace, SemaArgsParser
 from sema.check import Check
+from sema.commons.cli import Namespace, SemaArgsParser
 
 log = getLogger(__name__)
 
@@ -47,7 +43,7 @@ def make_service(args: Namespace) -> Check:
 
 
 def _main(*args_list) -> bool:
-    log.info(f"Running sema-check with args: {args_list}")
+    log.info("Running sema-check with args: %s", args_list)
     args = get_arg_parser().parse_args(args_list)
 
     try:
@@ -55,16 +51,16 @@ def _main(*args_list) -> bool:
         r = check.process()
         print(f"Finished running tests: {r}")
         return bool(r)
-    except Exception as e:
-        log.error(f"An error occurred: {e}")
+    except (ValueError, IOError) as e:
+        log.exception("An error occurred: %s", e)
         return False
 
 
-def main(args=None):
-    log.debug(f"Running sema-check with args: {args[1:]}")
+def main(args: list[str] | None = None) -> None:
+    log.debug("Running sema-check with args: %s", args[1:] if args else [])
     success: bool = _main(*args[1:])
-    log.debug(f"Finished running sema-check")
-    log.info(f"Success: {success}")
+    log.debug("Finished running sema-check")
+    log.info("Success: %s", success)
     # sys.exit(0 if success else 1)
 
 

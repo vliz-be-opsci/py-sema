@@ -1,3 +1,5 @@
+# Sema Check Module
+
 Yaml for tests will look like
 
 ```yaml
@@ -12,19 +14,27 @@ Yaml for tests will look like
     paramA: "valueA"
 ```
 
-where `url` is the URL to test, `type` is the test type, and `options` are the test parameters.
+The YAML configuration for tests defines the parameters for each test to be executed. Each test is represented by a YAML object with the following structure:
+
+- `url`: The target URL for the test (required)
+- `type`: The type of test to be performed (required). Possible values include [list possible values here]
+- `options`: A map of key-value pairs for additional test parameters (optional)
+
+Multiple tests can be defined in a single YAML file. The `options` field can vary based on the `type` of test being performed.
 
 ## Testing base class
 
-The TestBase is a dataclass that holds the test data. It has the following fields:
+The TestBase is a dataclass that holds the test data with the following fields:
 
-- `url` - the URL to test
-- `type` - the test type
-- `options` - the test parameters
-- `result` - the test result
-  - `success`: boolean, whether the test was successful
-  - `message`: string, a message describing the test result, this can also be the error message
-  - `error`: boolean, whether the test failed due to an error
+- `url: str` - The URL to test
+- `type: str` - The test type
+- `options: dict` - The test parameters
+- `result: dict` - The test result, containing:
+  - `success: bool` - Whether the test was successful
+  - `message: str` - A message describing the test result or error
+  - `error: bool` - Whether the test encountered an error
+
+Note: A test can be unsuccessful (`success=False`) without encountering an error (`error=False`)
 
 ## flow of sema-check
 

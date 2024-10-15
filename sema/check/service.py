@@ -1,11 +1,12 @@
 # your_submodule/service.py
 
-import os
-import yaml
-from .testing.base import TestBase
-from .testing.test_example import ExampleTest  # Import concrete test classes
-
 import logging
+import os
+
+import yaml
+
+# from .testing.base import TestBase
+from .testing.test_example import ExampleTest  # Import concrete test classes
 
 log = logging.getLogger(__name__)
 

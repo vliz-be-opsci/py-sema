@@ -1,7 +1,9 @@
 # your_submodule/sinks/yml_sink.py
 
-import yaml
 from typing import List
+
+import yaml
+
 from ..testing.base import TestResult
 
 

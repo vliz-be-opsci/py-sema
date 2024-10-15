@@ -1,5 +1,7 @@
 import logging
+
 from sema.commons.service import ServiceBase, ServiceResult, Trace
+
 from .service import run_tests
 from .sinks import write_csv, write_html, write_yml
 
@@ -23,7 +25,8 @@ class Check(ServiceBase):
     def __init__(self, *, input_folder: str, output: str) -> None:
         """Initialize the Check Service object
 
-        :param input_folder: the folder where the files to be checked are located
+        :param input_folder: the folder where the files
+        to be checked are located
         :type input_folder: str
         :param output: the output format to be used
         :type output: str
@@ -32,7 +35,9 @@ class Check(ServiceBase):
         self.output = output
 
         log.debug(
-            f"Check service initialized with input_folder: {input_folder}, output: {output}"
+            "Check service initialized with input_folder: %s, output: %s",
+            self.input_folder,
+            self.output,
         )
 
         assert self.input_folder, "input_folder not provided"

@@ -1,12 +1,13 @@
 import csv
-import os
-import yaml
 from pathlib import Path
+
+import yaml
+
 from sema.check.sinks import write_csv, write_html, write_yml
 from sema.check.testing.base import TestResult
 
 
-def test_write_csv():
+def test_write_csv() -> None:
     # Arrange
     results = [
         TestResult(
@@ -48,7 +49,7 @@ def test_write_csv():
         assert rows[1]["type"] == "example"
 
 
-def test_write_html():
+def test_write_html() -> None:
     results = [
         TestResult(
             success=True,
@@ -118,12 +119,12 @@ def test_write_yml():
 
     assert output_file.exists()
     assert len(loaded_results) == 2
-    assert loaded_results[0]["success"] == True
-    assert loaded_results[0]["error"] == None
+    assert loaded_results[0]["success"] is True
+    assert loaded_results[0]["error"] is None
     assert loaded_results[0]["message"] == "Test passed"
     assert loaded_results[0]["url"] == "http://example.com"
     assert loaded_results[0]["type_test"] == "example"
-    assert loaded_results[1]["success"] == False
+    assert loaded_results[1]["success"] is False
     assert loaded_results[1]["error"] == "Some error"
     assert loaded_results[1]["message"] == "Test failed"
     assert loaded_results[1]["url"] == "http://example.com/2"
