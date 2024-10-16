@@ -1,12 +1,8 @@
-import pytest
-from rdflib import Graph
 from logging import getLogger
 
-from sema.bench.__main__ import (
-    SemaArgsParser,
-    _main,
-    get_arg_parser,
-)
+import pytest
+
+from sema.bench.__main__ import _main, get_arg_parser
 
 log = getLogger(__name__)
 
@@ -15,7 +11,8 @@ log = getLogger(__name__)
     "args_line, expected",
     [
         (
-            "--config-path /path/to/config --config-name custom.yaml --interval 500 --watch --fail-fast",
+            "--config-path /path/to/config --config-name custom.yaml"
+            " --interval 500 --watch --fail-fast",
             {
                 "config_path": "/path/to/config",
                 "config_name": "custom.yaml",
@@ -46,10 +43,10 @@ log = getLogger(__name__)
         ),
     ],
 )
-def test_args(args_line, expected):
+def test_args(args_line, expected) -> None:
     parser = get_arg_parser()
     assert parser is not None
-    log.info(f"args_line: {args_line}")
+    log.info("args_line: %s", args_line)
     ns = parser.parse_args(args_line.split(" "))
     args = vars(ns)
     expected_set = set(expected.items())
@@ -59,7 +56,7 @@ def test_args(args_line, expected):
     )
 
 
-def test_help(capfd):
+def test_help(capfd: pytest.CaptureFixture) -> None:
     help_line: str = "--help"
     with pytest.raises(SystemExit) as caught:
         success: bool = _main(*help_line.split())

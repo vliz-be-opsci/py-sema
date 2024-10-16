@@ -7,13 +7,12 @@ from pathlib import Path
 import validators
 from rdflib import Graph
 
+from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
-from sema.commons.log.loader import load_log_config
 from sema.harvest import service
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
@@ -23,9 +22,10 @@ def get_arg_parser():
     """
     # TODO use the SemaArgsParser from sema.commons.cli
     # TODO register sema-harvest as a console-script in project.toml
-    parser = argparse.ArgumentParser(
-        description="harvesting service for traversing and asserting paths",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+
+    parser = SemaArgsParser(
+        "sema-harvest",
+        "harvesting service for traversing and asserting paths",
     )
 
     DEFAULT_CONFIG_FOLDER = Path.cwd() / "config"
@@ -83,17 +83,6 @@ def get_arg_parser():
             "Pair of read_uri and write_uri describing the "
             "SPARQL endpoint to use as store. "
         ),
-    )
-
-    # TODO remove this when using the SemaArgsParser
-    # it already handles the logconf setup
-    parser.add_argument(
-        "-l",
-        "--logconf",
-        nargs=1,
-        required=False,
-        action="store",
-        help=("Location of yml formatted logconfig file to apply."),
     )
 
     return parser
@@ -216,8 +205,6 @@ def _main(*cli_args):
     # TODO remove this when using the SemaArgsParser
     # it already does this logging & the logconf setup
     log.debug(f"cli called with {args=}")
-    # enable logging
-    enable_logging(args)
     # build the core service
     new_service = make_service(args)
     # load the store initially

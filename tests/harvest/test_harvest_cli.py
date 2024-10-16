@@ -1,34 +1,41 @@
-import logging
-from pathlib import Path
-
 import pytest
 
-from sema.harvest.__main__ import _main
-
-log = logging.getLogger(__name__)
-
-TEST_CONFIG_FOLDER = Path(__file__).parent / "config"
-TEST_INPUT_FOLDER = Path(__file__).parent / "inputs"
+from sema.harvest.__main__ import _main, get_arg_parser
 
 
-@pytest.mark.usefixtures("outpath", "store_info_sets")
-def test_main(outpath: Path, store_info_sets: tuple):
-    conf_path = TEST_CONFIG_FOLDER / "good_folder"
-    init_path = TEST_INPUT_FOLDER / "3293.jsonld"
+@pytest.mark.parametrize(
+    "args_line, expected",
+    [
+        (
+            "-c /path/to/config -d /path/to/dump",
+            {
+                "config": ("/path/to/config",),
+                "dump": ("/path/to/dump",),
+            },
+        ),
+    ],
+)
+def test_args(args_line, expected) -> None:
+    parser = get_arg_parser()
+    assert parser is not None
+    ns = parser.parse_args(args_line.split(" "))
+    args = vars(ns)
+    expected_set = set(expected.items())
+    args_set = set(
+        (k, tuple(v) if isinstance(v, list) else v) for k, v in args.items()
+    )
+    assert expected_set.issubset(args_set), (
+        f"{expected_set=} " f"not in {args_set=}"
+    )
 
-    for n, store_info in enumerate(store_info_sets):
-        dump_path = outpath / f"test_main_out_{n:02d}.ttl"
-        assert not dump_path.exists(), "no output before run..."
 
-        argsline: str = (
-            f"--config {conf_path} --init {init_path} --dump {dump_path}"
-        )
-        store_part = " ".join(store_info)
-        if (len(store_part)) > 0:
-            argsline += f" --store {store_part}"
-
-        log.debug(f"testing equivlnt of python -m harvest {argsline}")
-        _main(*argsline.split(" "))  # pass as individual arguments
-        assert dump_path.exists(), "run did not create expected output"
-
-        # TODO consider some extra assertions on the result
+def test_help(capfd: pytest.CaptureFixture) -> None:
+    help_line: str = "--help"
+    with pytest.raises(SystemExit) as caught:
+        success: bool = _main(*help_line.split())
+        assert not success
+        assert caught.value.code == 0
+        assert caught.type == SystemExit
+    out, err = capfd.readouterr()
+    assert len(out) > 0
+    assert out.startswith("usage: ")
