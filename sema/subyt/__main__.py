@@ -153,10 +153,10 @@ def _main(*args_list) -> bool:
         subyt._sink.close()  # TODO investigate suspicious location for this
 
 
-def main():
-    success: bool = _main(*sys.argv[1:])
+def main(*cli_args):
+    success: bool = _main(cli_args)
     sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":
-    main()
+    main(*sys.argv[1:])
