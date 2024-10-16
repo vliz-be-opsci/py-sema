@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TestResult:
+class CheckResult:
     success: bool
     error: bool
     message: str
@@ -13,12 +13,12 @@ class TestResult:
     type_test: str
 
 
-class TestBase(ABC):
+class CheckBase(ABC):
     def __init__(self, url: str, type_test: str, options: dict):
         self.url = url
         self.type = type_test
         self.options = options
-        self.result = TestResult(
+        self.result = CheckResult(
             success=False,
             error=False,
             message="",
@@ -27,5 +27,5 @@ class TestBase(ABC):
         )
 
     @abstractmethod
-    def run(self) -> TestResult:
+    def run(self) -> CheckResult:
         pass

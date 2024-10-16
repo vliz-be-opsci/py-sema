@@ -1,3 +1,4 @@
+import sys
 from logging import getLogger
 
 from sema.check import Check
@@ -49,19 +50,19 @@ def _main(*args_list) -> bool:
     try:
         check = make_service(args)
         r = check.process()
-        print(f"Finished running tests: {r}")
+        log.info("Finished running tests: %s", r)
         return bool(r)
-    except (ValueError, IOError) as e:
-        log.exception("An error occurred: %s", e)
+    except (ValueError, OSError):
+        log.exception("An error occurred")
         return False
 
 
 def main(args: list[str] | None = None) -> None:
+    args = sys.argv
     log.debug("Running sema-check with args: %s", args[1:] if args else [])
     success: bool = _main(*args[1:])
     log.debug("Finished running sema-check")
     log.info("Success: %s", success)
-    # sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":

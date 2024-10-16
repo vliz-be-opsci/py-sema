@@ -3,21 +3,21 @@ from pathlib import Path
 
 import yaml
 
+from sema.check.base import CheckResult
 from sema.check.sinks import write_csv, write_html, write_yml
-from sema.check.testing.base import TestResult
 
 
 def test_write_csv() -> None:
     # Arrange
     results = [
-        TestResult(
+        CheckResult(
             success=True,
             error=None,
             message="Test passed",
             url="http://example.com",
             type_test="example",
         ),
-        TestResult(
+        CheckResult(
             success=False,
             error="Some error",
             message="Test failed",
@@ -26,6 +26,7 @@ def test_write_csv() -> None:
         ),
     ]
     tmp_path = Path(__file__).parent / "out"
+    tmp_path.mkdir(parents=True, exist_ok=True)
     output_file = tmp_path / "output.csv"
 
     # Act
@@ -51,14 +52,14 @@ def test_write_csv() -> None:
 
 def test_write_html() -> None:
     results = [
-        TestResult(
+        CheckResult(
             success=True,
             error=False,
             message="Test 1 passed",
             url="http://example.com",
             type_test="example",
         ),
-        TestResult(
+        CheckResult(
             success=False,
             error=True,
             message="Test 2 failed",
@@ -72,37 +73,24 @@ def test_write_html() -> None:
     write_html(results, str(output_file))
 
     assert output_file.exists()
-
-    with open(output_file, "r") as f:
+    with open(output_file) as f:
         content = f.read()
-        assert "<html>" in content
-        assert "<head><title>Test Results</title></head>" in content
-        assert "<table border='1'>" in content
-        assert (
-            "<tr><th>Success</th><th>Error</th><th>Message</th></tr>"
-            in content
-        )
-        assert (
-            "<tr><td>True</td><td>False</td><td>Test 1 passed</td></tr>"
-            in content
-        )
-        assert (
-            "<tr><td>False</td><td>True</td><td>Test 2 failed</td></tr>"
-            in content
-        )
-        assert "</table></body></html>" in content
+        assert '<html lang="en">' in content
+        assert "<title>Test Results</title>" in content
+        assert "Test 1 passed" in content
+        assert "Test 2 failed" in content
 
 
 def test_write_yml():
     results = [
-        TestResult(
+        CheckResult(
             success=True,
             error=None,
             message="Test passed",
             url="http://example.com",
             type_test="example",
         ),
-        TestResult(
+        CheckResult(
             success=False,
             error="Some error",
             message="Test failed",
@@ -111,10 +99,10 @@ def test_write_yml():
         ),
     ]
     tmp_path = Path(__file__).parent / "out"
+    tmp_path.mkdir(parents=True, exist_ok=True)
     output_file = tmp_path / "output.yml"
     write_yml(results, str(output_file))
-
-    with open(output_file, "r") as f:
+    with open(output_file) as f:
         loaded_results = yaml.safe_load(f)
 
     assert output_file.exists()

@@ -1,14 +1,16 @@
 # Sema Check Module
+
 ## Test Configuration
 
 The sema-check module uses YAML files to define test configurations. Each YAML file can contain multiple test definitions, allowing for batch testing of various endpoints or scenarios.
 
-Yaml for tests will look like
+Yaml for tests will look like:
 
 ```yaml
-- url: "http://example.com"
-  type: "example"
-  options:
+# Example test configuration
+- url: "http://example.com" # The target URL for the test
+  type: "example" # The type of test to be performed
+  options: # Additional test parameters
     param1: "value1"
     param2: "value2"
 - url: "http://another.com"
@@ -28,11 +30,37 @@ Multiple tests can be defined in a single YAML file. The `options` field can var
 Example of how `options` might differ based on test type:
 
 - For a "response_time" test:
+
   ```yaml
   options:
-    max_response_time: 500  # milliseconds
+    max_response_time: 500 # milliseconds
   ```
+
 - For a "content_check" test:
+
+  ```yaml
+  options:
+    expected_content: "Welcome to our website"
+    case_sensitive: false
+  ```
+
+- For a "status_code_check" test:
+
+  ```yaml
+  options:
+    expected_status_code: 200
+  ```
+
+  ```yaml
+  # Example of a "header_check" test:
+  - url: "http://example.com"
+    type: "header_check"
+    options:
+      expected_headers:
+        Content-Type: "application/json"
+        Cache-Control: "no-cache"
+  ```
+
   ```yaml
   options:
     expected_content: "Welcome to our website"
@@ -41,7 +69,19 @@ Example of how `options` might differ based on test type:
 
 ## Testing base class
 
-The TestBase is a dataclass that holds the test data with the following fields:
+The CheckBase is a dataclass that holds the test data with the following fields:
+
+```python
+from dataclasses import dataclass, field
+from typing import Dict
+
+@dataclass
+class CheckBase:
+  url: str
+  type: str
+  options: Dict[str, str] = field(default_factory=dict)
+  result: Dict[str, str] = field(default_factory=dict)
+```
 
 - `url: str` - The URL to test
 - `type: str` - The test type
@@ -53,24 +93,25 @@ The TestBase is a dataclass that holds the test data with the following fields:
 
 Note: A test can be unsuccessful (`success=False`) without encountering an error (`error=False`)
 
-## flow of sema-check
+## Flow of sema-check
 
-The following flowchart illustrates the control flow of the sema-check process:  
+The following flowchart illustrates the control flow of the sema-check process:
 
-1. User invokes the CLI  
-2. The CLI module parses arguments and initiates the Service module  
-3. The Service module loads YAML files and instantiates Test Classes  
-4. Tests are executed and results are collected  
-5. Results are output to various formats (CSV, HTML, YML) using Sink Modules  
+1. User invokes the CLI
+2. The CLI module parses arguments and initiates the Service module
+3. The Service module loads YAML files and instantiates Test Classes
+4. Tests are executed and results are collected
+5. Results are output to various formats (CSV, HTML, YML) using Sink Modules
 
-Color Legend:  
-- Pink: User interaction  
-- Light Blue: Core modules  
-- Green: Data loading and processing  
-- Purple: Test execution  
-- Yellow: Result handling  
-- Cyan: Output generation  
-- Light Purple: Utility functions  
+Color Legend:
+
+- Pink: User interaction
+- Light Blue: Core modules
+- Green: Data loading and processing
+- Purple: Test execution
+- Yellow: Result handling
+- Cyan: Output generation
+- Light Purple: Utility functions
 
 ```mermaid
 graph TD

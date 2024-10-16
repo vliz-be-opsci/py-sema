@@ -3,10 +3,10 @@
 import csv
 from typing import List
 
-from ..testing.base import TestBase
+from sema.check.base import CheckBase
 
 
-def write_csv(results: List[TestBase], output_file: str):
+def write_csv(results: List[CheckBase], output_file: str):
     with open(output_file, "w", newline="") as csvfile:
         fieldnames = ["url", "type", "success", "error", "message"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

@@ -1,23 +1,31 @@
 # your_submodule/tests/test_example.py
 
-from .base import TestBase, TestResult
+import logging
+
+from sema.check.base import CheckBase, CheckResult
 
 
-class ExampleTest(TestBase):
-    def run(self) -> TestResult:
+class ExampleTest(CheckBase):
+    def run(self) -> CheckResult:
         try:
             # Example test logic
             print(
-                f"Running example test on {self.url} with options {self.options}"
+                f"Running example test on {self.url} "
+                f"with options {self.options}",
             )
             # Simulate success
             self.result.url = self.url
             self.result.type = self.type
             self.result.success = True
             self.result.message = "Example test passed."
-        except Exception as e:
+        except (ValueError, TypeError) as e:
             self.result.error = True
             self.result.message = str(e)
+            logging.exception("An error occurred during the test:")
+        except Exception:
+            self.result.error = True
+            self.result.message = "An unexpected error occurred."
+            logging.exception("An unexpected error occurred:")
         return self.result
 
 

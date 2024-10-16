@@ -2,10 +2,10 @@
 
 from typing import List
 
-from ..testing.base import TestResult
+from sema.check.base import CheckResult
 
 
-def write_html(results: List[TestResult], output_file: str) -> None:
+def write_html(results: List[CheckResult], output_file: str) -> None:
     html_content = """
 <!DOCTYPE html>
 <html lang="en">
