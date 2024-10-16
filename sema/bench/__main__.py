@@ -21,7 +21,7 @@ def get_arg_parser() -> SemaArgsParser:
 
     # locations , dict of key value pairs of locations in filesystem
     parser.add_argument(
-        "-l",
+        "-loc",
         "--locations",
         action="store",
         default=None,
@@ -93,7 +93,7 @@ def _main(*args_list: str) -> bool:
     try:
         sembench = make_service(args)
         sembench.run()
-    except Exception as e:
+    except Exception:
         log.exception("sema.bench processing failed")
         return False
     return True
