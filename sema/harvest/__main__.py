@@ -156,10 +156,10 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:harvest:context")
 
 
-def make_service(args) -> HarvestService:
+def make_service(args: argparse.Namespace) -> HarvestService:
     store_info: list = args.store or []
-    log.debug(f"{args.store}")
-    log.debug(f"make service for target store {store_info}")
+    log.debug("%s", args.store)
+    log.debug("make service for target store %s", store_info)
     config = args.config[0]
     config = Path.cwd() / config
     new_service = HarvestService(config, store_info)

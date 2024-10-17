@@ -167,11 +167,18 @@ def test_scenario_two(
     assert httpd_server_base
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
-        config = CONFIGS / "dereference_test2_sparql.yml"
-        travharv = HarvestService(
-            config,
-            store,
-        )
+        # config = CONFIGS / "dereference_test2_sparql.yml"
+
+        @pytest.fixture
+        def create_harvest_service(store_info_sets):
+            def _create_harvest_service(config_file):
+                config = CONFIGS / config_file
+                return HarvestService(config, store_info_sets)
+
+            return _create_harvest_service
+
+        # In the test function
+        travharv = create_harvest_service("dereference_test2_sparql.yml")
         length_store = len_store(travharv.target_store)
         travharv.process()
         # assertions here
@@ -216,12 +223,17 @@ def test_scenario_three(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test3_sparql.yml"
-        travharv = HarvestService(
-            config,
-            store,
-        )
-        length_store = len_store(travharv.target_store)
-        travharv.process()
+
+        try:
+            travharv = HarvestService(
+                config,
+                store,
+            )
+            length_store = len_store(travharv.target_store)
+            travharv.process()
+        except Exception as e:
+            pytest.fail(f"HarvestService raised an unexpected exception: {e}")
+
         # assertions here
 
         # get all the travharv:downloadedresources from the store
@@ -292,6 +304,18 @@ def test_scenario_four(
     httpd_server_base: str,
     store_info_sets,
 ):
+    """
+    Test scenario four: [Brief description of what this scenario is testing]
+
+    This test verifies that:
+    1. [First assertion or condition being tested]
+    2. [Second assertion or condition being tested]
+    3. ...
+
+    Args:
+        httpd_server_base (str): [Description of this parameter]
+        store_info_sets: [Description of this parameter]
+    """
     assert httpd_server_base
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")

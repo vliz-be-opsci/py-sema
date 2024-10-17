@@ -24,9 +24,9 @@ def test_args(args_line: str, expected: dict[str, tuple[str, ...]]) -> None:
     args_set = {
         (k, tuple(v) if isinstance(v, list) else v) for k, v in args.items()
     }
-    assert expected_set.issubset(args_set), (
-        f"{expected_set=} not in {args_set=}"
-    )
+    assert expected_set.issubset(
+        args_set
+    ), f"{expected_set=} not in {args_set=}"
 
 
 def test_help(capfd: pytest.CaptureFixture) -> None:
@@ -37,4 +37,6 @@ def test_help(capfd: pytest.CaptureFixture) -> None:
     assert caught.type is SystemExit
     out, err = capfd.readouterr()
     assert len(out) > 0
-    assert out.startswith("usage: ")
+    assert "usage: " in out
+    assert "-c" in out and "--config" in out
+    assert "-d" in out and "--dump" in out

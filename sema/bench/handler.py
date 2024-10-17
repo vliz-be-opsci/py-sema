@@ -3,7 +3,7 @@ from logging import getLogger
 
 from pyshacl import validate
 
-from sema.harvest import service as Harvest
+from sema.harvest import HarvestService as Harvest
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 

@@ -60,7 +60,7 @@ def test_help(capfd: pytest.CaptureFixture) -> None:
     help_line: str = "--help"
     with pytest.raises(SystemExit) as caught:
         _main(*help_line.split())
-    
+
     assert caught.value.code == 0
     assert caught.type is SystemExit
     out, err = capfd.readouterr()
