@@ -7,25 +7,23 @@ from pathlib import Path
 import validators
 from rdflib import Graph
 
+from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
-from sema.commons.log.loader import load_log_config
-from sema.harvest import service
+from sema.harvest import HarvestService
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """
     Get the argument parser for the module
     """
-    # TODO use the SemaArgsParser from sema.commons.cli
-    # TODO register sema-harvest as a console-script in project.toml
-    parser = argparse.ArgumentParser(
-        description="harvesting service for traversing and asserting paths",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+
+    parser = SemaArgsParser(
+        "sema-harvest",
+        "harvesting service for traversing and asserting paths",
     )
 
     DEFAULT_CONFIG_FOLDER = Path.cwd() / "config"
@@ -83,17 +81,6 @@ def get_arg_parser():
             "Pair of read_uri and write_uri describing the "
             "SPARQL endpoint to use as store. "
         ),
-    )
-
-    # TODO remove this when using the SemaArgsParser
-    # it already handles the logconf setup
-    parser.add_argument(
-        "-l",
-        "--logconf",
-        nargs=1,
-        required=False,
-        action="store",
-        help=("Location of yml formatted logconfig file to apply."),
     )
 
     return parser
@@ -169,13 +156,13 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:harvest:context")
 
 
-def make_service(args) -> service:
+def make_service(args: argparse.Namespace) -> HarvestService:
     store_info: list = args.store or []
-    log.debug(f"{args.store}")
-    log.debug(f"make service for target store {store_info}")
+    log.debug("%s", args.store)
+    log.debug("make service for target store %s", store_info)
     config = args.config[0]
     config = Path.cwd() / config
-    new_service = service(config, store_info)
+    new_service = HarvestService(config, store_info)
     return new_service
 
 
@@ -216,8 +203,6 @@ def _main(*cli_args):
     # TODO remove this when using the SemaArgsParser
     # it already does this logging & the logconf setup
     log.debug(f"cli called with {args=}")
-    # enable logging
-    enable_logging(args)
     # build the core service
     new_service = make_service(args)
     # load the store initially
