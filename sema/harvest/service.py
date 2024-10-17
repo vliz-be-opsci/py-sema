@@ -23,8 +23,12 @@ class HarvestResult(ServiceResult):
     def success(self) -> bool:
         return self._success
 
+    @success.setter
+    def success(self, value: bool) -> None:
+        self._success = value
 
-class service(ServiceBase):
+
+class HarvestService(ServiceBase):
     """Assert all paths for given subjects.
     Given a configuration file, assert all paths
     for all subjects in the configuration file.
@@ -111,5 +115,5 @@ class service(ServiceBase):
             log.error("Error running dereference tasks")
             self.error_occurred = True
         finally:
-            self._result._success = not self.error_occurred
-            return not self.error_occurred
+            self._result.success = not self.error_occurred
+        return not self.error_occurred

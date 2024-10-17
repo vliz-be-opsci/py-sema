@@ -9,19 +9,17 @@ from rdflib import Graph
 
 from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
-from sema.harvest import service
+from sema.harvest import HarvestService
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
 
 log = logging.getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """
     Get the argument parser for the module
     """
-    # TODO use the SemaArgsParser from sema.commons.cli
-    # TODO register sema-harvest as a console-script in project.toml
 
     parser = SemaArgsParser(
         "sema-harvest",
@@ -158,13 +156,13 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:harvest:context")
 
 
-def make_service(args) -> service:
+def make_service(args) -> HarvestService:
     store_info: list = args.store or []
     log.debug(f"{args.store}")
     log.debug(f"make service for target store {store_info}")
     config = args.config[0]
     config = Path.cwd() / config
-    new_service = service(config, store_info)
+    new_service = HarvestService(config, store_info)
     return new_service
 
 

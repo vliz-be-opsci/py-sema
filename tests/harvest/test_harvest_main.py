@@ -12,7 +12,7 @@ TEST_INPUT_FOLDER = Path(__file__).parent / "inputs"
 
 
 @pytest.mark.usefixtures("outpath", "store_info_sets")
-def test_main(outpath: Path, store_info_sets: tuple):
+def test_main(outpath: Path, store_info_sets: tuple) -> None:
     conf_path = TEST_CONFIG_FOLDER / "good_folder"
     init_path = TEST_INPUT_FOLDER / "3293.jsonld"
 
@@ -27,7 +27,7 @@ def test_main(outpath: Path, store_info_sets: tuple):
         if (len(store_part)) > 0:
             argsline += f" --store {store_part}"
 
-        log.debug(f"testing equivlnt of python -m harvest {argsline}")
+        log.debug("testing equivlnt of python -m harvest %s", argsline)
         _main(*argsline.split(" "))  # pass as individual arguments
         assert dump_path.exists(), "run did not create expected output"
 

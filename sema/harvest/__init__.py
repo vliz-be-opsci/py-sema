@@ -10,7 +10,7 @@ by dereferencing URIs and asserting paths.
 
 from .config_build import Config, ConfigBuilder
 from .executor import Executor
-from .service import service
+from .service import HarvestService
 from .store import RDFStoreAccess
 
 __all__ = [
@@ -18,5 +18,5 @@ __all__ = [
     "ConfigBuilder",
     "Config",
     "Executor",
-    "service",
+    "HarvestService",
 ]

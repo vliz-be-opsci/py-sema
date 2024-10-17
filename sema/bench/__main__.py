@@ -33,7 +33,7 @@ def get_arg_parser() -> SemaArgsParser:
 
     # config path
     parser.add_argument(
-        "-cp",
+        "-c",
         "--config-path",
         action="store",
         required=True,
@@ -42,7 +42,7 @@ def get_arg_parser() -> SemaArgsParser:
 
     # sembench config name (default: sembench.yaml)
     parser.add_argument(
-        "-cn",
+        "-n",
         "--config-name",
         action="store",
         default="sembench.yaml",
