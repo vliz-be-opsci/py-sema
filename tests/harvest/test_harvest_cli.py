@@ -38,5 +38,7 @@ def test_help(capfd: pytest.CaptureFixture) -> None:
     out, err = capfd.readouterr()
     assert len(out) > 0
     assert "usage: " in out
-    assert "-c" in out and "--config" in out
-    assert "-d" in out and "--dump" in out
+    assert "-c" in out
+    assert "--config" in out
+    assert "-d" in out
+    assert "--dump" in out
