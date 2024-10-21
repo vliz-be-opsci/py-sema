@@ -1,8 +1,9 @@
 import logging
 import logging.config
 import sys
-from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, Namespace
+from argparse import Namespace
 
+from sema.commons.cli import SemaArgsParser
 from sema.commons.log.loader import load_log_config
 
 from .service import DEFAULT_URN_BASE, SyncFsTriples
@@ -10,24 +11,14 @@ from .service import DEFAULT_URN_BASE, SyncFsTriples
 log = logging.getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """Defines the arguments to this module's __main__ cli script
     by using Python's
     [argparse](https://docs.python.org/3/library/argparse.html)
     """
-    ap = ArgumentParser(
-        prog="syncfs",
-        description="CLI for main action in pysyncfstriples",
-        formatter_class=ArgumentDefaultsHelpFormatter,
-    )
-    ap.add_argument(
-        "-l",
-        "--logconf",
-        metavar="LOGCONF_FILE.yml",
-        type=str,
-        action="store",
-        help="The config file for the Logging in yml format",
-    )
+
+    ap = SemaArgsParser("sema-sync", "CLI for main action in pysyncfstriples")
+
     ap.add_argument(
         "-r",
         "--root",
@@ -78,7 +69,7 @@ def make_service(args) -> SyncFsTriples:
     return service
 
 
-def main(*cli_args):
+def _main(*cli_args):
     # parse cli args
     print(f"cli_args = {cli_args}")
     args: Namespace = get_arg_parser().parse_args(cli_args)
@@ -91,7 +82,11 @@ def main(*cli_args):
     service.process()
 
 
+def main() -> None:
+    _main(*sys.argv[1:])
+
+
 if __name__ == "__main__":
     # getting the cli_args here and passing them to main
     # this make the main() testable without shell subprocess
-    main(*sys.argv[1:])
+    main()

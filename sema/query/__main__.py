@@ -23,8 +23,9 @@ def get_arg_parser() -> SemaArgsParser:
     """
 
     parser = SemaArgsParser(
+        "sema-query",
         "Py Project to extra table data from "
-        "knowledge-graphs using sparql templates"
+        "knowledge-graphs using sparql templates",
     )
 
     parser.add_argument(
@@ -240,16 +241,13 @@ def getdelimiter(args: argparse.Namespace):
         return ","
 
 
-def main(sysargs=None):
+def _main(*cli_args):
     """
     The main entry point to this module.
 
     """
-    args = (
-        get_arg_parser().parse_args(sysargs)
-        if sysargs is not None and len(sysargs) > 0
-        else get_arg_parser().parse_args()
-    )
+    args: argparse.Namespace = get_arg_parser().parse_args(cli_args)
+
     enable_logging(args)
     log.info("The args passed to %s are: %s." % (sys.argv[0], args))
     check_arguments(args)
@@ -276,5 +274,9 @@ def main(sysargs=None):
     print(f"new file saved on location : {output_location}")
 
 
+def main() -> None:
+    _main(*sys.argv[1:])
+
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

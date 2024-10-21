@@ -61,6 +61,9 @@ sema-subyt = "sema.subyt.__main__:main"
 sema-get = "sema.discovery.__main__:main"
 sema-conneg = "sema.commons.web.conneg_cli:main"
 sema-bench = "sema.bench.__main__:main"
+sema-harvest = "sema.harvest.__main__:main"
+sema-query = "sema.query.__main__:main"
+sema-syncfs = "sema.syncfs.__main__:main"
 
 [build-system]
 requires = ["setuptools","poetry"]
