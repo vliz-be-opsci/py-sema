@@ -76,7 +76,7 @@ def make_service(args) -> SyncFsTriples:
     return service
 
 
-def _main(*cli_args):
+def _main(*cli_args: str) -> None:
     # parse cli args
     print(f"cli_args = {cli_args}")
     args: Namespace = get_arg_parser().parse_args(cli_args)

@@ -159,26 +159,27 @@ def test_scenario_one(
         )
 
 
+@pytest.fixture
+def create_harvest_service(store_info_sets):
+    def _create_harvest_service(config_file):
+        config = CONFIGS / config_file
+        return HarvestService(config, store_info_sets)
+
+    return _create_harvest_service
+
+
 @pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_two(
     httpd_server_base: str,
     store_info_sets,
+    create_harvest_service,
 ):
     assert httpd_server_base
     for store in store_info_sets:
-        log.debug(f"testing scenario one for {store}")
-        # config = CONFIGS / "dereference_test2_sparql.yml"
-
-        @pytest.fixture
-        def create_harvest_service(store_info_sets):
-            def _create_harvest_service(config_file):
-                config = CONFIGS / config_file
-                return HarvestService(config, store_info_sets)
-
-            return _create_harvest_service
-
-        # In the test function
+        log.debug(f"testing scenario two for {store}")
         travharv = create_harvest_service("dereference_test2_sparql.yml")
+        length_store = len_store(travharv.target_store)
+        travharv.process()
         length_store = len_store(travharv.target_store)
         travharv.process()
         # assertions here
@@ -318,7 +319,8 @@ def test_scenario_four(
     """
     assert httpd_server_base
     for store in store_info_sets:
-        log.debug("testing scenario one for %s", store)
+        log.debug("testing scenario four for %s", store)
+        log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test4_sparql.yml"
         travharv = HarvestService(
             config,
