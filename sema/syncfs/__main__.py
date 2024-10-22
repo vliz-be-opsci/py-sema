@@ -12,12 +12,19 @@ log = logging.getLogger(__name__)
 
 
 def get_arg_parser() -> SemaArgsParser:
-    """Defines the arguments to this module's __main__ cli script
-    by using Python's
-    [argparse](https://docs.python.org/3/library/argparse.html)
+    """
+    Get the argument parser for the sema-syncfs module.
+
+    This parser includes arguments for the root folder, the base uri,
+    and the store endpoints.
     """
 
-    ap = SemaArgsParser("sema-sync", "CLI for main action in pysyncfstriples")
+    ap = SemaArgsParser(
+        "sema-sync",
+        "CLI for main action in pysyncfstriples."
+        "SyncFsTriples is a service to synchronize"
+        "a filesystem with a triplestore.",
+    )
 
     ap.add_argument(
         "-r",

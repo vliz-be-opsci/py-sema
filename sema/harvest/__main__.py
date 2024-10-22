@@ -18,9 +18,11 @@ log = logging.getLogger(__name__)
 
 def get_arg_parser() -> SemaArgsParser:
     """
-    Get the argument parser for the module
-    """
+    Get the argument parser for the sema-harvest module.
 
+    This parser includes arguments for configuration file paths,
+    initial context loading, store endpoints, and output dumping.
+    """
     parser = SemaArgsParser(
         "sema-harvest",
         "harvesting service for traversing and asserting paths",

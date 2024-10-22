@@ -318,7 +318,7 @@ def test_scenario_four(
     """
     assert httpd_server_base
     for store in store_info_sets:
-        log.debug(f"testing scenario one for {store}")
+        log.debug("testing scenario one for %s", store)
         config = CONFIGS / "dereference_test4_sparql.yml"
         travharv = HarvestService(
             config,

@@ -26,6 +26,7 @@ class SyncFsResult(ServiceResult):
     """Result of the syncfs service"""
 
     def __init__(self) -> None:
+        super().__init__()
         self._success = False
 
     @property
@@ -194,6 +195,7 @@ class SyncFsTriples(ServiceBase):
             to a store that can only be read from
         :type write_uri: str
         """
+        super().__init__()
         self.source_path: Path = Path(root)
         assert self.source_path.exists(), (
             "cannot sync a source-path " + str(root) + " that does not exist."
