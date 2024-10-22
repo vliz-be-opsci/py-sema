@@ -9,7 +9,7 @@ from uuid import uuid4
 import pytest
 from conftest import TEST_INPUT_FOLDER
 
-from sema.syncfs.__main__ import main
+from sema.syncfs.__main__ import _main
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def test_main(store_builds: tuple, syncfolders: tuple):
 
         log.debug(f"testing equivalent of python -msyncfstriples {argsline}")
         args_list: list = argsline.split(" ")
-        main(*args_list)  # pass as individual arguments
+        _main(*args_list)  # pass as individual arguments
 
         # TODO consider some extra assertions on the result
 
@@ -39,4 +39,21 @@ def test_main_logconf():
     with pytest.raises(FileNotFoundError):
         argsline: str = "--root /tmp --logconf unexisting.yml"
         args_list: list = argsline.split(" ")
-        main(*args_list)  # pass as individual arguments
+        _main(*args_list)  # pass as individual arguments
+
+
+def test_help(capfd: pytest.CaptureFixture) -> None:
+    help_line: str = "--help"
+    with pytest.raises(SystemExit) as caught:
+        _main(*help_line.split())
+    assert caught.value.code == 0
+    assert caught.type is SystemExit
+    out, err = capfd.readouterr()
+    assert len(out) > 0
+    assert "usage: " in out
+    assert "-r" in out
+    assert "--root" in out
+    assert "-b" in out
+    assert "--base" in out
+    assert "--store" in out
+    assert "-s" in out

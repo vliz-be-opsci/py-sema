@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from sema.commons.j2 import J2RDFSyntaxBuilder
-from sema.harvest import service
+from sema.harvest import HarvestService
 from sema.harvest.store import RDFStoreAccess
 
 log = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ def test_scenario_one(
 
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test1_sparql.yml"
-        travharv = service(
+        travharv = HarvestService(
             config,
             store,
         )
@@ -159,19 +159,27 @@ def test_scenario_one(
         )
 
 
+@pytest.fixture
+def create_harvest_service(store_info_sets):
+    def _create_harvest_service(config_file):
+        config = CONFIGS / config_file
+        return HarvestService(config, store_info_sets)
+
+    return _create_harvest_service
+
+
 @pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_two(
     httpd_server_base: str,
     store_info_sets,
+    create_harvest_service,
 ):
     assert httpd_server_base
     for store in store_info_sets:
-        log.debug(f"testing scenario one for {store}")
-        config = CONFIGS / "dereference_test2_sparql.yml"
-        travharv = service(
-            config,
-            store,
-        )
+        log.debug(f"testing scenario two for {store}")
+        travharv = create_harvest_service("dereference_test2_sparql.yml")
+        length_store = len_store(travharv.target_store)
+        travharv.process()
         length_store = len_store(travharv.target_store)
         travharv.process()
         # assertions here
@@ -216,12 +224,17 @@ def test_scenario_three(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test3_sparql.yml"
-        travharv = service(
-            config,
-            store,
-        )
-        length_store = len_store(travharv.target_store)
-        travharv.process()
+
+        try:
+            travharv = HarvestService(
+                config,
+                store,
+            )
+            length_store = len_store(travharv.target_store)
+            travharv.process()
+        except Exception as e:
+            pytest.fail(f"HarvestService raised an unexpected exception: {e}")
+
         # assertions here
 
         # get all the travharv:downloadedresources from the store
@@ -292,11 +305,24 @@ def test_scenario_four(
     httpd_server_base: str,
     store_info_sets,
 ):
+    """
+    Test scenario four: [Brief description of what this scenario is testing]
+
+    This test verifies that:
+    1. [First assertion or condition being tested]
+    2. [Second assertion or condition being tested]
+    3. ...
+
+    Args:
+        httpd_server_base (str): [Description of this parameter]
+        store_info_sets: [Description of this parameter]
+    """
     assert httpd_server_base
     for store in store_info_sets:
+        log.debug("testing scenario four for %s", store)
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test4_sparql.yml"
-        travharv = service(
+        travharv = HarvestService(
             config,
             store,
         )
@@ -377,7 +403,7 @@ def test_scenario_five(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test5_sparql.yml"
-        travharv = service(
+        travharv = HarvestService(
             config,
             store,
         )

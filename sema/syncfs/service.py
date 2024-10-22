@@ -9,6 +9,7 @@ from sema.commons.fileformats import (
     format_from_filepath,
     is_supported_rdffilepath,
 )
+from sema.commons.service import ServiceBase, ServiceResult
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
@@ -19,6 +20,22 @@ from sema.commons.store import (
 log = getLogger(__name__)
 UTC_tz = timezone.utc
 DEFAULT_URN_BASE = "urn:sync:"
+
+
+class SyncFsResult(ServiceResult):
+    """Result of the syncfs service"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._success = False
+
+    @property
+    def success(self) -> bool:
+        return self._success
+
+    @success.setter
+    def success(self, value: bool) -> None:
+        self._success = value
 
 
 def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
@@ -151,7 +168,7 @@ def perform_sync(from_path: Path, to_store: RDFStore) -> None:
             log.debug(f"skip file {fname} with lastmod {lastmod} - unchanged")
 
 
-class SyncFsTriples:
+class SyncFsTriples(ServiceBase):
     """Process-wrapper-pattern for easy inclusion in other contexts."""
 
     def __init__(
@@ -178,6 +195,7 @@ class SyncFsTriples:
             to a store that can only be read from
         :type write_uri: str
         """
+        super().__init__()
         self.source_path: Path = Path(root)
         assert self.source_path.exists(), (
             "cannot sync a source-path " + str(root) + " that does not exist."
@@ -192,9 +210,16 @@ class SyncFsTriples:
         else:
             self.rdfstore = URIRDFStore(read_uri, write_uri, mapper=nmapper)
 
+        self._result = SyncFsResult()
+
     def process(self) -> None:
         """executes the SyncFs command"""
-        perform_sync(
-            from_path=self.source_path,
-            to_store=self.rdfstore,
-        )
+        try:
+            perform_sync(
+                from_path=self.source_path,
+                to_store=self.rdfstore,
+            )
+            self._result.success = True
+        except Exception as e:
+            log.exception("Error during sync", exc_info=e)
+            self._result.success = False
