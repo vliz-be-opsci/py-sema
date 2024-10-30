@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Any, Callable
 
 import pytest
 
@@ -160,8 +161,10 @@ def test_scenario_one(
 
 
 @pytest.fixture
-def create_harvest_service(store_info_sets):
-    def _create_harvest_service(config_file):
+def create_harvest_service(
+    store_info_sets: Any,
+) -> Callable[[str], HarvestService]:
+    def _create_harvest_service(config_file: str) -> HarvestService:
         config = CONFIGS / config_file
         return HarvestService(config, store_info_sets)
 

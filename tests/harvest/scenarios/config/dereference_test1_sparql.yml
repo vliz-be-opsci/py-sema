@@ -5,7 +5,7 @@ prefix:
 assert:
   - subjects:
       literal:
-        - http://localhost.localdomain:8080/DOC1.ttl
+        - http://127.0.0.1:8080/DOC1.ttl
     paths:
       - "ex:resource"
   # DOC 1 should be present in the graph
@@ -21,5 +21,5 @@ assert:
       - "ex:p1"
       - "ex:p2"
       - "ex:p3"
-  # This will end up in a failure to derefenence 
+  # This will end up in a failure to derefenence
   # This should be assertable in the execution report
