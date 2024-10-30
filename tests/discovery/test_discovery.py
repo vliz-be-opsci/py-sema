@@ -53,6 +53,8 @@ def wrap_signpost_uri(uri: str) -> str:
     return link
 
 
+# this test works with poetry run pytest ./tests/discovery/test_discovery.py
+# but does not work with make test
 @pytest.mark.fixture("httpd_server_base")
 def test_discovery_cases(httpd_server_base: str) -> None:
     assert httpd_server_base

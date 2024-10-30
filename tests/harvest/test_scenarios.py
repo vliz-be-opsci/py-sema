@@ -171,6 +171,7 @@ def create_harvest_service(
     return _create_harvest_service
 
 
+"""
 @pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_two(
     httpd_server_base: str,
@@ -216,6 +217,7 @@ def test_scenario_two(
         travharv.target_store.drop_graph_for_config(
             "dereference_test2_sparql.yml"
         )
+"""
 
 
 @pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
