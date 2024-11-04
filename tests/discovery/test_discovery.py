@@ -53,6 +53,11 @@ def wrap_signpost_uri(uri: str) -> str:
     return link
 
 
+def replace_domain(uri: str) -> str:
+    # Replace the domain part with 127.0.0.1:8080
+    return re.sub(r"^http://[^/]+", "http://127.0.0.1:8080", uri)
+
+
 # this test works with poetry run pytest ./tests/discovery/test_discovery.py
 # but does not work with make test
 @pytest.mark.fixture("httpd_server_base")
@@ -64,6 +69,8 @@ def test_discovery_cases(httpd_server_base: str) -> None:
 
     for to_search, mime, length in DIRECT_CASES:
         full_uri = f"{httpd_server_base}{to_search}"
+        full_uri = replace_domain(full_uri)
+        log.debug(f"full_uri: {full_uri}")
         wrapped_uri = wrap_signpost_uri(full_uri)
         graph = discover_subject(full_uri, mimetypes=[mime])
         assert isinstance(graph, Graph)
