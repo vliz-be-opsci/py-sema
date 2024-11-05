@@ -120,7 +120,12 @@ XSD_FMT_TYPE_FN = {
     "xsd:datetime": xsd_format_datetime,
     "xsd:anyuri": xsd_format_uri,
     "xsd:string": xsd_format_string,
+    "xsd:float": xsd_format_double,
 }
+
+# for now double is set as float since the only difference
+# is the range of values that can be represented
+# see https://www.ibm.com/docs/en/jfsm/1.1.2.1?topic=queries-xsd-data-types
 
 
 def xsd_format(content, type_name: str, quote: str = "'"):
