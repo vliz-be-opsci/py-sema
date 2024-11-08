@@ -141,16 +141,18 @@ def make_service(args: Namespace) -> Subyt:
 def _main(*args_list) -> bool:
     """The main entry point to this module."""
     args = get_arg_parser().parse_args(args_list)
-
+    toreturn = False
     try:
         subyt = make_service(args)
         r = subyt.process()
         log.debug("processing done")
-        return bool(r)
+        toreturn = r.success
     except Exception as e:
         log.exception("sema.subyt processing failed", exc_info=e)
     finally:
-        subyt._sink.close()  # TODO investigate suspicious location for this
+        if subyt:
+            subyt._sink.close()  # TODO investigate suspicious location for this
+    return toreturn
 
 
 def main():

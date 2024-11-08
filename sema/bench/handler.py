@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 
 
 class TaskHandler:
-    def handle(self):
+    def handle(self, task):
         raise NotImplementedError
 
 

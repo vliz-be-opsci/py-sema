@@ -35,7 +35,7 @@ class FoundVariants(ServiceResult, StatusMonitor):
         self.detected = detected or []
 
     def add_variant(
-        self, *, mime_type: str, profile: str, response: Response = None
+        self, *, mime_type: str, profile: str, response: Response | None = None
     ) -> None:
         key = (mime_type or "", profile or "")
         assert key not in self.variants, f"Variant {key} already added"
@@ -45,7 +45,7 @@ class FoundVariants(ServiceResult, StatusMonitor):
             else None
         )
         cdispval, cdispparams = cgi.parse_header(
-            response.headers.get("Content-Disposition", "")
+            response.headers.get("Content-Disposition", "")  # type: ignore
         )
         cdispfile = (
             cdispparams.get("filename") if cdispval == "attachment" else None
@@ -86,7 +86,7 @@ class FoundVariants(ServiceResult, StatusMonitor):
         out += f"#-----\n{self.as_csv()}"
         return out
 
-    def as_csv(self, url: str = None) -> str:
+    def as_csv(self, url: str | None = None) -> str:
         out = ""
         outfields = [
             "mime_type",
@@ -106,7 +106,12 @@ class FoundVariants(ServiceResult, StatusMonitor):
 
 
 class ConnegEvaluation(ServiceBase):
-    def __init__(self, *, url: str, request_variants: str = None) -> None:
+    def __init__(
+        self,
+        *,
+        url: str,
+        request_variants: List[Tuple[str, str]] | None = None,
+    ) -> None:
         """Initialize the conneg evaluation service.
         @param url: URL of the resource to evaulate
         @param request_variants: comma separated list of semicol separated
@@ -124,7 +129,7 @@ class ConnegEvaluation(ServiceBase):
                 (mt.strip(), pf.strip())
                 for mt, pf in (  # since profile is optional, we:
                     (v + ";").split(";")[:2]  # force semicolon and keep only 2
-                    for v in request_variants.split(",")
+                    for v in request_variants.split(",")  # type: ignore
                 )
             ]
             if request_variants
@@ -142,8 +147,8 @@ class ConnegEvaluation(ServiceBase):
         return self._session
 
     def _get_variant_response(
-        self, mime_type: str = None, profile: str = None
-    ) -> Response:
+        self, mime_type: str | None = None, profile: str | None = None
+    ) -> Response | None:
         """Get the content of the resource with the requested variant"""
         headers = dict()
         if mime_type:
@@ -204,10 +209,10 @@ SELECT ?mime ?profile WHERE {{
         )
         sparql = self.variants_query(self.url)
         matches: List[Tuple[str]] = [
-            tuple(str(u) for u in r) for r in g.query(sparql)
+            tuple(str(u) for u in r) for r in g.query(sparql)  # type: ignore
         ]
         log.debug(f"for {self.url} parsed variants >>\n{matches} ")
-        self._found.set_detected(matches)
+        self._found.set_detected(matches)  # type: ignore
 
     def _check_variants(self):
         """Check the available variants against the requested variants"""
@@ -228,7 +233,9 @@ SELECT ?mime ?profile WHERE {{
         self._check_variants()
         return self._found
 
-    def export_result(self, output_path: str, format: str = None) -> None:
+    def export_result(
+        self, output_path: str, format: str | None = None
+    ) -> None:
         """Export the result to the output"""
         output_path = output_path or "-"
         format = format or "csv"
@@ -238,15 +245,15 @@ SELECT ?mime ?profile WHERE {{
         if output_path == "-":
             return print(csv)
         # else
-        output_path = Path(output_path)
-        log.debug(f"appending csv result for {self.url} to {output_path}")
-        with open(output_path, "a") as out:
+        output_path_path = Path(output_path)
+        log.debug(f"appending csv result for {self.url} to {output_path_path}")
+        with open(output_path_path, "a") as out:
             out.write(csv)
 
     def dump_variants(self, dump_path: str) -> None:
         """Dump the obtained variants to the path"""
-        dump_path = Path(dump_path)
-        dump_path.mkdir(parents=True, exist_ok=True)
+        dump_path_path = Path(dump_path)
+        dump_path_path.mkdir(parents=True, exist_ok=True)
         variant_filenames = [
             v["filename"]
             for v in self._found.variants.values()
@@ -261,8 +268,8 @@ SELECT ?mime ?profile WHERE {{
                 continue
             # else
             save_web_content(
-                dump_path,
-                v["filename"] if all_unique_filenames else None,
+                dump_path_path,
+                v["filename"] if all_unique_filenames else None,  # type: ignore
                 self.url,
                 v["mime_type"],
                 v["profile"],

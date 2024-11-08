@@ -27,6 +27,9 @@ class StatusMonitor(ABC):
     throughout the tracing of the service execution.
     Typically this would be the service itself, or the service-result."""
 
+    def __init__(self):
+        self._trace = None
+
     @property
     @abstractmethod
     def status(self) -> Any:
@@ -90,7 +93,7 @@ class Trace:
         return self._events
 
     @staticmethod
-    def by(evt_cls: type, name: str = None):
+    def by(evt_cls: type, name: str | None = None):
         """decorator factory, uses the passed event-class
         to be applied in the decoration of the function-call
         :param evt_cls: the class of the event to be added to the trace.
@@ -132,7 +135,7 @@ class Trace:
         trc_cls: type,
         *,
         mode: TraceMode = TraceMode.ONCE,
-        monitor_attr: str = None,
+        monitor_attr: str | None = None,
     ):
         """decorator factory, parametrized by the Trace-class to be used.
         :param trc_cls: the class of the Trace to be used

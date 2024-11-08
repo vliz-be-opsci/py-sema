@@ -29,7 +29,11 @@ class SemaArgsParser(ArgumentParser):
             help="location of the logging config (yml) to use",
         )
 
-    def parse_args(self, args: Sequence[str]) -> Namespace:
+    def parse_args(  # type: ignore[override]
+        self,
+        args: Sequence[str] | None = None,
+        namespace: Namespace | None = None,
+    ) -> Namespace:
         ns: Namespace = super().parse_args(args)
         log.debug(f"{self.prog} called with {args=}")
         load_log_config(ns.logconf)
@@ -42,6 +46,6 @@ class SemaArgsParser(ArgumentParser):
         return {k: v for [k, v] in multi_args} if multi_args else {}
 
     @staticmethod
-    def args_joined(multi_args: Iterable[str], c: str = ",") -> str:
+    def args_joined(multi_args: Iterable[str], c: str = ",") -> str | None:
         """joins a list of strings into a single string."""
         return c.join(multi_args) if multi_args else None

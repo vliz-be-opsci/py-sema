@@ -84,8 +84,8 @@ class SPARQLSubjectDefinition(SubjectDefinition):
     def __init__(
         self,
         NSM: NamespaceManager,
-        SPARQL=str,
-        rdf_store_access=RDFStoreAccess,
+        SPARQL: str,
+        rdf_store_access: RDFStoreAccess,
     ):
         """
         Initialise the SPARQL subject definition
@@ -108,11 +108,11 @@ class SPARQLSubjectDefinition(SubjectDefinition):
         :return: list[str]
         :rtype: list[str]
         """
-        return self._get_subjects(self.sparql, self.rdf_store_access)
+        return self._get_subjects(self.sparql, self.rdf_store_access)  # type: ignore
 
     def _get_subjects(self, SPARQL=str, rdf_store_access=RDFStoreAccess):
         log.debug("getting subjects")
-        return rdf_store_access.select_subjects(SPARQL)
+        return rdf_store_access.select_subjects(SPARQL=SPARQL)  # type: ignore
 
 
 class AssertPathSet:
@@ -256,7 +256,7 @@ class ConfigBuilder:
         self._rdf_store_access = rdf_store_access
         log.debug("ConfigBuilder initialized")
 
-    def build_from_config(self, config_name=str):
+    def build_from_config(self, config_name: str):
         """
         Build a Config from a given config file.
 
@@ -390,13 +390,13 @@ class ConfigBuilder:
                             )
                             if "literal" in assert_task["subjects"]
                             else SPARQLSubjectDefinition(
-                                self.NSM,
+                                self.NSM,  # type: ignore
                                 assert_task["subjects"]["SPARQL"],
                                 self._rdf_store_access,
                             )
                         ),
                         "assert_path_set": AssertPathSet(
-                            self.NSM, assert_task["paths"]
+                            self.NSM, assert_task["paths"]  # type: ignore
                         ),
                     }
                 )

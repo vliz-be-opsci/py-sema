@@ -88,7 +88,7 @@ def make_service(args: Namespace) -> ConnegEvaluation:
     """Make the service with the passed args"""
     return ConnegEvaluation(
         url=args.url or args.url_option,
-        request_variants=SemaArgsParser.args_joined(args.request_variants),
+        request_variants=SemaArgsParser.args_joined(args.request_variants),  # type: ignore
     )
 
 

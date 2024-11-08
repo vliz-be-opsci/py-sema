@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from rdflib import Graph
-from rdflib.plugins.sparql.processor import Result
+from rdflib.query import Result
 
 from sema.commons.j2 import J2RDFSyntaxBuilder
 from sema.commons.store import GraphNameMapper, RDFStore, RDFStoreDecorator
@@ -34,11 +34,11 @@ class RDFStoreAccess(RDFStoreDecorator):
         self._qryBuilder = QUERY_BUILDER
         self._nmapper = name_mapper
 
-    def select_subjects(self, sparql) -> List[str]:
+    def select_subjects(self, sparql):
         result: Result = self.select(sparql)
 
         # todo convert response into list of subjects
-        list_of_subjects = [row[0] for row in result]
+        list_of_subjects = [row[0] for row in result]  # type: ignore
         log.debug(f"length list_of_subjects: {len(list_of_subjects)}")
         log.debug(f"list_of_subjects: {list_of_subjects}")
         return list_of_subjects
@@ -117,7 +117,7 @@ class RDFStoreAccess(RDFStoreDecorator):
         (but possibly already deleted, but not forgotten) in this store
         :rtype: List[str]
         """
-        return self._nmapper.get_kets_in_store(self)
+        return self._nmapper.get_keys_in_store(self)
 
     def drop_graph_for_config(self, name_config: str) -> None:
         """drops the content in rdf_store associated to specified name_config

@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import List
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from rdflib import Graph
 
@@ -71,8 +71,8 @@ class PathAssertionReport:
         assertion_path: str,
         assertion_result: bool,
         assertion_time: datetime,
-        id: uuid4,
-        message: str = None,
+        id: UUID,
+        message: str | None = None,
         graph_reports: List[GraphAdditionReport] = [],
     ):
         """constructor

@@ -87,7 +87,10 @@ class RDFStore(ABC):
     """
 
     def __init__(
-        self, *, cleaner: Callable = None, mapper: GraphNameMapper = None
+        self,
+        *,
+        cleaner: Callable | None = None,
+        mapper: GraphNameMapper | None = None,
     ):
         """Constructor
         :param cleaner: function to clean graphs before insert
@@ -127,7 +130,10 @@ class RDFStore(ABC):
         return self.insert(graph, ng)
 
     def verify_max_age_of_key(
-        self, key: Any, age_minutes: int = 0, reference_time: datetime = None
+        self,
+        key: Any,
+        age_minutes: int = 0,
+        reference_time: datetime | None = None,
     ) -> bool:
         """verifies that a certain graph is "sufficiently young"
         i.e. not aged older than a certain amount of minutes
@@ -219,7 +225,7 @@ class RDFStore(ABC):
         self,
         named_graph: str,
         age_minutes: int = 0,
-        reference_time: datetime = None,
+        reference_time: datetime | None = None,
     ) -> bool:
         """verifies that a certain graph is "sufficiently young"
         i.e. not aged older than a certain amount of minutes
@@ -324,8 +330,8 @@ class URIRDFStore(RDFStore):
         read_uri: str,
         write_uri: Optional[str] = None,
         *,
-        cleaner: Callable = None,
-        mapper: GraphNameMapper = None,
+        cleaner: Callable | None = None,
+        mapper: GraphNameMapper | None = None,
     ):
         super().__init__(cleaner=cleaner, mapper=mapper)
         self.allows_update = False
@@ -353,16 +359,18 @@ class URIRDFStore(RDFStore):
 
     @property
     def sparql_store(self):  # dynamically (delayed) build of the instance
+        if self._store_constr is None:
+            raise RuntimeError("No store available")
         return self._store_constr()
 
     def select(self, sparql: str, named_graph: Optional[str] = None) -> Result:
         log.debug(f"exec select {sparql=} into {named_graph=}")
         if named_graph is not None:
             select_graph = Graph(
-                store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs
+                store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
             )
         else:
-            select_graph = Graph(store=self.sparql_store, **g_cfg_kwargs)
+            select_graph = Graph(store=self.sparql_store, **g_cfg_kwargs)  # type: ignore
         result: Result = select_graph.query(sparql)
         assert isinstance(result, Result), (
             "Failed getting proper result for:" f"{sparql=}, got {result=}"
@@ -377,13 +385,14 @@ class URIRDFStore(RDFStore):
         ), "data can not be inserted into a store if no write_uri is provided"
         log.debug(f"insertion of {len(graph)=} into ({named_graph=})")
         store_graph = Graph(
-            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs
+            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
         )
         store_graph += graph.skolemize()
-        self._update_registry_lastmod(named_graph, timestamp())
+        if named_graph is not None:
+            self._update_registry_lastmod(named_graph, timestamp())
 
     def _update_registry_lastmod(
-        self, named_graph: str, lastmod: datetime = None
+        self, named_graph: str | None, lastmod: datetime | None = None
     ) -> Iterable[str]:
         """Consults and changes the admin-graph of lastmod entries
         per named_graph.
@@ -405,7 +414,7 @@ class URIRDFStore(RDFStore):
         adm_graph = Graph(
             store=self.sparql_store,
             identifier=ADMIN_NAMED_GRAPH,
-            **g_cfg_kwargs,
+            **g_cfg_kwargs,  # type: ignore
         )
 
         # construct what we are matching for
@@ -414,10 +423,10 @@ class URIRDFStore(RDFStore):
         )  # missing subject or object functions as pattern
         # remove any previous triple for this graph if it is specified
         if graph_subject is not None:
-            adm_graph.remove(pattern)
+            adm_graph.remove(pattern)  # type: ignore
         else:
             response = [
-                str(sub) for (sub, pred, obj) in adm_graph.triples(pattern)
+                str(sub) for (sub, pred, obj) in adm_graph.triples(pattern)  # type: ignore
             ]
 
         # insert the new data if provided
@@ -425,26 +434,26 @@ class URIRDFStore(RDFStore):
             triple = tuple(
                 (graph_subject, SCHEMA_DATEMODIFIED, Literal(lastmod))
             )
-            adm_graph.add(triple)
+            adm_graph.add(triple)  # type: ignore
 
-        return response
+        return response or []
 
     def lastmod_ts(self, named_graph: str) -> datetime:
         adm_graph = Graph(
             store=self.sparql_store,
             identifier=ADMIN_NAMED_GRAPH,
-            **g_cfg_kwargs,
+            **g_cfg_kwargs,  # type: ignore
         )
         lastmod: Literal = adm_graph.value(
             URIRef(named_graph), SCHEMA_DATEMODIFIED
-        )
+        )  # type: ignore
         # above is None if nothing found,
         # else convert the literal to actual .value (datetime)
-        return lastmod.value if lastmod is not None else None
+        return lastmod.value if lastmod is not None else None  # type: ignore
 
     def drop_graph(self, named_graph: str) -> None:
         store_graph = Graph(
-            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs
+            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
         )
         self.sparql_store.remove_graph(store_graph)
         self._update_registry_lastmod(named_graph, timestamp())
@@ -461,10 +470,13 @@ class MemoryRDFStore(RDFStore):
     # check if rdflib.Dataset could not help out here,
     # such would allign more logically and elegantly?
     def __init__(
-        self, *, cleaner: Callable = None, mapper: GraphNameMapper = None
+        self,
+        *,
+        cleaner: Callable | None = None,
+        mapper: GraphNameMapper | None = None,
     ):
         super().__init__(cleaner=cleaner, mapper=mapper)
-        self._all: Graph = Graph(**g_cfg_kwargs)
+        self._all: Graph = Graph(**g_cfg_kwargs)  # type: ignore
         self._named_graphs = dict()
         self._admin_registry = dict()
 
@@ -476,12 +488,11 @@ class MemoryRDFStore(RDFStore):
         )
         return target.query(sparql)
 
-    def insert(self, graph: Graph, named_graph: Optional[str] = None):
+    def insert(self, graph: Graph, named_graph: Optional[str] | None = None):
         graph = self.clean(graph)
-        named_graph_graph = None
         if named_graph is not None:
             if named_graph not in self._named_graphs:
-                self._named_graphs[named_graph] = Graph(**g_cfg_kwargs)
+                self._named_graphs[named_graph] = Graph(**g_cfg_kwargs)  # type: ignore
             named_graph_graph: Graph = self._named_graphs[named_graph]
             named_graph_graph += graph
             self._admin_registry[named_graph] = timestamp()

@@ -23,11 +23,11 @@ for mime, keys in EXTRA_MIME_KEYS.items():
         EXTRA_KEY_TO_MIME_MAP[key] = mime
 
 
-def to_mimetype(key: str) -> str:
+def to_mimetype(key: str) -> str | None:
     if len(key.split("/")) == 2:
         return key  # already a mime type
     log.debug(f"finding mime for {key=}")
-    mt: str = None
+    mt: str | None = None
     mt = mime_from_format(key)
     if mt:
         log.debug(f"found from format {mt=}")

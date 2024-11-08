@@ -101,7 +101,7 @@ class Subyt(ServiceBase):
         self._result = SubytResult()
 
     @Trace.init(Trace)
-    def process(self) -> None:
+    def process(self) -> SubytResult:
         self._generator.process(
             template_name=self.template_name,
             inputs=self._inputs,

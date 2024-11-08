@@ -7,7 +7,7 @@ from requests.models import Response
 log = getLogger(__name__)
 
 
-def extract_link_headers(resp: Response, rel=None) -> Set[str]:
+def extract_link_headers(resp: Response, rel=None) -> Set[str] | None:
     """Extract the links from the HTTP headers of the response."""
     baseurl: str = resp.url
     link_header = resp.headers.get("Link", None)

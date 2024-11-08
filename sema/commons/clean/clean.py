@@ -32,7 +32,7 @@ def reparse(g: Graph, format="nt"):
     return Graph().parse(data=g.serialize(format=format), format=format)
 
 
-reparse.level = Level.Graph
+reparse.level = Level.Graph  # type: ignore
 
 
 def check_valid_urn(urn: str) -> bool:
@@ -103,7 +103,7 @@ def clean_uri_node(ref: URIRef | BNode | Literal) -> URIRef | BNode | Literal:
     return URIRef(clean_uri_str(uri))
 
 
-clean_uri_node.level = Level.Node
+clean_uri_node.level = Level.Node  # type: ignore
 
 
 def normalise_scheme_str(
@@ -135,7 +135,7 @@ def normalise_scheme_node(
     )
 
 
-normalise_scheme_node.level = Level.Node
+normalise_scheme_node.level = Level.Node  # type: ignore
 
 
 NAMED_CLEAN_FUNCTIONS: dict = {
@@ -166,7 +166,7 @@ def build_clean_chain(*specs) -> Callable:
     log.debug(f"chain of funtions {chain_fn=}")
     # group per level
     grouped_fn = reduce(  # group chain of cleaners per level
-        lambda d, fn: d.get(fn.level, list()).append(fn) or d,
+        lambda d, fn: d.get(fn.level, list()).append(fn) or d,  # type: ignore
         chain_fn,  # list of functions to run over
         {lvl: list() for lvl in Level},  # inital dict of empty [] per level
     )
@@ -200,7 +200,7 @@ def build_clean_chain(*specs) -> Callable:
             )
 
         # note this by itself is a triple-level function
-        apply_node_chain.level = Level.Triple
+        apply_node_chain.level = Level.Triple  # type: ignore
         # that can be added at the end of that chain
         grouped_fn[Level.Triple].append(apply_node_chain)
 
@@ -223,7 +223,7 @@ def build_clean_chain(*specs) -> Callable:
             return clean
 
         # note this by itself this is a graph-level function
-        apply_triple_chain.level = Level.Graph
+        apply_triple_chain.level = Level.Graph  # type: ignore
         # that can be added at the end of that chain
         grouped_fn[Level.Graph].append(apply_triple_chain)
 
@@ -242,13 +242,14 @@ def build_clean_chain(*specs) -> Callable:
             graph,  # initial value is the passed node
         )
 
-    cleaner.level = Level.Graph
+    cleaner.level = Level.Graph  # type: ignore
     return cleaner
 
 
 def default_cleaner() -> Callable:
-    fallback_specs: str = NAMED_CLEAN_FUNCTIONS.keys()  # all known cleaning
-    specs: str = os.getenv("RDFSTORE_CLEANSPECS", fallback_specs)
+    fallback_specs = list(NAMED_CLEAN_FUNCTIONS.keys())  # all known cleaning
+    specs_env = os.getenv("RDFSTORE_CLEANSPECS")
+    specs = specs_env.split(",") if specs_env else fallback_specs
     return build_clean_chain(*specs)
 
 

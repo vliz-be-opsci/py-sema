@@ -63,9 +63,9 @@ class HarvestService(ServiceBase):
             self.config_builder = ConfigBuilder(self.target_store, self.config)
         else:
             # take the parent of the config file as the config folder
-            self.config_folder = self.config.parent
+            self.config_folder = Path(self.config).parent
             self.config_builder = ConfigBuilder(
-                self.target_store, self.config_folder
+                self.target_store, str(self.config_folder)
             )
         self.executor = None
         self.error_occurred = False

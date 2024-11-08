@@ -92,7 +92,7 @@ def _main(*args_list: str) -> bool:
 
     try:
         sembench = make_service(args)
-        sembench.run()
+        sembench.process()
     except Exception:
         log.exception("sema.bench processing failed")
         return False

@@ -33,7 +33,7 @@ def get_arg_parser() -> SemaArgsParser:
         "--source",
         type=str,
         nargs="+",
-        metavar=["FILE", "URL"],
+        metavar=("FILE", "URL"),
         action="store",
         help=(
             "input file to be turned into datagraph"
@@ -254,7 +254,7 @@ def _main(*cli_args):
     log.debug("Performing service")
     params = {}
     template_folder = args.template_folder or DEFAULT_TEMPLATES_FOLDER
-    template_service = DefaultSparqlBuilder(template_folder)
+    template_service = DefaultSparqlBuilder(str(template_folder))
     vars_template = template_service.variables_in_template(args.template_name)
     if args.variables is not None and len(vars_template) > 0:
         params = args_values_to_params(args.variables)

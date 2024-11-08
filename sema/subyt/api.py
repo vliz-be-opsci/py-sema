@@ -23,7 +23,12 @@ class Sink(ABC):
         """Notifies the Sink all writing has been done - allows cleanup"""
 
     @abstractmethod
-    def add(self, part: str, item: dict = None, source_mtime: float = None):
+    def add(
+        self,
+        part: str,
+        item: dict | None = None,
+        source_mtime: float | None = None,
+    ):
         """Writes out the part to the sink
 
         :param part: the result for a specific part that needs to be sinked
@@ -90,12 +95,13 @@ class GeneratorSettings:
             ]
         )
 
-    def __init__(self, modifiers: str = None):
+    def __init__(self, modifiers: str | None = None):
         self._values = {
             key: val["default"]
             for (key, val) in GeneratorSettings._scheme.items()
         }
-        self.load_from_modifiers(modifiers)
+        if modifiers is not None:
+            self.load_from_modifiers(modifiers)
 
     def load_from_modifiers(self, modifiers: str):
         """
@@ -223,8 +229,8 @@ class Generator(ABC):
         sets: Dict[str, Iterable],
         generator_settings: GeneratorSettings,
         sink: Sink,
-        source_mtime: float = None,
-        vars_dict: dict = None,
+        source_mtime: float | None = None,
+        vars_dict: dict | None = None,
     ):
         return Generator.Processor(
             self.make_render_fn(template_name),
@@ -251,8 +257,8 @@ class Generator(ABC):
             sets: Dict[str, Iterable],
             generator_settings: GeneratorSettings,
             sink: Sink,
-            source_mtime: float = None,
-            vars_dict: dict = None,
+            source_mtime: float | None = None,
+            vars_dict: dict | None = None,
         ):
             self.render = render_fn
             self.sets = sets
@@ -317,7 +323,7 @@ class Generator(ABC):
         inputs: Dict[str, Source],
         generator_settings: GeneratorSettings,
         sink: Sink,
-        vars_dict: dict = None,
+        vars_dict: dict | None = None,
         conditional: bool = False,
     ) -> None:
         """Process the records found in the base input and

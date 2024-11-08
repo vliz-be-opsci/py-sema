@@ -66,7 +66,7 @@ def locations_from_environ() -> Dict[str, str]:
 class Sembench(ServiceBase):
     def __init__(
         self,
-        locations: Dict[str, str] = None,
+        locations: Dict[str, str] = dict(),
         sembench_config_path=None,
         sembench_config_file_name=None,
         scheduler_interval_seconds=None,
@@ -86,7 +86,6 @@ class Sembench(ServiceBase):
         :param sembench_config_file_name: Name of the sembench config file.
         Optional; defaults to sembench.yaml.
         """
-        locations = locations or dict()
         self.locations = {
             key.lower(): Path(loc) for key, loc in locations.items()
         }
@@ -171,6 +170,10 @@ class Sembench(ServiceBase):
         TaskDispatcher().dispatch(task)
 
     def _process(self):
+        if self.task_configs is None:
+            log.error("No task configurations found.")
+            return
+
         tasks = [
             Task(
                 input_data_location=self.input_data_location,
@@ -191,7 +194,7 @@ class Sembench(ServiceBase):
                     raise e
 
     @Trace.init(Trace)
-    def process(self):
+    def process(self) -> ServiceResult:
         if self.watch_config_file:
             config_file_event_handler = ConfigFileEventHandler(
                 self.sembench_config_path,
@@ -236,3 +239,4 @@ class Sembench(ServiceBase):
                 # #since the scheduler never stops running
                 # check if I can rewrite this to be more clear
                 self._result._success = True
+        return self._result

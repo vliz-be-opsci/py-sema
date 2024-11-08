@@ -15,7 +15,7 @@ def timestamp():
     return datetime.now(timezone.utc)
 
 
-def makeNSM(pfx_declarations: Dict[str, str]) -> Dict[str, Namespace]:
+def makeNSM(pfx_declarations: Dict[str, str]) -> NamespaceManager:
     pfxs = {k: Namespace(v) for k, v in pfx_declarations.items()}
     print(f"{pfxs=}")
 
@@ -49,10 +49,10 @@ PPATH_RE: str = (
 
 
 def ppath_split(ppath: str) -> List[str]:
-    return (
+    return [
         m.group(2) or m.group(3)
         for m in re.finditer(pattern=PPATH_RE, string=ppath + "/")
-    )
+    ]
 
 
 def resolve_ppaths(ppaths: List[str], nsm: NamespaceManager):

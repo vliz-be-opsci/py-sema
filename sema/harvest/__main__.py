@@ -105,7 +105,7 @@ def enable_logging(args: argparse.Namespace):
     log.info(f"Logging enabled according to config in {args.logconf}")
 
 
-def load_resource_into_graph(graph: Graph, resource: str, format: str):
+def load_resource_into_graph(graph: Graph, resource: str | Path, format: str):
     """
     Insert a resource into a graph.
     """
@@ -115,7 +115,9 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
     if validators.url(resource):
         # get triples from the uri and add them
         formats = ["text/turtle", "application/ld+json"]
-        return graph + get_graph_for_format(resource, formats=formats)
+        to_add_graph = get_graph_for_format(str(resource), formats=formats)
+        if to_add_graph:
+            return graph + to_add_graph
 
     # else
     resource_path: Path = Path(resource)
@@ -182,7 +184,10 @@ def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
         return
     # else
     for triple in alltriples:
-        outgraph.add(triple)
+        try:
+            outgraph.add(triple)  # type: ignore
+        except Exception as e:
+            log.error(f"failed to add {triple} to output graph: {e}")
 
     if args.dump == "-":
         log.debug("dump to stdout")
