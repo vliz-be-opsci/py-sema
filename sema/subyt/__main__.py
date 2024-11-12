@@ -151,7 +151,8 @@ def _main(*args_list) -> bool:
         log.exception("sema.subyt processing failed", exc_info=e)
     finally:
         if subyt:
-            subyt._sink.close()  # TODO investigate suspicious location for this
+            subyt._sink.close()
+            # TODO investigate suspicious location for this
     return toreturn
 
 

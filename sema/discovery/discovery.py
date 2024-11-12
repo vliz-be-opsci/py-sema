@@ -222,7 +222,8 @@ class Discovery(ServiceBase):
         # -- strategy #01 do as your a told, pass forced mimes in conneg
         # i.e. go explcitely over the mime-types that are requested (if any)
         log.debug(
-            f"discovery #01 trying {force_types_discover=} for {target_url_discover=}"
+            f"discovery #01 trying {force_types_discover=} for "
+            f"{target_url_discover=}"
         )
         for mt in force_types_discover:
             self._get_structured_content(target_url_discover, mt)

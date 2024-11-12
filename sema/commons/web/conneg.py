@@ -269,7 +269,7 @@ SELECT ?mime ?profile WHERE {{
             # else
             save_web_content(
                 dump_path_path,
-                v["filename"] if all_unique_filenames else None,  # type: ignore
+                v["filename"] if all_unique_filenames else None,  # type: ignore # noqa
                 self.url,
                 v["mime_type"],
                 v["profile"],

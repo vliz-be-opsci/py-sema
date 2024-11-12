@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable
 
 from rdflib import Graph
 from rdflib.query import Result

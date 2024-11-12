@@ -176,7 +176,7 @@ class SPARQLQueryResult(DFBasedQueryResult):
         """
         return pd.DataFrame(
             data=(
-                [None if x is None else x.toPython() for x in row]  # type: ignore
+                [None if x is None else x.toPython() for x in row]  # type: ignore # noqa
                 for row in result
             ),
             columns=[str(x) for x in result.vars],  # type: ignore
@@ -189,7 +189,7 @@ class SPARQLQueryResult(DFBasedQueryResult):
         :param query: the sparql query leading to this result
         :type query: str
         """
-        super().__init__(self.sparql_results_to_df(result), query)  # type: ignore
+        super().__init__(self.sparql_results_to_df(result), query)  # type: ignore # noqa
 
     @staticmethod
     def check_compatibility(data, query) -> bool:

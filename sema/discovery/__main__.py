@@ -133,8 +133,8 @@ def normalise_mime_type_requests(request_mimes: Iterable | str) -> str | None:
         request_mimes = [request_mimes]
     # treat as sequence, possibly some of them in single string format
     request_mimes = SemaArgsParser.args_joined(request_mimes)  # type: ignore
-    request_mimes = request_mimes.split(",") if request_mimes else []  # type: ignore
-    return ",".join({normalise_mime_type_requests(mt) for mt in request_mimes})  # type: ignore
+    request_mimes = request_mimes.split(",") if request_mimes else []  # type: ignore # noqa
+    return ",".join({normalise_mime_type_requests(mt) for mt in request_mimes})  # type: ignore # noqa
 
 
 def make_service(args: Namespace) -> Discovery:

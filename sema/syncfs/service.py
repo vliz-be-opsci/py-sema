@@ -49,11 +49,11 @@ def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
     return {
         str(p): datetime.fromtimestamp(p.stat().st_mtime, UTC_tz)
         for p in from_path.glob("**/*")
-        if p.is_file() and is_supported_rdffilepath(p)
+        if p.is_file() and is_supported_rdffilepath(str(p))
     }
 
 
-def load_graph_fpath(fpath: Path, format: str = None) -> Graph:
+def load_graph_fpath(fpath: Path, format: str | None = None) -> Graph:
     """loads content of file at fpath into a graph
     :param fpath: path of file to load
     :type fpath: Path
@@ -175,8 +175,8 @@ class SyncFsTriples(ServiceBase):
         self,
         root: str,
         named_graph_base: str = DEFAULT_URN_BASE,
-        read_uri: str = None,
-        write_uri: str = None,
+        read_uri: str | None = None,
+        write_uri: str | None = None,
     ):
         """Creates the process-wrapper instance
 
@@ -204,7 +204,7 @@ class SyncFsTriples(ServiceBase):
             "source-path " + str(root) + " should be a folder."
         )
         nmapper: GraphNameMapper = GraphNameMapper(base=named_graph_base)
-        self.rdfstore: RDFStore = None
+        self.rdfstore = None
         if not read_uri:
             self.rdfstore = MemoryRDFStore(mapper=nmapper)
         else:
@@ -215,11 +215,12 @@ class SyncFsTriples(ServiceBase):
     def process(self) -> None:
         """executes the SyncFs command"""
         try:
-            perform_sync(
-                from_path=self.source_path,
-                to_store=self.rdfstore,
-            )
-            self._result.success = True
+            if self.rdfstore:
+                perform_sync(
+                    from_path=self.source_path,
+                    to_store=self.rdfstore,
+                )
+                self._result.success = True
         except Exception as e:
             log.exception("Error during sync", exc_info=e)
             self._result.success = False

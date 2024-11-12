@@ -367,10 +367,10 @@ class URIRDFStore(RDFStore):
         log.debug(f"exec select {sparql=} into {named_graph=}")
         if named_graph is not None:
             select_graph = Graph(
-                store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
+                store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore # noqa
             )
         else:
-            select_graph = Graph(store=self.sparql_store, **g_cfg_kwargs)  # type: ignore
+            select_graph = Graph(store=self.sparql_store, **g_cfg_kwargs)  # type: ignore # noqa
         result: Result = select_graph.query(sparql)
         assert isinstance(result, Result), (
             "Failed getting proper result for:" f"{sparql=}, got {result=}"
@@ -385,7 +385,7 @@ class URIRDFStore(RDFStore):
         ), "data can not be inserted into a store if no write_uri is provided"
         log.debug(f"insertion of {len(graph)=} into ({named_graph=})")
         store_graph = Graph(
-            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
+            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore # noqa
         )
         store_graph += graph.skolemize()
         if named_graph is not None:
@@ -426,7 +426,7 @@ class URIRDFStore(RDFStore):
             adm_graph.remove(pattern)  # type: ignore
         else:
             response = [
-                str(sub) for (sub, pred, obj) in adm_graph.triples(pattern)  # type: ignore
+                str(sub) for (sub, pred, obj) in adm_graph.triples(pattern)  # type: ignore # noqa
             ]
 
         # insert the new data if provided
@@ -453,7 +453,7 @@ class URIRDFStore(RDFStore):
 
     def drop_graph(self, named_graph: str) -> None:
         store_graph = Graph(
-            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore
+            store=self.sparql_store, identifier=named_graph, **g_cfg_kwargs  # type: ignore # noqa
         )
         self.sparql_store.remove_graph(store_graph)
         self._update_registry_lastmod(named_graph, timestamp())
@@ -492,7 +492,7 @@ class MemoryRDFStore(RDFStore):
         graph = self.clean(graph)
         if named_graph is not None:
             if named_graph not in self._named_graphs:
-                self._named_graphs[named_graph] = Graph(**g_cfg_kwargs)  # type: ignore
+                self._named_graphs[named_graph] = Graph(**g_cfg_kwargs)  # type: ignore # noqa
             named_graph_graph: Graph = self._named_graphs[named_graph]
             named_graph_graph += graph
             self._admin_registry[named_graph] = timestamp()

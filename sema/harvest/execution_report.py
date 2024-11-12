@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import List
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
 from rdflib import Graph
 

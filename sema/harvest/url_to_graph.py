@@ -1,5 +1,7 @@
 from logging import getLogger
+
 from rdflib import Graph
+
 from sema.discovery import discover_subject
 
 log = getLogger(__name__)

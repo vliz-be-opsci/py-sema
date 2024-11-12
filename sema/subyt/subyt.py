@@ -31,9 +31,9 @@ class Subyt(ServiceBase):
         *,
         template_name: str,
         template_folder: str,
-        source: str = None,
+        source: str | None = None,
         extra_sources: Dict[str, str] = {},
-        sink: str = None,
+        sink: str | None = None,
         overwrite_sink: bool | str = True,
         allow_repeated_sink_paths: bool | str = False,
         conditional: bool | str = False,
@@ -91,6 +91,9 @@ class Subyt(ServiceBase):
         self._generator_settings = GeneratorSettings(mode)
 
         # output options
+        if sink is None:
+            sink = "-"
+
         self._sink = SinkFactory.make_sink(
             sink, bool(overwrite_sink), bool(allow_repeated_sink_paths)
         )

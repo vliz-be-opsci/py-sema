@@ -22,7 +22,7 @@ def download_to_file(
         dump_path=Path(dump_path),
         filename=filename,
         url=url,
-        mime_type=cgi.parse(response.headers.get("Content-Type"))[0],  # type: ignore
+        mime_type=cgi.parse(response.headers.get("Content-Type"))[0],  # type: ignore # noqa
         profile=headers.get("Accept-profile", None),
         content=content,
     )
@@ -47,8 +47,8 @@ def save_web_content(
         out.write(content)
     # remember what this file is for
     os.setxattr(filepath, "user.web.url", url.encode("utf-8"))  # type: ignore
-    os.setxattr(filepath, "user.web.mime_type", mime_type.encode("utf-8"))  # type: ignore
-    os.setxattr(filepath, "user.web.profile", profile.encode("utf-8"))  # type: ignore
+    os.setxattr(filepath, "user.web.mime_type", mime_type.encode("utf-8"))  # type: ignore # noqa
+    os.setxattr(filepath, "user.web.profile", profile.encode("utf-8"))  # type: ignore # noqa
     return str(filepath.absolute())
 
 

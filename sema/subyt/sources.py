@@ -89,7 +89,7 @@ class SourceFactory:
     @staticmethod
     def make_source(identifier: str) -> Source:
         if validators.url(identifier):
-            mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore
+            mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
             assert False, "TODO remote Source support - see issues #8"
 
         # else

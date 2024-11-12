@@ -108,11 +108,11 @@ class SPARQLSubjectDefinition(SubjectDefinition):
         :return: list[str]
         :rtype: list[str]
         """
-        return self._get_subjects(self.sparql, self.rdf_store_access)  # type: ignore
+        return self._get_subjects(self.sparql, self.rdf_store_access)  # type: ignore # noqa
 
     def _get_subjects(self, SPARQL=str, rdf_store_access=RDFStoreAccess):
         log.debug("getting subjects")
-        return rdf_store_access.select_subjects(SPARQL=SPARQL)  # type: ignore
+        return rdf_store_access.select_subjects(sparql=SPARQL)  # type: ignore
 
 
 class AssertPathSet:
