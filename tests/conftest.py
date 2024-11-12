@@ -331,7 +331,14 @@ def httpd_server():
 
 @pytest.fixture(scope="session")
 def httpd_server_base(httpd_server: HTTPServer) -> str:
-    return f"http://{httpd_server.server_name}:{httpd_server.server_port}/"
+    server_name = httpd_server.server_name
+
+    # check if server_name is a valid domain
+    # if not, use 127.0.0.1 as server_name
+    if not re.match(r"^(?:[a-zA-Z0-9]+\.)*[a-zA-Z0-9]+$", server_name):
+        server_name = "127.0.0.1"
+
+    return f"http://{server_name}:{httpd_server.server_port}/"
 
 
 @pytest.fixture(scope="session")
