@@ -360,7 +360,10 @@ class URIRDFStore(RDFStore):
     @property
     def sparql_store(self):  # dynamically (delayed) build of the instance
         if self._store_constr is None:
-            raise RuntimeError("No store available")
+            raise RuntimeError(
+                "SPARQL store is not available. Ensure the store"
+                "constructor was properly initialized with valid URIs."
+            )
         return self._store_constr()
 
     def select(self, sparql: str, named_graph: Optional[str] = None) -> Result:
@@ -431,9 +434,7 @@ class URIRDFStore(RDFStore):
 
         # insert the new data if provided
         if graph_subject is not None and lastmod is not None:
-            triple = tuple(
-                (graph_subject, SCHEMA_DATEMODIFIED, Literal(lastmod))
-            )
+            triple = (graph_subject, SCHEMA_DATEMODIFIED, Literal(lastmod))
             adm_graph.add(triple)  # type: ignore
 
         return response or []
@@ -488,7 +489,9 @@ class MemoryRDFStore(RDFStore):
         )
         return target.query(sparql)
 
-    def insert(self, graph: Graph, named_graph: Optional[str] | None = None):
+    def insert(
+        self, graph: Graph, named_graph: Optional[str] | None = None
+    ) -> None:
         graph = self.clean(graph)
         if named_graph is not None:
             if named_graph not in self._named_graphs:

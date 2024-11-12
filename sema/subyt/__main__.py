@@ -150,9 +150,11 @@ def _main(*args_list) -> bool:
     except Exception as e:
         log.exception("sema.subyt processing failed", exc_info=e)
     finally:
-        if subyt:
-            subyt._sink.close()
-            # TODO investigate suspicious location for this
+        try:
+            if "subyt" in locals() and subyt is not None:
+                subyt._sink.close()
+        except Exception as e:
+            log.exception("Failed to close subyt", exc_info=e)
     return toreturn
 
 

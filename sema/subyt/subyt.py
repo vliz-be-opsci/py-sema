@@ -32,7 +32,7 @@ class Subyt(ServiceBase):
         template_name: str,
         template_folder: str,
         source: str | None = None,
-        extra_sources: Dict[str, str] = {},
+        extra_sources: Dict[str, str] | None = None,
         sink: str | None = None,
         overwrite_sink: bool | str = True,
         allow_repeated_sink_paths: bool | str = False,
@@ -74,6 +74,9 @@ class Subyt(ServiceBase):
         # upfront checks
         assert template_name, "template_name is required"
         assert Path(template_folder).exists(), "template_folder does not exist"
+        # default values
+        if extra_sources is None:
+            extra_sources = {}
 
         # actual task inputs
         self.template_name = template_name

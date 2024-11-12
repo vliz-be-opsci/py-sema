@@ -140,11 +140,23 @@ def normalise_mime_type_requests(request_mimes: Iterable | str) -> str | None:
 def make_service(args: Namespace) -> Discovery:
     """Make the service with the passed args"""
 
-    if args.url is None and args.url_option is None:
-        raise ValueError("No URL provided")
+    url = args.url or args.url_option
+    if url is None:
+        raise ValueError(
+            "Discovery requires a URL."
+            "Provide it as a positional argument or use --url option"
+        )
+    if not url.startswith(("http://", "https://", "file://")):
+        raise ValueError(
+            f"Invalid URL scheme: {url}."
+            "URL must start with http://, https://, or file://"
+        )
 
     if args.request_mimes is not None:
-        args.request_mimes = normalise_mime_type_requests(args.request_mimes)
+        normalized_mimes = normalise_mime_type_requests(args.request_mimes)
+        if normalized_mimes is None:
+            log.warning("Invalid MIME types provided: %s", args.request_mimes)
+        args.request_mimes = normalized_mimes
 
     return Discovery(
         subject_uri=args.url or args.url_option,

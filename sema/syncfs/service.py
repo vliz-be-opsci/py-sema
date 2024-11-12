@@ -177,7 +177,7 @@ class SyncFsTriples(ServiceBase):
         named_graph_base: str = DEFAULT_URN_BASE,
         read_uri: str | None = None,
         write_uri: str | None = None,
-    ):
+    ) -> None:
         """Creates the process-wrapper instance
 
         :param root: path to te folder to check for
@@ -221,6 +221,13 @@ class SyncFsTriples(ServiceBase):
                     to_store=self.rdfstore,
                 )
                 self._result.success = True
-        except Exception as e:
-            log.exception("Error during sync", exc_info=e)
+        except FileNotFoundError as e:
+            log.error("Source file not found during sync", exc_info=e)
             self._result.success = False
+        except PermissionError as e:
+            log.error("Permission denied during sync", exc_info=e)
+            self._result.success = False
+        except Exception as e:
+            log.exception("Unexpected error during sync", exc_info=e)
+            self._result.success = False
+            raise  # Re-raise unexpected exceptions

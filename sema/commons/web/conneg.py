@@ -86,7 +86,7 @@ class FoundVariants(ServiceResult, StatusMonitor):
         out += f"#-----\n{self.as_csv()}"
         return out
 
-    def as_csv(self, url: str | None = None) -> str:
+    def as_csv(self: "FoundVariants", url: str | None = None) -> str:
         out = ""
         outfields = [
             "mime_type",
@@ -269,7 +269,7 @@ SELECT ?mime ?profile WHERE {{
             # else
             save_web_content(
                 dump_path_path,
-                v["filename"] if all_unique_filenames else None,  # type: ignore # noqa
+                v["filename"] if all_unique_filenames else None,
                 self.url,
                 v["mime_type"],
                 v["profile"],
