@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from logging import getLogger
 from pathlib import Path
@@ -329,6 +330,29 @@ def httpd_server():
         httpd.shutdown()
 
 
+def is_domain_accessible(
+    domain: str, port: int = 80, timeout: int = 5
+) -> bool:
+    """
+    Check if a given domain can be accessed by attempting
+    to establish a connection.
+
+    :param domain: The domain to check.
+    :param port: The port to connect to (default is 80 for HTTP).
+    :param timeout: The timeout for the connection attempt
+    in seconds (default is 5 seconds).
+    :return: True if the domain is accessible, False otherwise.
+    """
+    try:
+        # Resolve the domain name to an IP address
+        ip_address = socket.gethostbyname(domain)
+        # Attempt to establish a connection to the domain
+        with socket.create_connection((ip_address, port), timeout=timeout):
+            return True
+    except (socket.gaierror, socket.timeout, socket.error):
+        return False
+
+
 @pytest.fixture(scope="session")
 def httpd_server_base(httpd_server: HTTPServer) -> str:
     server_name = httpd_server.server_name
@@ -336,6 +360,14 @@ def httpd_server_base(httpd_server: HTTPServer) -> str:
     # check if server_name is a valid domain
     # if not, use 127.0.0.1 as server_name
     if not re.match(r"^(?:[a-zA-Z0-9]+\.)*[a-zA-Z0-9]+$", server_name):
+        server_name = "127.0.0.1"
+
+    # check if the server is accessible
+    if not is_domain_accessible(server_name, httpd_server.server_port):
+        log.debug(
+            f"HTTP server at {server_name}:{httpd_server.server_port}"
+            f"is not accessible"
+        )
         server_name = "127.0.0.1"
 
     return f"http://{server_name}:{httpd_server.server_port}/"
