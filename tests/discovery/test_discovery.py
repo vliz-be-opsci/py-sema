@@ -61,7 +61,6 @@ def test_discovery_cases(httpd_server_base: str) -> None:
     assert re.match(
         r"^https?://[\w.-]+(?::\d+)?/?$", httpd_server_base
     ), f"Invalid httpd_server_base: {httpd_server_base}"
-
     for to_search, mime, length in DIRECT_CASES:
         full_uri = f"{httpd_server_base}{to_search}"
         log.debug(f"full_uri: {full_uri}")
