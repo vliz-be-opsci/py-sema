@@ -234,20 +234,20 @@ SELECT ?mime ?profile WHERE {{
         return self._found
 
     def export_result(
-        self, output_path: str, format: str | None = None
+        self, output_ref: str, format: str | None = None
     ) -> None:
         """Export the result to the output"""
-        output_path = output_path or "-"
+        output_ref = output_ref or "-"
         format = format or "csv"
         assert format == "csv", "currently only csv output is supported"
 
         csv = self._found.as_csv(self.url)
-        if output_path == "-":
+        if output_ref == "-":
             return print(csv)
         # else
-        output_path_path = Path(output_path)
-        log.debug(f"appending csv result for {self.url} to {output_path_path}")
-        with open(output_path_path, "a") as out:
+        output_path = Path(output_ref)
+        log.debug(f"appending csv result for {self.url} to {output_path}")
+        with open(output_path, "a") as out:
             out.write(csv)
 
     def dump_variants(self, dump_path: str) -> None:

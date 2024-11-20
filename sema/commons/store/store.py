@@ -396,7 +396,7 @@ class URIRDFStore(RDFStore):
 
     def _update_registry_lastmod(
         self, named_graph: str | None, lastmod: datetime | None = None
-    ) -> Iterable[str]:
+    ) -> Iterable[str] | None:
         """Consults and changes the admin-graph of lastmod entries
         per named_graph.
 
@@ -437,7 +437,7 @@ class URIRDFStore(RDFStore):
             triple = (graph_subject, SCHEMA_DATEMODIFIED, Literal(lastmod))
             adm_graph.add(triple)  # type: ignore
 
-        return response or []
+        return response or None
 
     def lastmod_ts(self, named_graph: str) -> datetime:
         adm_graph = Graph(
@@ -463,7 +463,7 @@ class URIRDFStore(RDFStore):
         self._update_registry_lastmod(named_graph, None)
 
     @property
-    def named_graphs(self) -> Iterable[str]:
+    def named_graphs(self) -> Iterable[str] | None:
         return self._update_registry_lastmod(None)
 
 

@@ -314,10 +314,8 @@ try:
                     xdict = xmlasdict.parse(xml_str)
                     # unpack root wrappers
                     data = xdict.unpack()  # type: ignore
-                except Exception as e:
-                    log.error(
-                        f"Failed to parse XML file {self._xml}: {str(e)}"
-                    )
+                except Exception:
+                    log.exception(f"Failed to parse XML file {self._xml}")
                     raise
 
             return iter(data)

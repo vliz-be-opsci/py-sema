@@ -24,7 +24,7 @@ def get_arg_parser() -> SemaArgsParser:
 
     parser = SemaArgsParser(
         "sema-query",
-        "Py Project to extra table data from "
+        "Py Project to extract table data from "
         "knowledge-graphs using sparql templates",
     )
 

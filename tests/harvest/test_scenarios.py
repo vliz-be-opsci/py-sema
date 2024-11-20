@@ -5,7 +5,7 @@ from typing import Any, Callable
 import pytest
 
 from sema.commons.j2 import J2RDFSyntaxBuilder
-from sema.harvest import HarvestService
+from sema.harvest import Harvest
 from sema.harvest.store import RDFStoreAccess
 
 log = logging.getLogger(__name__)
@@ -120,7 +120,7 @@ def test_scenario_one(
 
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test1_sparql.yml"
-        travharv = HarvestService(
+        travharv = Harvest(
             config,
             store,
         )
@@ -163,10 +163,10 @@ def test_scenario_one(
 @pytest.fixture
 def create_harvest_service(
     store_info_sets: Any,
-) -> Callable[[str], HarvestService]:
-    def _create_harvest_service(config_file: str) -> HarvestService:
+) -> Callable[[str], Harvest]:
+    def _create_harvest_service(config_file: str) -> Harvest:
         config = CONFIGS / config_file
-        return HarvestService(config, store_info_sets)
+        return Harvest(config, store_info_sets)
 
     return _create_harvest_service
 
@@ -231,14 +231,14 @@ def test_scenario_three(
         config = CONFIGS / "dereference_test3_sparql.yml"
 
         try:
-            travharv = HarvestService(
+            travharv = Harvest(
                 config,
                 store,
             )
             length_store = len_store(travharv.target_store)
             travharv.process()
         except Exception as e:
-            pytest.fail(f"HarvestService raised an unexpected exception: {e}")
+            pytest.fail(f"Harvest raised an unexpected exception: {e}")
 
         # assertions here
 
@@ -327,7 +327,7 @@ def test_scenario_four(
         log.debug("testing scenario four for %s", store)
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test4_sparql.yml"
-        travharv = HarvestService(
+        travharv = Harvest(
             config,
             store,
         )
@@ -408,7 +408,7 @@ def test_scenario_five(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test5_sparql.yml"
-        travharv = HarvestService(
+        travharv = Harvest(
             config,
             store,
         )

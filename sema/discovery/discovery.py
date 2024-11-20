@@ -207,34 +207,33 @@ class Discovery(ServiceBase):
         return resp  # note the return will be reigstered in the event-trace
 
     def _discover_subject(
-        self, target_url: str | None = None, force_types: Iterable[str] = []
+        self,
+        target_url: str | None = None,  # type: ignore
+        force_types: Iterable[str] = [],  # type: ignore
     ):
         """Discover triples describing the subject (assumed at subject_url)
         and add them to the result graph, using various strategies
         """
         # we start off at the core subject_uri and try to discover that
-        target_url_discover: str | None = target_url or self.subject_uri
-        force_types_discover: Iterable[str] = force_types or self.request_mimes
+        target_url: str | None = target_url or self.subject_uri
+        force_types: Iterable[str] = force_types or self.request_mimes
 
         # TODO consider rewrite more elegantly/clearly
         #   essentially this is chain of strategies to fallback
 
         # -- strategy #01 do as your a told, pass forced mimes in conneg
         # i.e. go explcitely over the mime-types that are requested (if any)
-        log.debug(
-            f"discovery #01 trying {force_types_discover=} for "
-            f"{target_url_discover=}"
-        )
-        for mt in force_types_discover:
-            self._get_structured_content(target_url_discover, mt)
+        log.debug(f"discovery #01 trying {force_types=} for " f"{target_url=}")
+        for mt in force_types:
+            self._get_structured_content(target_url, mt)
         if self.triples_found:
             return  # we are done
         # else
 
         # -- strategy #02 do the basic thing
         # i.e. do the plan - no conneg request
-        log.debug(f"discovery #02 plain request for {target_url_discover=}")
-        self._get_structured_content(target_url_discover)
+        log.debug(f"discovery #02 plain request for {target_url=}")
+        self._get_structured_content(target_url)
         if self.triples_found:
             return  # we are done
         # else
@@ -242,21 +241,17 @@ class Discovery(ServiceBase):
         # -- strategy #03 do what we can
         # i.e. go on and conneg over remaining known RDF mime-types
         # in this case we stop as soon as we find some triples
-        remain_types = set(self.SUPPORTED_MIMETYPES) - set(
-            force_types_discover
-        )
-        log.debug(
-            f"discovery #03 trying {remain_types=} for {target_url_discover=}"
-        )
+        remain_types = set(self.SUPPORTED_MIMETYPES) - set(force_types)
+        log.debug(f"discovery #03 trying {remain_types=} for {target_url=}")
         for mt in remain_types:
-            self._get_structured_content(target_url_discover, mt)
+            self._get_structured_content(target_url, mt)
             if self.triples_found:
                 return  # we are done
 
         # -- strategy #04 do final attempt like humans
         # i.e. just grab what we can get from a text/html request
-        log.debug(f"discovery #04 trying text/html for {target_url_discover=}")
-        self._get_structured_content(target_url_discover, "text/html")
+        log.debug(f"discovery #04 trying text/html for {target_url=}")
+        self._get_structured_content(target_url, "text/html")
 
     def _output_result(self):
         g = self._result.graph

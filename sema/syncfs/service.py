@@ -49,7 +49,7 @@ def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
     return {
         str(p): datetime.fromtimestamp(p.stat().st_mtime, UTC_tz)
         for p in from_path.glob("**/*")
-        if p.is_file() and is_supported_rdffilepath(str(p))
+        if p.is_file() and is_supported_rdffilepath(p)
     }
 
 
@@ -204,7 +204,7 @@ class SyncFsTriples(ServiceBase):
             "source-path " + str(root) + " should be a folder."
         )
         nmapper: GraphNameMapper = GraphNameMapper(base=named_graph_base)
-        self.rdfstore = None
+        self.rdfstore: RDFStore | None = None
         if not read_uri:
             self.rdfstore = MemoryRDFStore(mapper=nmapper)
         else:

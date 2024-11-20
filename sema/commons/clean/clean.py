@@ -32,7 +32,7 @@ def reparse(g: Graph, format="nt"):
     return Graph().parse(data=g.serialize(format=format), format=format)
 
 
-reparse.level = Level.Graph  # type: ignore
+reparse.level = Level.Graph
 
 
 def check_valid_urn(urn: str) -> bool:
@@ -103,7 +103,7 @@ def clean_uri_node(ref: URIRef | BNode | Literal) -> URIRef | BNode | Literal:
     return URIRef(clean_uri_str(uri))
 
 
-clean_uri_node.level = Level.Node  # type: ignore
+clean_uri_node.level = Level.Node
 
 
 def normalise_scheme_str(
@@ -135,7 +135,7 @@ def normalise_scheme_node(
     )
 
 
-normalise_scheme_node.level = Level.Node  # type: ignore
+normalise_scheme_node.level = Level.Node
 
 
 NAMED_CLEAN_FUNCTIONS: dict = {

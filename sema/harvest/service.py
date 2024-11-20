@@ -28,7 +28,7 @@ class HarvestResult(ServiceResult):
         self._success = value
 
 
-class HarvestService(ServiceBase):
+class Harvest(ServiceBase):
     """Assert all paths for given subjects.
     Given a configuration file, assert all paths
     for all subjects in the configuration file.

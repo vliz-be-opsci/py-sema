@@ -9,7 +9,7 @@ from rdflib import Graph
 
 from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
-from sema.harvest import HarvestService
+from sema.harvest import Harvest
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
 
@@ -160,13 +160,16 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:harvest:context")
 
 
-def make_service(args: argparse.Namespace) -> HarvestService:
+def make_service(args: argparse.Namespace) -> Harvest:
     store_info: list = args.store or []
-    log.debug("%s", args.store)
-    log.debug("make service for target store %s", store_info)
+    log.debug(f"{store_info=}")
+    if store_info is not None:
+        log.debug(f"make service for target store {store_info}")
+    else:
+        log.debug("make service for target store with no store_info provided")
     config = args.config[0]
     config = Path.cwd() / config
-    new_service = HarvestService(config, store_info)
+    new_service = Harvest(config, store_info)
     return new_service
 
 

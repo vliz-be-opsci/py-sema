@@ -63,7 +63,7 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
             templates_env, template_name
         )
         log.debug(f"template source = {template_source}")
-        ast = self._templates_env.parse(template_source[0])
+        ast = self._templates_env.parse(*template_source)  # type: ignore
         return meta.find_undeclared_variables(ast)
 
     def build_syntax(self, name: str, **variables) -> str:  # type: ignore

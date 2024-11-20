@@ -24,6 +24,8 @@ def get_arg_parser() -> SemaArgsParser:
         "-loc",
         "--locations",
         action="store",
+        nargs=2,
+        metavar=("KEY", "PATH"),
         default=None,
         help=(
             "Dict of keyed paths to various filesystem locations with specific"
@@ -79,7 +81,7 @@ def get_arg_parser() -> SemaArgsParser:
 
 def make_service(args: Namespace) -> Sembench:
     return Sembench(
-        locations=args.locations,
+        locations=SemaArgsParser.args_to_dict(args.locations),
         sembench_config_file_name=args.config_name,
         scheduler_interval_seconds=args.interval,
         watch_config_file=args.watch,

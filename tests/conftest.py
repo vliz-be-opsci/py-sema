@@ -41,6 +41,11 @@ TEST_Path: Path = TEST_FOLDER / "data" / "localhost_http_documentroot"
 HTTPD_ROOT: Path = TEST_Path
 HTTPD_HOST: str = (
     # TODO test with localhost.localdomain
+    # localhost.localdomain (leads to not working on windows,
+    # ie unless a etc/hosts entry is added)
+    # localhost (leads to not working on windows,
+    # ie unless a etc/hosts entry is added) and non valid URI
+    # so we use
     "127.0.0.1"  # can be '' - maybe also try '0.0.0.0' to bind all
 )
 HTTPD_PORT: int = 8080
@@ -355,12 +360,8 @@ def is_domain_accessible(
 
 @pytest.fixture(scope="session")
 def httpd_server_base(httpd_server: HTTPServer) -> str:
-    server_name = httpd_server.server_name
+    server_name = HTTPD_HOST
     log.debug(f"{server_name=}")
-    # check if server_name is a valid domain
-    # if not, use 127.0.0.1 as server_name
-    if not re.match(r"^(?:[a-zA-Z0-9]+\.)*[a-zA-Z0-9]+$", server_name):
-        server_name = "127.0.0.1"
 
     # check if the server is accessible
     if not is_domain_accessible(server_name, httpd_server.server_port):

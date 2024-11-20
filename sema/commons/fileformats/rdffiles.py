@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 
 SUFFIX_TO_FORMAT: dict = {
     ".ttl": "turtle",
@@ -9,7 +10,7 @@ SUFFIX_TO_FORMAT: dict = {
     ".rdf": "xml",
     ".n3": "n3",
 }
-SUPPORTED_RDFFILE_SUFFIXES: set = set(SUFFIX_TO_FORMAT.keys())
+SUPPORTED_RDFFILE_SUFFIXES: Iterable[str] = SUFFIX_TO_FORMAT.keys()
 MIME_TO_FORMAT: dict = {
     "application/ld+json": "json-ld",
     "application/rdf+xml": "xml",
@@ -46,8 +47,10 @@ def mime_from_filepath(
     return FORMAT_TO_MIME.get(format, fallback)
 
 
-def is_supported_rdffilepath(filename: str) -> bool:
-    sfx: str = Path(filename).suffix
+def is_supported_rdffilepath(filename: str | Path) -> bool:
+    sfx: str = (
+        Path(filename).suffix if isinstance(filename, str) else filename.suffix
+    )
     return is_supported_rdffile_suffix(sfx)
 
 

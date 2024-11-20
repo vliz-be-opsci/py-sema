@@ -1,9 +1,29 @@
 import os
+
+"""
+This module defines various task handlers for different types of tasks.
+Each handler inherits from the `TaskHandler` base class and
+implements the `handle` method to process specific tasks.
+Classes:
+    TaskHandler: Abstract base class for task handlers.
+    CSVWHandler: Handler for CSVW tasks.
+    EyereasonerHandler: Handler for Eyereasoner tasks.
+    QueryHandler: Handler for Query tasks.
+    ShaclHandler: Handler for SHACL validation tasks.
+    SubytHandler: Handler for Subyt tasks.
+    SyncFsTriplesHandler: Handler for SyncFsTriples tasks.
+    HarvestHandler: Handler for Harvest tasks.
+    RMLHandler: Handler for RML tasks.
+The `TaskHandler` class provides a common interface for handling tasks,
+allowing for a consistent way to process different types of tasks.
+Each specific handler class implements the `handle` method
+to perform the necessary actions for its respective task type.
+"""
 from logging import getLogger
 
 from pyshacl import validate
 
-from sema.harvest import HarvestService as Harvest
+from sema.harvest import Harvest
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 
