@@ -139,6 +139,41 @@ class TestXSDFormatting(unittest.TestCase):
                     xsd_fmt(v, type_name), fmt, "bad %s format" % type_name
                 )
 
+    def test_gyear(self):
+        long_name = "xsd:gYear"
+        short_name = long_name[4:]
+        for pfx in ("", "xsd:"):
+            type_name = pfx + short_name
+            variants_to_check = [
+                (2021, "2021"),              # input as int
+                ("2021", "2021"),            # input as string
+                (date(2021, 1, 1), "2021"),  # input as date
+                (12004, "12004"),            # larger than 4 digits
+                (922, "0922"),               # shorther than 4 digits
+                (-45, "-0045"),              # negative year, B.C.
+            ]
+            for (val, result) in variants_to_check:
+                fmt = "'" + result + "'^^" + long_name
+                self.assertEqual(
+                    xsd_fmt(val, type_name), fmt, "bad %s format" % type_name
+                )
+
+    def test_gyearmonth(self):
+        long_name = "xsd:gYearMonth"
+        short_name = long_name[4:]
+        for pfx in ("", "xsd:"):
+            type_name = pfx + short_name
+            variants_to_check = [
+                ("2021-03", "2021-03"),         # input as string
+                (date(2021, 3, 1), "2021-03"),  # input as date
+                ("2021-03-05", "2021-03"),      # ignore day part
+            ]
+            for (val, result) in variants_to_check:
+                fmt = "'" + result + "'^^" + long_name
+                self.assertEqual(
+                    xsd_fmt(val, type_name), fmt, "bad %s format" % type_name
+                )
+
     def test_uri(self):
         long_name = "xsd:anyURI"
         short_name = long_name[4:]
