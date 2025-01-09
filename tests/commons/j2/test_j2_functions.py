@@ -167,6 +167,7 @@ class TestXSDFormatting(unittest.TestCase):
                 ("2021-03", "2021-03"),         # input as string
                 (date(2021, 3, 1), "2021-03"),  # input as date
                 ("2021-03-05", "2021-03"),      # ignore day part
+                ("-45-05-6", "-0045-05"),       # support B.C. dates (in python only possible as string)
             ]
             for (val, result) in variants_to_check:
                 fmt = "'" + result + "'^^" + long_name

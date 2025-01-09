@@ -87,7 +87,8 @@ def xsd_format_gyear(content, quote, suffix):
     if isinstance(content, date):
         year = content.year  # extract year from date
     else:
-        year = int(str(content))  # convert (via string) to int
+        content = str(content).strip()  # other types handled via trimmed string
+        year = int(content)  # convert to int
     # we should be sure of int now
     # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html for examples of correct values
     content = f"{"-" if year < 0 else ""}{abs(year):04d}"
@@ -99,10 +100,15 @@ def xsd_format_gmonthyear(content, quote, suffix):
     if isinstance(content, date):
         year, month = content.year, content.month  # extract parts from date
     else:
-        [year, month, *ignored_rest] = str(content).split("-")  # convert (via string) to parts
-        year, month = int(year), int(month)  # and ensure they are int
+        content = str(content).strip()  # other types handled via trimmed string
+        sign = 1
+        if content[0] == '-':
+            sign = -1
+            content = content[1:]
+        [year, month, *ignored_rest] = content.split("-")  # convert (via string) to parts
+        year, month = int(year) * sign, int(month)  # and ensure they are int with carried sign
     # see https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html for examples of correct values
-    content = f"{year:04d}-{month:02d}"
+    content = f"{"-" if year < 0 else ""}{abs(year):04d}-{month:02d}"
     return xsd_value(content, quote, "xsd:gYearMonth")
 
 
