@@ -53,7 +53,7 @@ def wrap_signpost_uri(uri: str) -> str:
     return link
 
 
-@pytest.mark.fixture("httpd_server_base")
+@pytest.mark.usefixtures("httpd_server_base")
 def test_discovery_cases(httpd_server_base: str) -> None:
     assert httpd_server_base
     assert re.match(
