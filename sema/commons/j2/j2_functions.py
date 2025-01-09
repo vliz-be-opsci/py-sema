@@ -81,15 +81,30 @@ def xsd_format_date(content, quote, suffix):
         asdt = content
     return xsd_value(asdt.isoformat(), quote, "xsd:date")
 
+
 def xsd_format_gyear(content, quote, suffix):
     # make rigid gYear
-    assert (isinstance(content, int) and 1000 <= content <= 9999), "year should be 4-digit integer"
+    if isinstance(content, date):
+        year = content.year  # extract year from date
+    else:
+        year = int(str(content))  # convert (via string) to int
+    # we should be sure of int now
+    # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html for examples of correct values
+    content = f"{"-" if year < 0 else ""}{abs(year):04d}"
     return xsd_value(content, quote, "xsd:gYear")
+
 
 def xsd_format_gmonthyear(content, quote, suffix):
     # make rigid gMonthYear
-    assert (re.match( r"^--(0[1-9]|1[0-2])-\d{4}$", content) is not None), "month-year should be of format yyyy-mm"
-    return xsd_value(content, quote, "xsd:gMonthYear")
+    if isinstance(content, date):
+        year, month = content.year, content.month  # extract parts from date
+    else:
+        [year, month, *ignored_rest] = str(content).split("-")  # convert (via string) to parts
+        year, month = int(year), int(month)  # and ensure they are int
+    # see https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html for examples of correct values
+    content = f"{year:04d}-{month:02d}"
+    return xsd_value(content, quote, "xsd:gYearMonth")
+
 
 def xsd_format_datetime(content, quote, suffix):
     # make rigid datetime
@@ -132,8 +147,8 @@ XSD_FMT_TYPE_FN = {
     "xsd:gyear": xsd_format_gyear,
     "year": xsd_format_gyear,
     "yyyy": xsd_format_gyear,
-    "xsd:gmonthyear":  xsd_format_gmonthyear,
-    "month-year":  xsd_format_gmonthyear,
+    "xsd:gyearmonth":  xsd_format_gmonthyear,
+    "year-month":  xsd_format_gmonthyear,
     "yyyy-mm":  xsd_format_gmonthyear
 }
 
