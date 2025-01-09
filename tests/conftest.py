@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from rdflib import BNode, Graph, Namespace, URIRef
 
 from sema.commons.log import load_log_config
+from sema.commons.clean import check_valid_url
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
@@ -331,7 +332,12 @@ def httpd_server():
 
 @pytest.fixture(scope="session")
 def httpd_server_base(httpd_server: HTTPServer) -> str:
-    return f"http://{httpd_server.server_name}:{httpd_server.server_port}/"
+    base: str = f"http://{httpd_server.server_name}:{httpd_server.server_port}/"
+    if not check_valid_url(base):
+        log.debug(f"switching from current {base=} to ip address based variant")
+        base = f"http://{httpd_server.server_address[0]}:{httpd_server.server_address[1]}/"
+    assert check_valid_url(base), f"httpd server {base=} not a valid URL. Testing like this is meaningless. Check setup"
+    return base
 
 
 @pytest.fixture(scope="session")
