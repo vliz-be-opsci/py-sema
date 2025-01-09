@@ -1,8 +1,9 @@
-from pathlib import Path
-
 from jinja2 import Environment, FileSystemLoader
 
-TEST_TEMPLATES_FOLDER = Path(__file__).parent.absolute() / "templates"
+from sema.query import DEFAULT_TEMPLATES_FOLDER
+
+# Use the same templates folder as the main code to ensure consistency
+TEST_TEMPLATES_FOLDER = DEFAULT_TEMPLATES_FOLDER
 
 file_system_loader = FileSystemLoader(TEST_TEMPLATES_FOLDER)
 templates_env = Environment(loader=file_system_loader)
@@ -26,4 +27,5 @@ template_variables = {
 simple_template = "all.sparql"
 
 N = 723
-ALL_QUERY = f"SELECT * WHERE {{ ?s ?p ?o.}} LIMIT {N}"
+ALL_QUERY = f"""SELECT * WHERE {{ ?s ?p ?o. }}
+LIMIT {N}"""

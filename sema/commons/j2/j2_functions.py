@@ -107,22 +107,17 @@ def xsd_format_uri(content, quote, suffix):
 
 
 def xsd_format_string(content, quote, suffix):
-    # deal with escapes -- note: code is odd to read,
-    #   but this escapes single \ to double \\
-    content = str(content).replace("\\", "\\\\")
-    if "\n" in content or quote in content:
-        triplus_pattern = r"([']{3}[']*)" if quote == "'" else r'(["]{3}["]*)'
-        esc_qt = "\\" + quote  # escaped quote
-        quote = quote * 3  # make long quote variant
-        content = re.sub(
-            triplus_pattern,  # find sequences of 3 or more quotes...
-            lambda x: esc_qt * len(x.group()),  # and have each of them escaped
-            content,  # so all ''' should become \'\'\' in the content
+    # apply escape sequences: \ to \\ and quote to \quote
+    escqt = f"\\{quote}"
+    content = str(content).replace("\\", "\\\\").replace(quote, escqt)
+
+    if "\n" in content:
+        quote = quote * 3  # make long quote variant to allow for newlines
+        assert quote not in content, (
+            "ttl format error: still having "
+            f"quote {quote} in text content {content}"
+            f"applied quote format {quote} in text content"
         )
-    assert quote not in content, (
-        "ttl format error: still having "
-        f"applied quote format {quote} in text content"
-    )
     return xsd_value(content, quote, "xsd:string", suffix)
 
 

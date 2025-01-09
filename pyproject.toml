@@ -1,8 +1,12 @@
 [tool.poetry]
-name = "sema"
+name = "pysema"
 version = "0.1.0"
 description = "Overall parent of all packages involving semantic manipulation of RDF data."
-authors = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>"]
+authors = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>",
+           "Opsci VLIZ <OpSci@vliz.be>"]
+maintainers = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>"]
+packages = [{include = "sema"}]
+repository = "https://github.com/vliz-be-opsci/py-sema"
 license = "MIT"
 readme = "README.md"
 
@@ -21,6 +25,7 @@ typeguard = "^4.3.0"
 apscheduler = "^3.10.4"
 pyshacl = "^0.26.0"
 watchdog = "^4.0.1"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.docs]
 optional = true

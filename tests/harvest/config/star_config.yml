@@ -1,0 +1,24 @@
+snooze-till-graph-age-minutes: 1000000
+prefix:
+  ex: https://example.org/whatever/
+  mr: http://marineregions.org/ns/ontology#
+  gsp: http://www.opengis.net/ont/geosparql#
+assert:
+  - subjects:
+      literal:
+        - http://marineregions.org/mrgid/63523
+        - http://marineregions.org/mrgid/2540
+        - http://marineregions.org/mrgid/12548
+    paths:
+      - "mr:hasGeometry"
+      - "mr:isPartOf / <https://schema.org/geo> / <https://schema.org/latitude>"
+      - "*"
+  - subjects:
+      SPARQL: >
+        SELECT ?s
+        WHERE {
+          [] mr:isPartOf ?s .
+          ?s a mr:GeoObject .
+        }
+    paths:
+      - "*"

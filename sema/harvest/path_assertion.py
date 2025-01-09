@@ -139,6 +139,19 @@ class SubjPropPathAssertion:
         Assert a property path for a given subject.
         Put the results in a RDFStoreAccess.
         """
+
+        if (
+            self.assertion_path.get_path_for_depth(
+                self.assertion_path.get_max_size()
+            )
+            == "*"
+        ):
+            log.debug(
+                "Getting all triples for a given subject since path is *"
+            )
+            self._harvest_uri(self.subject)
+            return
+
         log.debug("Asserting a property path for a given subject")
         log.debug(f"Subject: {self.subject}")
         # Implement method to assert a property path for a given subject

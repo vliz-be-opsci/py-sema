@@ -170,27 +170,42 @@ class TestXSDFormatting(unittest.TestCase):
             self.assertEqual(
                 xsd_fmt("Hello!", type_name),
                 "'Hello!'^^xsd:string",
-                "bad %s format" % type_name,
+                f"bad {type_name} format",
             )
             self.assertEqual(
                 xsd_fmt("'", type_name, quote='"'),
                 '"\'"^^xsd:string',
-                "bad %s format" % type_name,
+                f"bad {type_name} format",
             )
             self.assertEqual(
                 xsd_fmt('"', type_name, quote="'"),
                 "'\"'^^xsd:string",
-                "bad %s format" % type_name,
+                f"bad {type_name} format",
+            )
+            self.assertEqual(
+                xsd_fmt("'", type_name, quote="'"),
+                "'\\''^^xsd:string",
+                f"bad {type_name} format",
+            )
+            self.assertEqual(
+                xsd_fmt('"', type_name, quote='"'),
+                '"\\""^^xsd:string',
+                f"bad {type_name} format",
             )
             self.assertEqual(
                 xsd_fmt(">'<", type_name, quote="'"),
-                "'''>'<'''^^xsd:string",
-                "bad %s format" % type_name,
+                "'>\\'<'^^xsd:string",
+                f"bad {type_name} format",
             )
             self.assertEqual(
                 xsd_fmt(">\n<", type_name, quote="'"),
                 "'''>\n<'''^^xsd:string",
-                "bad %s format" % type_name,
+                f"bad {type_name} format",
+            )
+            self.assertEqual(
+                xsd_fmt(">\n<", type_name, quote='"'),
+                '""">\n<"""^^xsd:string',
+                f"bad {type_name} format",
             )
 
         def test_lang_string(self):
@@ -198,6 +213,16 @@ class TestXSDFormatting(unittest.TestCase):
                 xsd_fmt("Hello!", "@en"),
                 "'Hello!'@en",
                 "bad language-string format",
+            )
+            self.assertEqual(
+                xsd_fmt("ceci n'est pas une texte", "@fr"),
+                "'ceci n\\'est pas une texte'@fr",
+                "bad language-string formatting with quote-escapes",
+            )
+            self.assertEqual(
+                xsd_fmt("As \\ said before", "@en"),
+                "'As \\\\ said before'@en",
+                "bad language-string formatting with backslash-escapes",
             )
 
 

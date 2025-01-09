@@ -123,13 +123,18 @@ class TestJinjaGenerator(unittest.TestCase):
             log.debug(
                 f"processing test-template: {os.path.join(tpl_path, name)}"
             )
-            g.process(
-                name,
-                inputs,
-                generator_settings,
-                sink,
-                vars_dict={"my_domain": "realexample.org"},
-            )
+            try:
+                g.process(
+                    name,
+                    inputs,
+                    generator_settings,
+                    sink,
+                    vars_dict={"my_domain": "realexample.org"},
+                )
+            except Exception as e:
+                log.exception(e)
+                log.exception("failed to process template")
+                raise
 
             # assure all records were passed
             sink.evaluate()

@@ -16,7 +16,7 @@
   schema:description '''een tekst over
 meerdere \'\'\'\'\'
 lijnen'''@nl;
-  schema:description '''ceci n'est pas une texte'''@fr;
+  schema:description 'ceci n\'est pas une texte'@fr;
   schema:description 'As \\ said before'@en;
   ex:posFirst 'true'^^xsd:boolean;
 

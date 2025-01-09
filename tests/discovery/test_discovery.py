@@ -1,5 +1,7 @@
 import logging
-from typing import List, Tuple
+import os
+import re
+from typing import Dict, List, Tuple
 
 import pytest
 from rdflib import Graph
@@ -9,25 +11,36 @@ from sema.discovery import discover_subject
 
 log = logging.getLogger(__name__)
 
+# Directory where test files are stored
+TEST_FILES_DIR = os.path.join(os.path.dirname(__file__), "test_files")
 
+# MIME type map
+HTTPD_EXTENSION_MAP: Dict[str, str] = {
+    ".txt": "text/plain",
+    ".jsonld": "application/ld+json",
+    ".ttl": "text/turtle",
+    ".html": "text/html",
+}
+
+# Update DIRECT_CASES to use local URIs with a domain
 DIRECT_CASES: List[Tuple[str, str, int]] = [
     (
-        "https://www.w3.org/People/Berners-Lee/card.ttl",
+        "card.ttl",
         "text/turtle",
         86,
     ),
     (
-        "https://marineregions.org/mrgid/3293.jsonld",
+        "mrgid.jsonld",
         "application/ld+json",
         99,
     ),
     (
-        "https://data.arms-mbon.org/",
+        "homepage.html",
         "text/turtle",
-        112,
+        83,
     ),
     (
-        "https://data.arms-mbon.org/data_release_001/latest/#",
+        "rocrate.html",
         "application/json",
         532,
     ),
@@ -40,19 +53,20 @@ def wrap_signpost_uri(uri: str) -> str:
     return link
 
 
-# wrap direct cases into signposted cases
-SIGNPOSTED_CASES = list()
-for uri, mime, length in DIRECT_CASES:
-    link = wrap_signpost_uri(uri)
-    SIGNPOSTED_CASES.append((link, mime, length))
+@pytest.mark.fixture("httpd_server_base")
+def test_discovery_cases(httpd_server_base: str) -> None:
+    assert httpd_server_base
+    assert re.match(
+        r"^https?://[\w.-]+(?::\d+)?/?$", httpd_server_base
+    ), f"Invalid httpd_server_base: {httpd_server_base}"
 
-ALL_CASES = DIRECT_CASES + SIGNPOSTED_CASES
+    for to_search, mime, length in DIRECT_CASES:
+        full_uri = f"{httpd_server_base}{to_search}"
+        wrapped_uri = wrap_signpost_uri(full_uri)
+        graph = discover_subject(full_uri, mimetypes=[mime])
+        assert isinstance(graph, Graph)
+        assert len(graph) == length
 
-
-@pytest.mark.parametrize("uri, mime, length", ALL_CASES)
-def test_discovery_case(uri, mime, length):
-    graph = discover_subject(uri, mimetypes=[mime])
-    assert isinstance(graph, Graph)
-    assert len(graph) > 0
-    assert len(graph) == length
-    # Add more assertions as needed
+        graph = discover_subject(wrapped_uri, mimetypes=[mime])
+        assert isinstance(graph, Graph)
+        assert len(graph) == length
