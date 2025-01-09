@@ -86,11 +86,12 @@ def xsd_format_gyear(content, quote, suffix):
     # make rigid gYear
     if isinstance(content, date):
         year = content.year  # extract year from date
-    else:
-        content = str(content).strip()  # other types handled via trimmed string
-        year = int(content)  # convert to int
+    else:  # other input types handled
+        content = str(content).strip()  # via trimmed string
+        year = int(content)  # converted to int
     # we should be sure of int now
-    # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html for examples of correct values
+    # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html
+    # for examples of correct value formatting
     content = f"{"-" if year < 0 else ""}{abs(year):04d}"
     return xsd_value(content, quote, "xsd:gYear")
 
@@ -99,15 +100,18 @@ def xsd_format_gmonthyear(content, quote, suffix):
     # make rigid gMonthYear
     if isinstance(content, date):
         year, month = content.year, content.month  # extract parts from date
-    else:
-        content = str(content).strip()  # other types handled via trimmed string
+    else:  # other types of input handled
+        content = str(content).strip()  # via trimmed string
         sign = 1
-        if content[0] == '-':
+        if content[0] == "-":  # extract sign if present
             sign = -1
             content = content[1:]
-        [year, month, *ignored_rest] = content.split("-")  # convert (via string) to parts
-        year, month = int(year) * sign, int(month)  # and ensure they are int with carried sign
-    # see https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html for examples of correct values
+        # split into parts
+        [year, month, *ignored_rest] = content.split("-")
+        # and ensure they are int with carried sign
+        year, month = int(year) * sign, int(month)
+    # https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html
+    # for examples of correct value formatting
     content = f"{"-" if year < 0 else ""}{abs(year):04d}-{month:02d}"
     return xsd_value(content, quote, "xsd:gYearMonth")
 
@@ -153,9 +157,9 @@ XSD_FMT_TYPE_FN = {
     "xsd:gyear": xsd_format_gyear,
     "year": xsd_format_gyear,
     "yyyy": xsd_format_gyear,
-    "xsd:gyearmonth":  xsd_format_gmonthyear,
-    "year-month":  xsd_format_gmonthyear,
-    "yyyy-mm":  xsd_format_gmonthyear
+    "xsd:gyearmonth": xsd_format_gmonthyear,
+    "year-month": xsd_format_gmonthyear,
+    "yyyy-mm": xsd_format_gmonthyear,
 }
 
 
