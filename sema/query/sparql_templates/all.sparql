@@ -3,5 +3,5 @@
  | variables in template:
  |    - (optional) N: number of triples to return (no limit applied when no N is given)
 -#}
-SELECT * WHERE { ?s ?p ?o.}
+SELECT * WHERE { ?s ?p ?o. }
 {{ "LIMIT " ~ N   if N else "" }} {#- add limit  statement if provided #}
