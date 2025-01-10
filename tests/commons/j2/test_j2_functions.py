@@ -21,9 +21,10 @@ def assertFormat(
     content: any, type_name: str, expected: str, quote: str | None = "'"
 ) -> None:
     format = xsd_fmt(content, type_name, quote)
-    assert (
-        format == expected
-    ), f"unexpected {type_name} format for {content} using {quote}:  {format} != {expected}"
+    assert format == expected, (
+        f"unexpected {type_name} format for {content} using {quote}: "
+        f"{format} != {expected}"
+    )
 
 
 def assertCase(short_name: str, case: tuple) -> None:

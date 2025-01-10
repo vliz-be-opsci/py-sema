@@ -58,7 +58,8 @@ def xsd_format_integer(content: any, quote: str, *_) -> str:
         asint = int(str(content))
         if str(content) != str(asint):
             raise ValueError(
-                f"int format does not round-trip [ {str(content)} <> {str(asint)} ]"
+                "int format does not round-trip "
+                f"[ {str(content)} <> {str(asint)} ]"
             )
         content = asint
     # serialize to string again
