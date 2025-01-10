@@ -1,6 +1,7 @@
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
+from types import NoneType
 
 from dateutil import parser
 from uritemplate import URITemplate
@@ -24,20 +25,22 @@ class Functions:
 
 class Filters:
     @staticmethod
-    def all():
+    def all() -> dict:
         return {
             "xsd": xsd_format,
             "uri": uri_format,
         }
 
 
-def xsd_value(content, quote, type_name, suffix=None):
+def xsd_value(content: any, quote: str, type_name: str, suffix: str | None = None) -> str:
     if suffix is None:
         suffix = "^^" + type_name
     return quote + str(content) + quote + suffix
 
 
-def xsd_format_boolean(content, quote, suffix):
+def xsd_format_boolean(content: any, quote: str, suffix: str) -> str:
+    assert not isinstance(content, (list, dict, NoneType)), "conversion required before formatting"
+
     # make rigid bool
     if not isinstance(content, bool):
         asbool = str(content).lower() not in ["", "0", "no", "false", "off"]
@@ -46,7 +49,7 @@ def xsd_format_boolean(content, quote, suffix):
     return xsd_value(str(content).lower(), quote, "xsd:boolean")
 
 
-def xsd_format_integer(content, quote, suffix):
+def xsd_format_integer(content: any, quote: str, suffix: str) -> str:
     # make rigid int
     if not isinstance(content, int):
         asint = int(str(content))
@@ -61,7 +64,7 @@ def xsd_format_integer(content, quote, suffix):
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def xsd_format_double(content, quote, suffix):
+def xsd_format_double(content: any, quote: str, suffix: str) -> str:
     # make rigid double
     if not isinstance(content, float):
         assert (
@@ -73,8 +76,10 @@ def xsd_format_double(content, quote, suffix):
     return xsd_value(str(content), quote, "xsd:double")
 
 
-def xsd_format_date(content, quote, suffix):
+def xsd_format_date(content: any, quote: str, suffix: str) -> str:
     # make rigid date
+    assert not isinstance(content, datetime), "use datetime format for datetime values, or past .date() result"
+
     if not isinstance(content, date):
         asdt = parser.isoparse(content).date()
     else:
@@ -82,7 +87,7 @@ def xsd_format_date(content, quote, suffix):
     return xsd_value(asdt.isoformat(), quote, "xsd:date")
 
 
-def xsd_format_gyear(content, quote, suffix):
+def xsd_format_gyear(content: any, quote: str, suffix: str) -> str:
     # make rigid gYear
     if isinstance(content, date):
         year = content.year  # extract year from date
@@ -96,9 +101,9 @@ def xsd_format_gyear(content, quote, suffix):
     return xsd_value(content, quote, "xsd:gYear")
 
 
-def xsd_format_gmonthyear(content, quote, suffix):
+def xsd_format_gmonthyear(content: any, quote: str, suffix: str) -> str:
     # make rigid gMonthYear
-    if isinstance(content, date):
+    if isinstance(content, (date, datetime)):
         year, month = content.year, content.month  # extract parts from date
     else:  # other types of input handled
         content = str(content).strip()  # via trimmed string
@@ -116,7 +121,7 @@ def xsd_format_gmonthyear(content, quote, suffix):
     return xsd_value(content, quote, "xsd:gYearMonth")
 
 
-def xsd_format_datetime(content, quote, suffix):
+def xsd_format_datetime(content: any, quote: str, suffix: str) -> str:
     # make rigid datetime
     if not isinstance(content, datetime):
         asdtm = parser.isoparse(content)
