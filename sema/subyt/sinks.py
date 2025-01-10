@@ -64,7 +64,12 @@ class StdOutSink(Sink):
     def close(self):
         pass
 
-    def add(self, part: str, item: dict = None, source_mtime: float = None):
+    def add(
+        self,
+        part: str,
+        item: dict | None = None,
+        source_mtime: float | None = None,
+    ):
         print(part)
 
 
@@ -87,10 +92,16 @@ class SingleFileSink(Sink):
         self._fopen = open(self._file_path, "w", encoding="utf-8")
 
     def close(self):
-        self._fopen.close()
+        if self._fopen:
+            self._fopen.close()
         self._fopen = None
 
-    def add(self, part: str, item: dict = None, source_mtime: float = None):
+    def add(
+        self,
+        part: str,
+        item: dict | None = None,
+        source_mtime: float | None = None,
+    ):
         assert self._fopen is not None, "File to Sink to already closed"
         log.info(f"Creating {self._file_path}")
         self._fopen.write(part)
@@ -122,7 +133,9 @@ class PatternedFileSink(Sink):
     def close(self):
         pass
 
-    def _add(self, file_path: str, part: str, source_mtime: float = None):
+    def _add(
+        self, file_path: str, part: str, source_mtime: float | None = None
+    ):
         sink_mtime = (
             Path(file_path).stat().st_mtime if Path(file_path).exists() else 0
         )
@@ -137,7 +150,12 @@ class PatternedFileSink(Sink):
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(part)
 
-    def add(self, part: str, item: dict = None, source_mtime: float = None):
+    def add(
+        self,
+        part: str,
+        item: dict | None = None,
+        source_mtime: float | None = None,
+    ):
         assert item is not None, "No data context available to expand template"
         file_path = self._name_template.expand(item)
         if self._allow_repeated_sink_paths:

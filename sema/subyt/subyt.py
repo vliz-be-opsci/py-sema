@@ -31,9 +31,9 @@ class Subyt(ServiceBase):
         *,
         template_name: str,
         template_folder: str,
-        source: str = None,
-        extra_sources: Dict[str, str] = {},
-        sink: str = None,
+        source: str | None = None,
+        extra_sources: Dict[str, str] | None = None,
+        sink: str | None = None,
         overwrite_sink: bool | str = True,
         allow_repeated_sink_paths: bool | str = False,
         conditional: bool | str = False,
@@ -74,6 +74,9 @@ class Subyt(ServiceBase):
         # upfront checks
         assert template_name, "template_name is required"
         assert Path(template_folder).exists(), "template_folder does not exist"
+        # default values
+        if extra_sources is None:
+            extra_sources = {}
 
         # actual task inputs
         self.template_name = template_name
@@ -91,6 +94,9 @@ class Subyt(ServiceBase):
         self._generator_settings = GeneratorSettings(mode)
 
         # output options
+        if sink is None:
+            sink = "-"
+
         self._sink = SinkFactory.make_sink(
             sink, bool(overwrite_sink), bool(allow_repeated_sink_paths)
         )
@@ -101,7 +107,7 @@ class Subyt(ServiceBase):
         self._result = SubytResult()
 
     @Trace.init(Trace)
-    def process(self) -> None:
+    def process(self) -> SubytResult:
         self._generator.process(
             template_name=self.template_name,
             inputs=self._inputs,

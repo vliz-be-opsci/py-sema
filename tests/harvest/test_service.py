@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from sema.harvest.service import service as TravHarv
+from sema.harvest.service import Harvest as TravHarv
 
 
 @pytest.mark.usefixtures("store_info_sets")

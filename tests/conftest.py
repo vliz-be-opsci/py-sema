@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from logging import getLogger
 from pathlib import Path
@@ -41,7 +42,12 @@ TEST_Path: Path = TEST_FOLDER / "data" / "localhost_http_documentroot"
 HTTPD_ROOT: Path = TEST_Path
 HTTPD_HOST: str = (
     # TODO test with localhost.localdomain
-    "localhost"  # can be '' - maybe also try '0.0.0.0' to bind all
+    # localhost.localdomain (leads to not working on windows,
+    # ie unless a etc/hosts entry is added)
+    # localhost (leads to not working on windows,
+    # ie unless a etc/hosts entry is added) and non valid URI
+    # so we use
+    "127.0.0.1"  # can be '' - maybe also try '0.0.0.0' to bind all
 )
 HTTPD_PORT: int = 8080
 HTTPD_EXTENSION_MAP: Dict[str, str] = {
@@ -328,6 +334,29 @@ def httpd_server():
 
         yield httpd
         httpd.shutdown()
+
+
+def is_domain_accessible(
+    domain: str, port: int = 80, timeout: int = 5
+) -> bool:
+    """
+    Check if a given domain can be accessed by attempting
+    to establish a connection.
+
+    :param domain: The domain to check.
+    :param port: The port to connect to (default is 80 for HTTP).
+    :param timeout: The timeout for the connection attempt
+    in seconds (default is 5 seconds).
+    :return: True if the domain is accessible, False otherwise.
+    """
+    try:
+        # Resolve the domain name to an IP address
+        ip_address = socket.gethostbyname(domain)
+        # Attempt to establish a connection to the domain
+        with socket.create_connection((ip_address, port), timeout=timeout):
+            return True
+    except (socket.gaierror, socket.timeout, socket.error):
+        return False
 
 
 @pytest.fixture(scope="session")

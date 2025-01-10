@@ -109,7 +109,7 @@ class SubjPropPathAssertion:
             return str(subject)
         if (
             type(subject) is rdflib.query.ResultRow
-            or type(subject) is rdflib.term.URIRef
+            or type(subject) is rdflib.URIRef
         ):
             # extract URIRef from ResultRow
             if type(subject) is rdflib.query.ResultRow:

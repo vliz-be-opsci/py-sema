@@ -19,7 +19,7 @@ class Executor:
     def __init__(
         self,
         config_filename: str,
-        NSM: Config.NSM,
+        NSM: Config.NSM,  # type: ignore
         tasks: list,
         rdf_store_access: RDFStoreAccess,
     ):

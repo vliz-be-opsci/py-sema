@@ -3,6 +3,7 @@ import logging.config
 from pathlib import Path
 from typing import List, Optional
 
+from sema.commons.service import ServiceBase, ServiceResult
 from sema.commons.store import RDFStore, create_rdf_store
 from sema.harvest.store import RDFStoreAccess
 
@@ -12,7 +13,22 @@ from .executor import Executor
 log = logging.getLogger(__name__)
 
 
-class service:
+class HarvestResult(ServiceResult):
+    """Result of the harvest service"""
+
+    def __init__(self) -> None:
+        self._success = False
+
+    @property
+    def success(self) -> bool:
+        return self._success
+
+    @success.setter
+    def success(self, value: bool) -> None:
+        self._success = value
+
+
+class Harvest(ServiceBase):
     """Assert all paths for given subjects.
     Given a configuration file, assert all paths
     for all subjects in the configuration file.
@@ -47,12 +63,13 @@ class service:
             self.config_builder = ConfigBuilder(self.target_store, self.config)
         else:
             # take the parent of the config file as the config folder
-            self.config_folder = self.config.parent
+            self.config_folder = Path(self.config).parent
             self.config_builder = ConfigBuilder(
-                self.target_store, self.config_folder
+                self.target_store, str(self.config_folder)
             )
         self.executor = None
         self.error_occurred = False
+        self._result = HarvestResult()
 
     def process(self):
         try:
@@ -97,3 +114,6 @@ class service:
             log.exception(e)
             log.error("Error running dereference tasks")
             self.error_occurred = True
+        finally:
+            self._result.success = not self.error_occurred
+        return not self.error_occurred

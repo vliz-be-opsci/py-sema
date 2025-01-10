@@ -5,7 +5,7 @@ prefix:
 assert:
   - subjects:
       literal:
-        - http://localhost.localdomain:8080/DOC1.ttl
+        - http://127.0.0.1:8080/DOC1.ttl
     paths:
       - "ex:resource / ex:subset"
       - "ex:part"

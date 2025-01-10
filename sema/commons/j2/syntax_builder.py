@@ -22,7 +22,7 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
 
     def __init__(
         self,
-        templates_folder: str = "",
+        templates_folder: str | None = None,
         extra_filters={},
         extra_functions={},
         jinja_env_variables={},
@@ -46,7 +46,7 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
         """Gets the template"""
         return self._templates_env.get_template(name)
 
-    def variables_in_template(self, name: str) -> set:
+    def variables_in_template(self, name: str) -> set:  # type: ignore
         """
         The set of variables to make this template work
 
@@ -57,14 +57,16 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
         template_name = name
         templates_env = self._templates_env
         log.debug(f"name template: {template_name}")
+        if templates_env.loader is None:
+            raise ValueError("The template loader is not set.")
         template_source = templates_env.loader.get_source(
             templates_env, template_name
         )
         log.debug(f"template source = {template_source}")
-        ast = self._templates_env.parse(*template_source)
+        ast = self._templates_env.parse(*template_source)  # type: ignore
         return meta.find_undeclared_variables(ast)
 
-    def build_syntax(self, name: str, **variables) -> str:
+    def build_syntax(self, name: str, **variables) -> str:  # type: ignore
         """
         Fills a named template sparql
 

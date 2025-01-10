@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import argparse
 import logging
 import logging.config
@@ -7,6 +6,7 @@ from pathlib import Path
 
 import validators
 
+from sema.commons.cli import SemaArgsParser
 from sema.query import (
     DEFAULT_TEMPLATES_FOLDER,
     DefaultSparqlBuilder,
@@ -17,26 +17,15 @@ from sema.query.exceptions import MultipleSourceTypes
 log = logging.getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """
-    Defines the arguments to this script by using Python's
-        [argparse](https://docs.python.org/3/library/argparse.html)
+    Get the argument parser for the module
     """
 
-    parser = argparse.ArgumentParser(
-        description=(
-            "Py Project to extra table data from "
-            "knowledge-graphs using sparql templates"
-        ),
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    parser.add_argument(
-        "-l",
-        "--logconf",
-        type=str,
-        action="store",
-        help="location of the logging config (yml) to use",
+    parser = SemaArgsParser(
+        "sema-query",
+        "Py Project to extract table data from "
+        "knowledge-graphs using sparql templates",
     )
 
     parser.add_argument(
@@ -44,7 +33,7 @@ def get_arg_parser():
         "--source",
         type=str,
         nargs="+",
-        metavar=["FILE", "URL"],
+        metavar=("FILE", "URL"),
         action="store",
         help=(
             "input file to be turned into datagraph"
@@ -252,23 +241,20 @@ def getdelimiter(args: argparse.Namespace):
         return ","
 
 
-def main(sysargs=None):
+def _main(*cli_args):
     """
     The main entry point to this module.
 
     """
-    args = (
-        get_arg_parser().parse_args(sysargs)
-        if sysargs is not None and len(sysargs) > 0
-        else get_arg_parser().parse_args()
-    )
+    args: argparse.Namespace = get_arg_parser().parse_args(cli_args)
+
     enable_logging(args)
     log.info("The args passed to %s are: %s." % (sys.argv[0], args))
     check_arguments(args)
     log.debug("Performing service")
     params = {}
     template_folder = args.template_folder or DEFAULT_TEMPLATES_FOLDER
-    template_service = DefaultSparqlBuilder(template_folder)
+    template_service = DefaultSparqlBuilder(str(template_folder))
     vars_template = template_service.variables_in_template(args.template_name)
     if args.variables is not None and len(vars_template) > 0:
         params = args_values_to_params(args.variables)
@@ -288,5 +274,9 @@ def main(sysargs=None):
     print(f"new file saved on location : {output_location}")
 
 
+def main() -> None:
+    _main(*sys.argv[1:])
+
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

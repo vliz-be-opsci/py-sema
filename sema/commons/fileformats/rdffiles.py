@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 
 SUFFIX_TO_FORMAT: dict = {
     ".ttl": "turtle",
@@ -9,7 +10,7 @@ SUFFIX_TO_FORMAT: dict = {
     ".rdf": "xml",
     ".n3": "n3",
 }
-SUPPORTED_RDFFILE_SUFFIXES: set = SUFFIX_TO_FORMAT.keys()
+SUPPORTED_RDFFILE_SUFFIXES: Iterable[str] = SUFFIX_TO_FORMAT.keys()
 MIME_TO_FORMAT: dict = {
     "application/ld+json": "json-ld",
     "application/rdf+xml": "xml",
@@ -21,20 +22,24 @@ MIME_TO_FORMAT: dict = {
 FORMAT_TO_MIME: dict = {v: k for k, v in MIME_TO_FORMAT.items()}
 
 
-def mime_to_format(mime: str, fallback: str = None) -> str:
+def mime_to_format(mime: str, fallback: str | None = None) -> str:
     return MIME_TO_FORMAT.get(mime, fallback)
 
 
-def mime_from_format(format: str, fallback: str = None) -> str:
+def mime_from_format(format: str, fallback: str | None = None) -> str:
     return FORMAT_TO_MIME.get(format, fallback)
 
 
-def format_from_filepath(filename: str | Path, fallback: str = None) -> str:
+def format_from_filepath(
+    filename: str | Path, fallback: str | None = None
+) -> str:
     suffix: str = Path(filename).suffix
     return SUFFIX_TO_FORMAT.get(suffix, fallback)
 
 
-def mime_from_filepath(filename: str | Path, fallback: str = None) -> str:
+def mime_from_filepath(
+    filename: str | Path, fallback: str | None = None
+) -> str | None:
     format = format_from_filepath(filename, None)
     if format is None:
         return fallback
@@ -42,8 +47,10 @@ def mime_from_filepath(filename: str | Path, fallback: str = None) -> str:
     return FORMAT_TO_MIME.get(format, fallback)
 
 
-def is_supported_rdffilepath(filename: str) -> bool:
-    sfx: str = Path(filename).suffix
+def is_supported_rdffilepath(filename: str | Path) -> bool:
+    sfx: str = (
+        Path(filename).suffix if isinstance(filename, str) else filename.suffix
+    )
     return is_supported_rdffile_suffix(sfx)
 
 

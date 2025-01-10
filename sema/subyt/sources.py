@@ -69,11 +69,11 @@ class SourceFactory:
         # just get the header, no content yet
         response = requests.head(url, allow_redirects=True)
         if response.status_code == 200:
-            mime: str = response.info().get_content_type()
+            mime: str = response.info().get_content_type()  # type: ignore
             cdhead = response.headers.get("Content-Disposition")
             if mime == "application/octet-stream" and cdhead is not None:
                 cd = fname_from_cdisp(cdhead)
-                mime = SourceFactory.mime_from_identifier(cd)
+                mime = SourceFactory.mime_from_identifier(cd)  # type: ignore
         return mime
 
     @staticmethod
@@ -84,12 +84,12 @@ class SourceFactory:
         if mime is not None:
             return mime
         # else
-        return mimetypes.guess_type(identifier)[0]
+        return mimetypes.guess_type(identifier)[0]  # type: ignore
 
     @staticmethod
     def make_source(identifier: str) -> Source:
         if validators.url(identifier):
-            mime: str = SourceFactory.mime_from_remote(identifier)
+            mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
             assert False, "TODO remote Source support - see issues #8"
 
         # else
@@ -153,10 +153,10 @@ class CollectionSource(Source):
         if self._current_source is None:
             self._nextSource()
         try:
-            return next(self._current_iter)
+            return next(self._current_iter)  # type: ignore
         except StopIteration:
             self._nextSource()
-            return next(self._current_iter)
+            return next(self._current_iter)  # type: ignore
 
     def __enter__(self):
         class IterProxy:
@@ -310,7 +310,13 @@ try:
                 xml_str = xmlfile.read()
                 xdict = xmlasdict.parse(xml_str)
                 # unpack root wrappers
-                data = xdict.unpack()
+                try:
+                    xdict = xmlasdict.parse(xml_str)
+                    # unpack root wrappers
+                    data = xdict.unpack()  # type: ignore
+                except Exception:
+                    log.exception(f"Failed to parse XML file {self._xml}")
+                    raise
 
             return iter(data)
 

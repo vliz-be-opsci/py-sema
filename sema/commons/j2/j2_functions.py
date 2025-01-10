@@ -182,7 +182,10 @@ class ValueMapper:
 
 
 def map_build(
-    it: Iterable, key_name: str, val_name: str = None, cached_as: str = None
+    it: Iterable,
+    key_name: str,
+    val_name: str | None = None,
+    cached_as: str | None = None,
 ) -> ValueMapper:
     assert key_name, "cannot build map without valid key-name"
     # note: id val_name is None, we just map to the whole record

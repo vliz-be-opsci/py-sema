@@ -7,25 +7,25 @@ from pathlib import Path
 import validators
 from rdflib import Graph
 
+from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
-from sema.commons.log.loader import load_log_config
-from sema.harvest import service
+from sema.harvest import Harvest
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
 
-load_log_config()
 log = logging.getLogger(__name__)
 
 
-def get_arg_parser():
+def get_arg_parser() -> SemaArgsParser:
     """
-    Get the argument parser for the module
+    Get the argument parser for the sema-harvest module.
+
+    This parser includes arguments for configuration file paths,
+    initial context loading, store endpoints, and output dumping.
     """
-    # TODO use the SemaArgsParser from sema.commons.cli
-    # TODO register sema-harvest as a console-script in project.toml
-    parser = argparse.ArgumentParser(
-        description="harvesting service for traversing and asserting paths",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    parser = SemaArgsParser(
+        "sema-harvest",
+        "harvesting service for traversing and asserting paths",
     )
 
     DEFAULT_CONFIG_FOLDER = Path.cwd() / "config"
@@ -85,17 +85,6 @@ def get_arg_parser():
         ),
     )
 
-    # TODO remove this when using the SemaArgsParser
-    # it already handles the logconf setup
-    parser.add_argument(
-        "-l",
-        "--logconf",
-        nargs=1,
-        required=False,
-        action="store",
-        help=("Location of yml formatted logconfig file to apply."),
-    )
-
     return parser
 
 
@@ -116,7 +105,7 @@ def enable_logging(args: argparse.Namespace):
     log.info(f"Logging enabled according to config in {args.logconf}")
 
 
-def load_resource_into_graph(graph: Graph, resource: str, format: str):
+def load_resource_into_graph(graph: Graph, resource: str | Path, format: str):
     """
     Insert a resource into a graph.
     """
@@ -126,7 +115,9 @@ def load_resource_into_graph(graph: Graph, resource: str, format: str):
     if validators.url(resource):
         # get triples from the uri and add them
         formats = ["text/turtle", "application/ld+json"]
-        return graph + get_graph_for_format(resource, formats=formats)
+        to_add_graph = get_graph_for_format(str(resource), formats=formats)
+        if to_add_graph:
+            return graph + to_add_graph
 
     # else
     resource_path: Path = Path(resource)
@@ -169,13 +160,16 @@ def init_load(args: argparse.Namespace, store: RDFStore):
     store.insert(graph, "urn:harvest:context")
 
 
-def make_service(args) -> service:
+def make_service(args: argparse.Namespace) -> Harvest:
     store_info: list = args.store or []
-    log.debug(f"{args.store}")
-    log.debug(f"make service for target store {store_info}")
+    log.debug(f"{store_info=}")
+    if store_info is not None:
+        log.debug(f"make service for target store {store_info}")
+    else:
+        log.debug("make service for target store with no store_info provided")
     config = args.config[0]
     config = Path.cwd() / config
-    new_service = service(config, store_info)
+    new_service = Harvest(config, store_info)
     return new_service
 
 
@@ -193,7 +187,10 @@ def final_dump(args: argparse.Namespace, store: RDFStoreAccess):
         return
     # else
     for triple in alltriples:
-        outgraph.add(triple)
+        try:
+            outgraph.add(triple)  # type: ignore
+        except Exception as e:
+            log.error(f"failed to add {triple} to output graph: {e}")
 
     if args.dump == "-":
         log.debug("dump to stdout")
@@ -216,8 +213,6 @@ def _main(*cli_args):
     # TODO remove this when using the SemaArgsParser
     # it already does this logging & the logconf setup
     log.debug(f"cli called with {args=}")
-    # enable logging
-    enable_logging(args)
     # build the core service
     new_service = make_service(args)
     # load the store initially

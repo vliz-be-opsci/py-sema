@@ -12,8 +12,20 @@ from watchdog.observers import Observer
 
 from sema.bench.dispatcher import TaskDispatcher
 from sema.bench.task import Task
+from sema.commons.service import ServiceBase, ServiceResult, Trace
 
 log = getLogger(__name__)
+
+
+class SembenchResult(ServiceResult):
+    """Result of the sembench service"""
+
+    def __init__(self) -> None:
+        self._success = False
+
+    @property
+    def success(self) -> bool:
+        return self._success
 
 
 class ConfigFileEventHandler(FileSystemEventHandler):
@@ -51,10 +63,10 @@ def locations_from_environ() -> Dict[str, str]:
     return locations
 
 
-class Sembench:
+class Sembench(ServiceBase):
     def __init__(
         self,
-        locations: Dict[str, str] = None,
+        locations: Dict[str, str] = dict(),
         sembench_config_path=None,
         sembench_config_file_name=None,
         scheduler_interval_seconds=None,
@@ -74,7 +86,6 @@ class Sembench:
         :param sembench_config_file_name: Name of the sembench config file.
         Optional; defaults to sembench.yaml.
         """
-        locations = locations or dict()
         self.locations = {
             key.lower(): Path(loc) for key, loc in locations.items()
         }
@@ -113,6 +124,7 @@ class Sembench:
         self.task_configs = None
         self._init_task_configs()
         assert isinstance(self.task_configs, dict)
+        self._result = SembenchResult()
 
     def _init_task_configs(self):
         conf_yml = str(self.sembench_config_path)
@@ -158,6 +170,10 @@ class Sembench:
         TaskDispatcher().dispatch(task)
 
     def _process(self):
+        if self.task_configs is None:
+            log.error("No task configurations found.")
+            return
+
         tasks = [
             Task(
                 input_data_location=self.input_data_location,
@@ -177,7 +193,8 @@ class Sembench:
                 if self.fail_fast:
                     raise e
 
-    def process(self):
+    @Trace.init(Trace)
+    def process(self) -> ServiceResult:
         if self.watch_config_file:
             config_file_event_handler = ConfigFileEventHandler(
                 self.sembench_config_path,
@@ -200,6 +217,7 @@ class Sembench:
                         seconds=int(self.scheduler_interval_seconds),
                     )
                     scheduler.start()
+                    self._result._success = True
                 else:
                     while True:
                         pass
@@ -217,3 +235,8 @@ class Sembench:
                     seconds=int(self.scheduler_interval_seconds),
                 )
                 scheduler.start()
+                # TODO: technically unreachable code
+                # #since the scheduler never stops running
+                # check if I can rewrite this to be more clear
+                self._result._success = True
+        return self._result

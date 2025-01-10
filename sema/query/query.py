@@ -82,7 +82,7 @@ class QueryResult(ABC):
         """
         pass  # pragma: no cover
 
-    @property
+    @property  # type: ignore
     @abstractmethod
     def columns() -> Iterable:
         """
@@ -176,10 +176,10 @@ class SPARQLQueryResult(DFBasedQueryResult):
         """
         return pd.DataFrame(
             data=(
-                [None if x is None else x.toPython() for x in row]
+                [None if x is None else x.toPython() for x in row]  # type: ignore # noqa
                 for row in result
             ),
-            columns=[str(x) for x in result.vars],
+            columns=[str(x) for x in result.vars],  # type: ignore
         )
 
     def __init__(self, result: Result, query: str = ""):
@@ -189,7 +189,7 @@ class SPARQLQueryResult(DFBasedQueryResult):
         :param query: the sparql query leading to this result
         :type query: str
         """
-        super().__init__(self.sparql_results_to_df(result), query)
+        super().__init__(self.sparql_results_to_df(result), query)  # type: ignore # noqa
 
     @staticmethod
     def check_compatibility(data, query) -> bool:
@@ -295,7 +295,7 @@ class MemoryGraphSource(GraphSource):
     def query(self, sparql: str) -> QueryResult:
         log.debug(f"executing sparql {sparql}")
         result = self.graph.query(sparql)
-        return QueryResult.build(result, query=sparql)
+        return QueryResult.build(result, query=sparql)  # type: ignore
 
     @staticmethod
     def check_compatibility(*graph):
@@ -335,7 +335,7 @@ class SPARQLGraphSource(GraphSource):
     def query(self, sparql: str) -> QueryResult:
         store: RDFStore = URIRDFStore(self.endpoint)
         result: Result = store.select(sparql)
-        return QueryResult.build(result, query=sparql)
+        return QueryResult.build(result, query=sparql)  # type: ignore
 
     @staticmethod
     def check_compatibility(*sources):

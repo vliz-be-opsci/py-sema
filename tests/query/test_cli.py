@@ -1,9 +1,11 @@
-from sema.query.__main__ import main as query_main
+from sema.query.__main__ import _main as query_main
 
 
-def test_basic():
+def test_basic() -> None:
     arg1 = "tests/query/sources/01-persons-shape.ttl"
     arg2 = "tests/query/sources/02-person.ttl"
-    output = "/tmp/test-sema-query-vliz.csv"
+    output = "tests/output/test-sema-query-vliz.csv"
 
-    query_main(f"-s {arg1} {arg2} -o {output} -t all.sparql".split(" "))
+    cli_line = f" -t all.sparql" f" -s {arg1} {arg2}" f" -o {output}"
+
+    query_main(*cli_line.split())

@@ -122,7 +122,7 @@ def get_arg_parser():
     return parser
 
 
-def normalise_mime_type_requests(request_mimes: Iterable | str) -> str:
+def normalise_mime_type_requests(request_mimes: Iterable | str) -> str | None:
     if not request_mimes:
         return None
     # else
@@ -132,16 +132,35 @@ def normalise_mime_type_requests(request_mimes: Iterable | str) -> str:
         # else
         request_mimes = [request_mimes]
     # treat as sequence, possibly some of them in single string format
-    request_mimes = SemaArgsParser.args_joined(request_mimes)
-    request_mimes = request_mimes.split(",") if request_mimes else []
-    return ",".join({normalise_mime_type_requests(mt) for mt in request_mimes})
+    request_mimes = SemaArgsParser.args_joined(request_mimes)  # type: ignore
+    request_mimes = request_mimes.split(",") if request_mimes else []  # type: ignore # noqa
+    return ",".join({normalise_mime_type_requests(mt) for mt in request_mimes})  # type: ignore # noqa
 
 
 def make_service(args: Namespace) -> Discovery:
     """Make the service with the passed args"""
+
+    url = args.url or args.url_option
+    if url is None:
+        raise ValueError(
+            "Discovery requires a URL."
+            "Provide it as a positional argument or use --url option"
+        )
+    if not url.startswith(("http://", "https://", "file://")):
+        raise ValueError(
+            f"Invalid URL scheme: {url}."
+            "URL must start with http://, https://, or file://"
+        )
+
+    if args.request_mimes is not None:
+        normalized_mimes = normalise_mime_type_requests(args.request_mimes)
+        if normalized_mimes is None:
+            log.warning("Invalid MIME types provided: %s", args.request_mimes)
+        args.request_mimes = normalized_mimes
+
     return Discovery(
         subject_uri=args.url or args.url_option,
-        request_mimes=normalise_mime_type_requests(args.request_mimes),
+        request_mimes=args.request_mimes,
         read_uri=args.read_uri,
         write_uri=args.write_uri,
         named_graph=args.graph,

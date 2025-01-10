@@ -31,6 +31,7 @@ class DiscoveryResult(ServiceResult, StatusMonitor):
 
     def __init__(self):
         self._graph = Graph()
+        self._success = False
 
     @property
     def graph(self) -> Graph:
@@ -53,12 +54,12 @@ class Discovery(ServiceBase):
         self,
         *,
         subject_uri: str,
-        request_mimes: str = None,
-        read_uri: str = None,
-        write_uri: str = None,
-        named_graph: str = None,
-        output_file: str = None,
-        output_format: str = None,
+        request_mimes: str | None = None,
+        read_uri: str | None = None,
+        write_uri: str | None = None,
+        named_graph: str | None = None,
+        output_file: str | None = None,
+        output_format: str | None = None,
     ):
         # upfront checks
         assert subject_uri, f"{subject_uri=} required"
@@ -109,7 +110,9 @@ class Discovery(ServiceBase):
     def triples_found(self):
         return self._result.success
 
-    def _make_response(self, url: str, req_mime_type: str = None) -> Response:
+    def _make_response(
+        self, url: str, req_mime_type: str | None = None
+    ) -> Response | None:
         """Make a request to the url and return the response"""
         headers = dict(Accept=req_mime_type) if req_mime_type else dict()
         log.debug(f"requesting {url} with {headers=}")
@@ -155,6 +158,11 @@ class Discovery(ServiceBase):
     def _extract_triples_from_response(self, resp: Response):
         # note we can be sure the response is ok, as we checked that before
         ctype_header = resp.headers.get("Content-Type", None)
+
+        if not ctype_header:
+            log.debug(f"no content-type header in {resp.url=}")
+            return
+
         resp_mime_type, options = cgi.parse_header(ctype_header)
         log.debug(f"extract from {resp.url=} in format {resp_mime_type=}")
         # add triples from the response content
@@ -189,9 +197,9 @@ class Discovery(ServiceBase):
 
     @Trace.by(Trace.Event, name="StructuredContentEvent")
     def _get_structured_content(
-        self, url: str, req_mime_type: str = None
-    ) -> Response:
-        resp: Response = self._make_response(url, req_mime_type)
+        self, url: str, req_mime_type: str | None = None
+    ) -> Response | None:
+        resp: Response | None = self._make_response(url, req_mime_type)
         if resp is None:
             return  # nothing to extract
         # else
@@ -199,13 +207,15 @@ class Discovery(ServiceBase):
         return resp  # note the return will be reigstered in the event-trace
 
     def _discover_subject(
-        self, target_url: str = None, force_types: Iterable[str] = []
+        self,
+        target_url: str | None = None,  # type: ignore
+        force_types: Iterable[str] = [],  # type: ignore
     ):
         """Discover triples describing the subject (assumed at subject_url)
         and add them to the result graph, using various strategies
         """
         # we start off at the core subject_uri and try to discover that
-        target_url: str = target_url or self.subject_uri
+        target_url: str | None = target_url or self.subject_uri
         force_types: Iterable[str] = force_types or self.request_mimes
 
         # TODO consider rewrite more elegantly/clearly
@@ -213,7 +223,7 @@ class Discovery(ServiceBase):
 
         # -- strategy #01 do as your a told, pass forced mimes in conneg
         # i.e. go explcitely over the mime-types that are requested (if any)
-        log.debug(f"discovery #01 trying {force_types=} for {target_url=}")
+        log.debug(f"discovery #01 trying {force_types=} for " f"{target_url=}")
         for mt in force_types:
             self._get_structured_content(target_url, mt)
         if self.triples_found:
@@ -246,7 +256,7 @@ class Discovery(ServiceBase):
     def _output_result(self):
         g = self._result.graph
         if self._store:
-            self._store.add_graph(g, self._named_graph)
+            self._store.add_graph(g, self._named_graph)  # type: ignore
 
         if self._output_file:
             if self._output_file == "-":
@@ -256,7 +266,7 @@ class Discovery(ServiceBase):
                 g.serialize(self._output_file, format=self._output_format)
 
     @Trace.init(Trace, monitor_attr="_result")
-    def process(self) -> ServiceResult:
+    def process(self) -> DiscoveryResult:
         try:
             self._discover_subject()
             log.debug(
@@ -271,12 +281,12 @@ class Discovery(ServiceBase):
             )
         return self._result
 
-    def export_trace(self, dump_path: str) -> None:
+    def export_trace(self, dump_path_str: str) -> None:
         trace: Trace = Trace.extract(self)
         assert trace is not None
-        log.debug(f"dumping {len(trace.events)=} to {dump_path=}")
+        log.debug(f"dumping {len(trace.events)=} to {dump_path_str=}")
         # make dump_path folder
-        dump_path = Path(dump_path)
+        dump_path = Path(dump_path_str)
         dump_path.mkdir(parents=True, exist_ok=True)
 
         # run over traced content and save the content + assemble outcsv

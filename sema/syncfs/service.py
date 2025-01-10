@@ -9,6 +9,7 @@ from sema.commons.fileformats import (
     format_from_filepath,
     is_supported_rdffilepath,
 )
+from sema.commons.service import ServiceBase, ServiceResult
 from sema.commons.store import (
     GraphNameMapper,
     MemoryRDFStore,
@@ -19,6 +20,22 @@ from sema.commons.store import (
 log = getLogger(__name__)
 UTC_tz = timezone.utc
 DEFAULT_URN_BASE = "urn:sync:"
+
+
+class SyncFsResult(ServiceResult):
+    """Result of the syncfs service"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._success = False
+
+    @property
+    def success(self) -> bool:
+        return self._success
+
+    @success.setter
+    def success(self, value: bool) -> None:
+        self._success = value
 
 
 def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
@@ -36,7 +53,7 @@ def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
     }
 
 
-def load_graph_fpath(fpath: Path, format: str = None) -> Graph:
+def load_graph_fpath(fpath: Path, format: str | None = None) -> Graph:
     """loads content of file at fpath into a graph
     :param fpath: path of file to load
     :type fpath: Path
@@ -151,16 +168,16 @@ def perform_sync(from_path: Path, to_store: RDFStore) -> None:
             log.debug(f"skip file {fname} with lastmod {lastmod} - unchanged")
 
 
-class SyncFsTriples:
+class SyncFsTriples(ServiceBase):
     """Process-wrapper-pattern for easy inclusion in other contexts."""
 
     def __init__(
         self,
         root: str,
         named_graph_base: str = DEFAULT_URN_BASE,
-        read_uri: str = None,
-        write_uri: str = None,
-    ):
+        read_uri: str | None = None,
+        write_uri: str | None = None,
+    ) -> None:
         """Creates the process-wrapper instance
 
         :param root: path to te folder to check for
@@ -178,6 +195,7 @@ class SyncFsTriples:
             to a store that can only be read from
         :type write_uri: str
         """
+        super().__init__()
         self.source_path: Path = Path(root)
         assert self.source_path.exists(), (
             "cannot sync a source-path " + str(root) + " that does not exist."
@@ -186,15 +204,30 @@ class SyncFsTriples:
             "source-path " + str(root) + " should be a folder."
         )
         nmapper: GraphNameMapper = GraphNameMapper(base=named_graph_base)
-        self.rdfstore: RDFStore = None
+        self.rdfstore: RDFStore | None = None
         if not read_uri:
             self.rdfstore = MemoryRDFStore(mapper=nmapper)
         else:
             self.rdfstore = URIRDFStore(read_uri, write_uri, mapper=nmapper)
 
+        self._result = SyncFsResult()
+
     def process(self) -> None:
         """executes the SyncFs command"""
-        perform_sync(
-            from_path=self.source_path,
-            to_store=self.rdfstore,
-        )
+        try:
+            if self.rdfstore:
+                perform_sync(
+                    from_path=self.source_path,
+                    to_store=self.rdfstore,
+                )
+                self._result.success = True
+        except FileNotFoundError as e:
+            log.error("Source file not found during sync", exc_info=e)
+            self._result.success = False
+        except PermissionError as e:
+            log.error("Permission denied during sync", exc_info=e)
+            self._result.success = False
+        except Exception as e:
+            log.exception("Unexpected error during sync", exc_info=e)
+            self._result.success = False
+            raise  # Re-raise unexpected exceptions
