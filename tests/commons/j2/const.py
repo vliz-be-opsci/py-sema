@@ -27,5 +27,5 @@ template_variables = {
 simple_template = "all.sparql"
 
 N = 723
-ALL_QUERY = f"""SELECT * WHERE {{ ?s ?p ?o.}}
+ALL_QUERY = f"""SELECT * WHERE {{ ?s ?p ?o. }}
 LIMIT {N}"""
