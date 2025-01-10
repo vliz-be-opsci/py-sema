@@ -18,7 +18,10 @@ def test_xsd_fmt() -> None:
 
 
 def assertFormat(
-    content: any, type_name: str, expected: str, quote: str | None = "'"
+    content: any,
+    type_name: str,
+    expected: str,
+    quote: str | None = "'",
 ) -> None:
     format = xsd_fmt(content, type_name, quote)
     assert format == expected, (
@@ -54,17 +57,17 @@ def test_bool(case: tuple[str, str, str | None]) -> None:
 
 def test_rigid_bool() -> None:
     # None conversion required before formatting
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         xsd_fmt(None, "xsd:boolean")
         raise Exception("None should not be accepted as bool value")
 
     # [] conversion (empty or not) required before formatting
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         xsd_fmt([], "xsd:boolean")
         raise Exception("[] should not be accepted as bool value")
 
     # {} conversion (empty or not) required before formatting
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         xsd_fmt({}, "xsd:boolean")
         raise Exception("{} should not be accepted as bool value")
 
@@ -113,7 +116,6 @@ def test_rigid_int() -> None:
         (("1", "'1.0'^^xsd:double")),
         ((1, "'1.0'^^xsd:double")),
         ((float(1), "'1.0'^^xsd:double")),
-        ((1.00, "'1.0'^^xsd:double")),
     ],
 )
 def test_double(case: tuple[str, str, str | None]) -> None:
@@ -140,7 +142,7 @@ def test_date(case: tuple[str, str, str | None]) -> None:
 
 
 def test_rigid_date() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         xsd_fmt(datetime.fromisoformat("2021-09-30T16:25:50+02:00"), "date")
         raise Exception("datetime should not be accepted as date value")
 
@@ -279,7 +281,8 @@ def test_urit_fn() -> None:
 
 def test_urit() -> None:
     fmt = uritexpand_fmt(
-        "https://vliz.be/code/pysubyt/test/item{#id}", {"id": "somepath"}
+        "https://vliz.be/code/pysubyt/test/item{#id}",
+        {"id": "somepath"},
     )
     exp = "https://vliz.be/code/pysubyt/test/item#somepath"
     assert fmt == exp, "unexpected uri result for uritexpand test"
@@ -326,7 +329,7 @@ def test_mapbuild() -> None:
     assert map_fmt._map["c"] == map_expects["c"], "value not added correctly"
 
     # check applying the map
-    for origin in map_expects.keys():
+    for origin in map_expects:
         record = {"from-field": origin}
         map_fmt.apply(record, "from-field", "to-field")
         assert "to-field" in record, "map not applied"

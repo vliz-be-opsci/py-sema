@@ -1,7 +1,7 @@
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
-from types import NoneType
+from typing import Any
 
 from dateutil import parser
 from uritemplate import URITemplate
@@ -33,16 +33,19 @@ class Filters:
 
 
 def xsd_value(
-    content: any, quote: str, type_name: str, suffix: str | None = None
+    content: any,
+    quote: str,
+    type_name: str,
+    suffix: str | None = None,
 ) -> str:
     if suffix is None:
         suffix = "^^" + type_name
     return quote + str(content) + quote + suffix
 
 
-def xsd_format_boolean(content: any, quote: str, *_) -> str:
-    if isinstance(content, (list, dict, NoneType)):
-        raise ValueError("conversion required before formatting")
+def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
+    if isinstance(content, (list, dict, type(None))):
+        raise TypeError("conversion required before format call")
 
     # make rigid bool
     if not isinstance(content, bool):
@@ -52,21 +55,21 @@ def xsd_format_boolean(content: any, quote: str, *_) -> str:
     return xsd_value(str(content).lower(), quote, "xsd:boolean")
 
 
-def xsd_format_integer(content: any, quote: str, *_) -> str:
+def xsd_format_integer(content: Any, quote: str, *_: Any) -> str:
     # make rigid int
     if not isinstance(content, int):
         asint = int(str(content))
         if str(content) != str(asint):
             raise ValueError(
                 "int format does not round-trip "
-                f"[ {str(content)} <> {str(asint)} ]"
+                f"[ {content!s} <> {asint!s} ]"
             )
         content = asint
     # serialize to string again
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def xsd_format_double(content: any, quote: str, *_) -> str:
+def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
     # make rigid double
     if not isinstance(content, float):
         asdbl = float(str(content))
@@ -75,10 +78,10 @@ def xsd_format_double(content: any, quote: str, *_) -> str:
     return xsd_value(str(content), quote, "xsd:double")
 
 
-def xsd_format_date(content: any, quote: str, *_) -> str:
+def xsd_format_date(content: Any, quote: str, *_: Any) -> str:
     # make rigid date
     if isinstance(content, datetime):
-        raise ValueError(
+        raise TypeError(
             "use datetime format for datetime values, or past .date() result"
         )
 
@@ -89,7 +92,7 @@ def xsd_format_date(content: any, quote: str, *_) -> str:
     return xsd_value(asdt.isoformat(), quote, "xsd:date")
 
 
-def xsd_format_gyear(content: any, quote: str, *_) -> str:
+def xsd_format_gyear(content: Any, quote: str, *_: Any) -> str:
     # make rigid gYear
     if isinstance(content, date):
         year = content.year  # extract year from date
@@ -103,7 +106,7 @@ def xsd_format_gyear(content: any, quote: str, *_) -> str:
     return xsd_value(content, quote, "xsd:gYear")
 
 
-def xsd_format_gmonthyear(content: any, quote: str, *_) -> str:
+def xsd_format_gmonthyear(content: Any, quote: str, *_: Any) -> str:
     # make rigid gMonthYear
     if isinstance(content, (date, datetime)):
         year, month = content.year, content.month  # extract parts from date
@@ -123,7 +126,7 @@ def xsd_format_gmonthyear(content: any, quote: str, *_) -> str:
     return xsd_value(content, quote, "xsd:gYearMonth")
 
 
-def xsd_format_datetime(content: any, quote: str, *_) -> str:
+def xsd_format_datetime(content: Any, quote: str, *_: Any) -> str:
     # make rigid datetime
     if not isinstance(content, datetime):
         asdtm = parser.isoparse(content)
@@ -132,13 +135,13 @@ def xsd_format_datetime(content: any, quote: str, *_) -> str:
     return xsd_value(asdtm.isoformat(), quote, "xsd:dateTime")
 
 
-def xsd_format_uri(content: str, quote: str, *_):
+def xsd_format_uri(content: str, quote: str, *_: Any) -> str:
     # assume content is valid uri for now
     uri = clean_uri_str(content)
     return xsd_value(uri, quote, "xsd:anyURI")
 
 
-def xsd_format_string(content: str, quote: str, suffix):
+def xsd_format_string(content: str, quote: str, suffix: str) -> str:
     # apply escape sequences: \ to \\ and quote to \quote
     escqt = f"\\{quote}"
     content = str(content).replace("\\", "\\\\").replace(quote, escqt)
@@ -170,7 +173,7 @@ XSD_FMT_TYPE_FN = {
 }
 
 
-def xsd_format(content, type_name: str, quote: str = "'") -> str:
+def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
 
     suffix = None
@@ -207,7 +210,7 @@ class ValueMapper:
     def __init__(self):
         self._map = dict()
 
-    def add(self, key, val) -> None:
+    def add(self, key: Any, val: Any) -> None:
         if key in self._map:
             assert val == self._map[key], (
                 f"duplicate key {key} with distinct"
