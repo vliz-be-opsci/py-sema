@@ -35,7 +35,7 @@ def assertCase(
 ) -> None:
     content, expected, *quote = case
     quote = quote[0] if quote else "'"
-    pfx_variants = pfx_variants or ["xsd:"]  # default is to apply xsd: prefix
+    pfx_variants = pfx_variants if pfx_variants is not None else ["xsd:"]  # default is to apply xsd: prefix
     pfx_variants.append("")  # in all cases we should also test without prefix
     for pfx in pfx_variants:
         assertFormat(content, pfx + short_name, expected, quote)
