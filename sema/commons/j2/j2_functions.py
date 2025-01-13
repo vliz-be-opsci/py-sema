@@ -7,6 +7,7 @@ from dateutil import parser
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
+from sema.commons.clean.clean import check_valid_uri
 
 
 class Functions:
@@ -106,7 +107,7 @@ def xsd_format_gyear(content: Any, quote: str, *_: Any) -> str:
     return xsd_value(content, quote, "xsd:gYear")
 
 
-def xsd_format_gmonthyear(content: Any, quote: str, *_: Any) -> str:
+def xsd_format_gyearmonth(content: Any, quote: str, *_: Any) -> str:
     # make rigid gMonthYear
     if isinstance(content, (date, datetime)):
         year, month = content.year, content.month  # extract parts from date
@@ -156,6 +157,110 @@ def xsd_format_string(content: str, quote: str, suffix: str) -> str:
     return xsd_value(content, quote, "xsd:string", suffix)
 
 
+def _auto_str_to_formatted_date(content: str, quote: str) -> str | None:
+    for regex, formatter in [
+            (r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", xsd_format_datetime),
+            (r"\d{4}-\d{2}-\d{2}", xsd_format_date),
+            (r"\d{4}-\d{2}", xsd_format_gyearmonth),
+            (r"\d{4}", xsd_format_gyear),]:
+        if re.match(regex, content):
+            try:
+                parser.isoparse(content)
+                return formatter(content, quote)
+            except ValueError:
+                pass
+    return None
+
+
+def _auto_str_to_formatted_number(content: str, quote: str) -> str | None:
+    testcontent = content.strip().lower()
+    if testcontent[0] in ["-", "+"]:
+        testcontent = testcontent[1:]
+    if testcontent.isdigit():
+        return xsd_format_integer(content, quote)
+    if testcontent.replace(".", "", 1).isdigit():
+        return xsd_format_double(content, quote)
+    return None
+
+
+def xsd_auto_format_date(content: Any, quote: str, *_: Any) -> str:
+    # infer type from input content and apply formatting according to fallback-scenario
+    # 1. type datetime
+    if isinstance(content, datetime):
+        return xsd_format_datetime(content, quote)
+    # 2. type date
+    if isinstance(content, date):
+        return xsd_format_date(content, quote)
+    # 3. string parseable to datetime
+    # 4. string parseable to date
+    # 5. string matching [-]?YYYY-MM for gyearmonth
+    # 6. string matching [-]?YYYY for gyear
+    formatted_date = _auto_str_to_formatted_date(str(content), quote)
+    if formatted_date is not None:
+        return formatted_date
+    # 7. int for gyear
+    if isinstance(content, int):
+        return xsd_format_gyear(content, quote)
+    # 8. anything else should raise an error
+    raise ValueError("auto-date format failed to infer date type")
+
+
+def xsd_auto_format_number(content: Any, quote: str, *_: Any) -> str:
+    # infer type from input content and apply formatting according to fallback-scenario
+    # 1. type int
+    if isinstance(content, int):
+        return xsd_format_integer(content, quote)
+    # 2. type float
+    if isinstance(content, float):
+        return xsd_format_double(content, quote)
+    # 3. string parseable to int
+    # 4. string parseable to float
+    formatted_number = _auto_str_to_formatted_number(str(content), quote)
+    if formatted_number is not None:
+        return formatted_number
+    # 5. anything else should raise an error
+    raise ValueError("auto-number format failed to infer number type")
+
+
+def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
+    # infer type from input content and apply formatting according to fallback-scenario
+    # 1. type bool
+    if isinstance(content, bool):
+        return xsd_format_boolean(content, quote)
+    # 2. type int
+    if isinstance(content, int):
+        return xsd_format_integer(content, quote)
+    # 3. type float
+    if isinstance(content, float):
+        return xsd_format_double(content, quote)
+    # 4. type datetime
+    if isinstance(content, datetime):
+        return xsd_format_datetime(content, quote)
+    # 5. type date
+    if isinstance(content, date):
+        return xsd_format_date(content, quote)
+    # 6. string parseable to exact bool representation true or false (ignoring case)
+    if str(content).strip().lower() in ["true", "false"]:
+        return xsd_format_boolean(content, quote)
+    # 7. string parseable to int
+    # 8. string parseable to float
+    formatted_number = _auto_str_to_formatted_number(str(content), quote)
+    if formatted_number is not None:
+        return formatted_number
+    # 9. string parseable to datetime
+    # 10. string parseable to date
+    # 11. string matching [-]?YYYY-MM for gyearmonth
+    # 12. string matching [-]?YYYY for gyear
+    formatted_date = _auto_str_to_formatted_date(str(content), quote)
+    if formatted_date is not None:
+        return formatted_date
+    # 13. string is valid uri
+    if check_valid_uri(str(content)):
+        return xsd_format_uri(content, quote)
+    # 14. remaining string content
+    return xsd_format_string(content, quote, None)
+
+
 XSD_FMT_TYPE_FN = {
     "xsd:boolean": xsd_format_boolean,
     "xsd:integer": xsd_format_integer,
@@ -167,9 +272,12 @@ XSD_FMT_TYPE_FN = {
     "xsd:gyear": xsd_format_gyear,
     "year": xsd_format_gyear,
     "yyyy": xsd_format_gyear,
-    "xsd:gyearmonth": xsd_format_gmonthyear,
-    "year-month": xsd_format_gmonthyear,
-    "yyyy-mm": xsd_format_gmonthyear,
+    "xsd:gyearmonth": xsd_format_gyearmonth,
+    "year-month": xsd_format_gyearmonth,
+    "yyyy-mm": xsd_format_gyearmonth,
+    "auto-date": xsd_auto_format_date,
+    "auto-number": xsd_auto_format_number,
+    "auto-any": xsd_auto_format_any,
 }
 
 
