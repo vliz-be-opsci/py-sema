@@ -159,10 +159,11 @@ def xsd_format_string(content: str, quote: str, suffix: str) -> str:
 
 def _auto_str_to_formatted_date(content: str, quote: str) -> str | None:
     for regex, formatter in [
-            (r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", xsd_format_datetime),
-            (r"\d{4}-\d{2}-\d{2}", xsd_format_date),
-            (r"\d{4}-\d{2}", xsd_format_gyearmonth),
-            (r"\d{4}", xsd_format_gyear),]:
+        (r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", xsd_format_datetime),
+        (r"\d{4}-\d{2}-\d{2}", xsd_format_date),
+        (r"\d{4}-\d{2}", xsd_format_gyearmonth),
+        (r"\d{4}", xsd_format_gyear),
+    ]:
         if re.match(regex, content):
             try:
                 parser.isoparse(content)
