@@ -302,7 +302,8 @@ def test_fail_auto_date() -> None:
     with pytest.raises(ValueError):
         xsd_fmt("brol", "auto-date")
         raise Exception(
-            "auto-date should not accept strings that have no meaningfull date format"
+            "auto-date should not accept strings "
+            "that have no meaningfull date format"
         )
 
 
@@ -325,7 +326,8 @@ def test_fail_auto_number() -> None:
     with pytest.raises(ValueError):
         xsd_fmt("3.14.15", "auto-number")
         raise Exception(
-            "auto-number should not accept strings that have no meaningfull date format"
+            "auto-number should not accept strings "
+            "that have no meaningfull number format"
         )
 
 
@@ -363,7 +365,7 @@ def test_fail_auto_number() -> None:
         (("2024-01-13T11:48:29", "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
         (("2024-01-13", "'2024-01-13'^^xsd:date", "'")),
         (("2024-01", "'2024-01'^^xsd:gYearMonth", "'")),
-        # (("2024", "'2024'^^xsd:gYear", "'")),  -- will never happen as integer inference is stronger
+        # (("2024", "'2024'^^xsd:gYear", "'")), -- int inference is stronger
         (("brol", "'brol'^^xsd:string", "'")),
     ],
 )

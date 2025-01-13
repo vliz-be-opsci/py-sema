@@ -185,7 +185,7 @@ def _auto_str_to_formatted_number(content: str, quote: str) -> str | None:
 
 
 def xsd_auto_format_date(content: Any, quote: str, *_: Any) -> str:
-    # infer type from input content and apply formatting according to fallback-scenario
+    # infer type from input + apply formatting according to fallback-scenario
     # 1. type datetime
     if isinstance(content, datetime):
         return xsd_format_datetime(content, quote)
@@ -207,7 +207,7 @@ def xsd_auto_format_date(content: Any, quote: str, *_: Any) -> str:
 
 
 def xsd_auto_format_number(content: Any, quote: str, *_: Any) -> str:
-    # infer type from input content and apply formatting according to fallback-scenario
+    # infer type from input + apply formatting according to fallback-scenario
     # 1. type int
     if isinstance(content, int):
         return xsd_format_integer(content, quote)
@@ -224,7 +224,7 @@ def xsd_auto_format_number(content: Any, quote: str, *_: Any) -> str:
 
 
 def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
-    # infer type from input content and apply formatting according to fallback-scenario
+    # infer type from input + apply formatting according to fallback-scenario
     # 1. type bool
     if isinstance(content, bool):
         return xsd_format_boolean(content, quote)
@@ -240,7 +240,7 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
     # 5. type date
     if isinstance(content, date):
         return xsd_format_date(content, quote)
-    # 6. string parseable to exact bool representation true or false (ignoring case)
+    # 6. string parseable to exact bool true or false (ignoring case)
     if str(content).strip().lower() in ["true", "false"]:
         return xsd_format_boolean(content, quote)
     # 7. string parseable to int
