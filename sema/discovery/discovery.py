@@ -10,7 +10,6 @@ from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
-from sema.commons.web import get_parsed_header
 from sema.commons.service import (
     ServiceBase,
     ServiceResult,
@@ -18,7 +17,11 @@ from sema.commons.service import (
     Trace,
 )
 from sema.commons.store import create_rdf_store
-from sema.commons.web import make_http_session, save_web_content
+from sema.commons.web import (
+    get_parsed_header,
+    make_http_session,
+    save_web_content,
+)
 
 from .linkheaders import extract_link_headers
 from .lod_html_parser import LODAwareHTMLParser
@@ -157,7 +160,9 @@ class Discovery(ServiceBase):
 
     def _extract_triples_from_response(self, resp: Response):
         # note we can be sure the response is ok, as we checked that before
-        resp_mime_type, options = get_parsed_header(resp.headers, "Content-Type")
+        resp_mime_type, options = get_parsed_header(
+            resp.headers, "Content-Type"
+        )
         if not resp_mime_type:
             log.debug(f"no content-type header in {resp.url=}")
             return

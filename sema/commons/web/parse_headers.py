@@ -1,7 +1,9 @@
 from email.message import EmailMessage
 
 
-def parse_header(content: str, mode: str = "content-type") -> tuple[str, dict[str, str]]:
+def parse_header(
+    content: str, mode: str = "content-type"
+) -> tuple[str, dict[str, str]]:
     # deal with empty content
     if content is None:
         return None, None
@@ -19,7 +21,8 @@ def parse_header(content: str, mode: str = "content-type") -> tuple[str, dict[st
     else:
         raise ValueError(
             "mode should be one of 'content-type' (default) "
-            "or 'content-disposition'")
+            "or 'content-disposition'"
+        )
     params = msg[mode].params
     return main, params
 
