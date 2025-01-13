@@ -30,7 +30,9 @@ def assertFormat(
     )
 
 
-def assertCase(short_name: str, case: tuple, pfx_variants: list[str] | None = ["xsd:"]) -> None:
+def assertCase(
+    short_name: str, case: tuple, pfx_variants: list[str] | None = ["xsd:"]
+) -> None:
     content, expected, *quote = case
     quote = quote[0] if quote else "'"
     pfx_variants.append("")
@@ -276,7 +278,13 @@ def test_nobase() -> None:
 @pytest.mark.parametrize(
     "case",
     [
-        ((datetime(2024, 1, 13, 11, 48, 29), "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
+        (
+            (
+                datetime(2024, 1, 13, 11, 48, 29),
+                "'2024-01-13T11:48:29'^^xsd:dateTime",
+                "'",
+            )
+        ),
         ((date(2024, 1, 13), "'2024-01-13'^^xsd:date", "'")),
         (("2024-01-13T11:48:29", "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
         (("2024-01-13", "'2024-01-13'^^xsd:date", "'")),
@@ -292,7 +300,9 @@ def test_auto_date(case: tuple[str, str, str | None]) -> None:
 def test_fail_auto_date() -> None:
     with pytest.raises(ValueError):
         xsd_fmt("brol", "auto-date")
-        raise Exception("auto-date should not accept strings that have no meaningfull date format")
+        raise Exception(
+            "auto-date should not accept strings that have no meaningfull date format"
+        )
 
 
 @pytest.mark.parametrize(
@@ -313,15 +323,34 @@ def test_auto_number(case: tuple[str, str, str | None]) -> None:
 def test_fail_auto_number() -> None:
     with pytest.raises(ValueError):
         xsd_fmt("3.14.15", "auto-number")
-        raise Exception("auto-number should not accept strings that have no meaningfull date format")
+        raise Exception(
+            "auto-number should not accept strings that have no meaningfull date format"
+        )
 
 
 @pytest.mark.parametrize(
     "case",
     [
-        (("https://example.org/basic", "'https://example.org/basic'^^xsd:anyURI", "'")),
-        (("https://example.org/[square-brackets]", "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI", "'")),
-        (("https://example.org/[square-brackets]", "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI")),
+        (
+            (
+                "https://example.org/basic",
+                "'https://example.org/basic'^^xsd:anyURI",
+                "'",
+            )
+        ),
+        (
+            (
+                "https://example.org/[square-brackets]",
+                "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI",
+                "'",
+            )
+        ),
+        (
+            (
+                "https://example.org/[square-brackets]",
+                "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI",
+            )
+        ),
         ((1, "'1'^^xsd:integer", "'")),
         (("1", "'1'^^xsd:integer", "'")),
         ((True, "'true'^^xsd:boolean", "'")),
