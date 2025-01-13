@@ -1,4 +1,3 @@
-import cgi
 from logging import getLogger
 from pathlib import Path
 from typing import Iterable, List
@@ -11,6 +10,7 @@ from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url
 from sema.commons.fileformats import format_from_filepath, mime_to_format
+from sema.commons.web import get_parsed_header
 from sema.commons.service import (
     ServiceBase,
     ServiceResult,
@@ -157,13 +157,11 @@ class Discovery(ServiceBase):
 
     def _extract_triples_from_response(self, resp: Response):
         # note we can be sure the response is ok, as we checked that before
-        ctype_header = resp.headers.get("Content-Type", None)
-
-        if not ctype_header:
+        resp_mime_type, options = get_parsed_header(resp.headers, "Content-Type")
+        if not resp_mime_type:
             log.debug(f"no content-type header in {resp.url=}")
             return
 
-        resp_mime_type, options = cgi.parse_header(ctype_header)
         log.debug(f"extract from {resp.url=} in format {resp_mime_type=}")
         # add triples from the response content
         if self._add_triples_from_text(resp.text, resp_mime_type, resp.url):
@@ -307,7 +305,7 @@ class Discovery(ServiceBase):
                 resp_content = resp.text if resp else ""
                 resp_status = resp.status_code if resp else None
                 resp_mime = (
-                    cgi.parse_header(resp.headers["Content-Type"])[0]
+                    get_parsed_header(resp.headers, "Content-Type")[0]
                     if resp
                     else None
                 )

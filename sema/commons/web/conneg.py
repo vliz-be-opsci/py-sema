@@ -1,4 +1,3 @@
-import cgi
 from logging import getLogger
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -19,6 +18,7 @@ from sema.commons.service import (
 
 from .download_to_file import save_web_content
 from .httpsession import make_http_session
+from .parse_headers import get_parsed_header
 
 log = getLogger(__name__)
 
@@ -40,12 +40,12 @@ class FoundVariants(ServiceResult, StatusMonitor):
         key = (mime_type or "", profile or "")
         assert key not in self.variants, f"Variant {key} already added"
         response_mime = (
-            cgi.parse_header(response.headers["Content-Type"])[0]
+            get_parsed_header(response.headers, "Content-Type")[0]
             if response
             else None
         )
-        cdispval, cdispparams = cgi.parse_header(
-            response.headers.get("Content-Disposition", "")  # type: ignore
+        cdispval, cdispparams = get_parsed_header(
+            response.headers, "Content-Disposition"  # type: ignore
         )
         cdispfile = (
             cdispparams.get("filename") if cdispval == "attachment" else None
@@ -197,7 +197,7 @@ SELECT ?mime ?profile WHERE {{
             log.debug(f"no variants detected for {self.url}")
             return
         # else
-        mime_type, options = cgi.parse_header(resp.headers["Content-Type"])
+        mime_type, options = get_parsed_header(resp.headers, "Content-Type")
         fmt = mime_to_format(mime_type)
         if fmt not in ["turtle", "n3", "json-ld"]:
             log.debug(f"unsupported format {fmt=} for {self.url}")

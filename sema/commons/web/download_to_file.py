@@ -1,5 +1,4 @@
 import base64
-import cgi
 import os
 from hashlib import sha256
 from pathlib import Path
@@ -9,6 +8,7 @@ from urllib.parse import urlparse
 from sema.commons.fileformats import suffix_for_mime
 
 from .httpsession import make_http_session
+from .parse_headers import get_parsed_header
 
 
 def download_to_file(
@@ -22,7 +22,7 @@ def download_to_file(
         dump_path=Path(dump_path),
         filename=filename,
         url=url,
-        mime_type=cgi.parse(response.headers.get("Content-Type"))[0],  # type: ignore # noqa
+        mime_type=get_parsed_header(response.headers, "Content-Type")[0],  # type: ignore # noqa
         profile=headers.get("Accept-profile", None),
         content=content,
     )
