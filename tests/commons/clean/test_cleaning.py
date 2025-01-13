@@ -120,6 +120,7 @@ def test_check_ur_inl_str():
     goodurl = (
         "https://example.org/path.ext?pk=v#fragment",
         "http://localhost.localdomain:8080/DOC1.ttl",
+        "http://127.0.0.1:8080/DOC1.ttl",
     )
 
     for ba in badany:

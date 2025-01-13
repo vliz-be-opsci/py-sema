@@ -1,6 +1,7 @@
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
+from typing import Any
 
 from dateutil import parser
 from uritemplate import URITemplate
@@ -24,20 +25,28 @@ class Functions:
 
 class Filters:
     @staticmethod
-    def all():
+    def all() -> dict:
         return {
             "xsd": xsd_format,
             "uri": uri_format,
         }
 
 
-def xsd_value(content, quote, type_name, suffix=None):
+def xsd_value(
+    content: any,
+    quote: str,
+    type_name: str,
+    suffix: str | None = None,
+) -> str:
     if suffix is None:
         suffix = "^^" + type_name
     return quote + str(content) + quote + suffix
 
 
-def xsd_format_boolean(content, quote, suffix):
+def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
+    if isinstance(content, (list, dict, type(None))):
+        raise TypeError("conversion required before format call")
+
     # make rigid bool
     if not isinstance(content, bool):
         asbool = str(content).lower() not in ["", "0", "no", "false", "off"]
@@ -46,35 +55,36 @@ def xsd_format_boolean(content, quote, suffix):
     return xsd_value(str(content).lower(), quote, "xsd:boolean")
 
 
-def xsd_format_integer(content, quote, suffix):
+def xsd_format_integer(content: Any, quote: str, *_: Any) -> str:
     # make rigid int
     if not isinstance(content, int):
         asint = int(str(content))
-        assert str(content) == str(
-            asint
-        ), "int format does not round-trip [ %s <> %s ]" % (
-            str(content),
-            str(asint),
-        )
+        if str(content) != str(asint):
+            raise ValueError(
+                "int format does not round-trip "
+                f"[ {content!s} <> {asint!s} ]"
+            )
         content = asint
     # serialize to string again
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def xsd_format_double(content, quote, suffix):
+def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
     # make rigid double
     if not isinstance(content, float):
-        assert (
-            str(float) and float is not None
-        ), "double format requires actual input"
         asdbl = float(str(content))
         content = asdbl
     # serialize to string again
     return xsd_value(str(content), quote, "xsd:double")
 
 
-def xsd_format_date(content, quote, suffix):
+def xsd_format_date(content: Any, quote: str, *_: Any) -> str:
     # make rigid date
+    if isinstance(content, datetime):
+        raise TypeError(
+            "use datetime format for datetime values, or past .date() result"
+        )
+
     if not isinstance(content, date):
         asdt = parser.isoparse(content).date()
     else:
@@ -82,7 +92,41 @@ def xsd_format_date(content, quote, suffix):
     return xsd_value(asdt.isoformat(), quote, "xsd:date")
 
 
-def xsd_format_datetime(content, quote, suffix):
+def xsd_format_gyear(content: Any, quote: str, *_: Any) -> str:
+    # make rigid gYear
+    if isinstance(content, date):
+        year = content.year  # extract year from date
+    else:  # other input types handled
+        content = str(content).strip()  # via trimmed string
+        year = int(content)  # converted to int
+    # we should be sure of int now
+    # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html
+    # for examples of correct value formatting
+    content = f"{"-" if year < 0 else ""}{abs(year):04d}"
+    return xsd_value(content, quote, "xsd:gYear")
+
+
+def xsd_format_gmonthyear(content: Any, quote: str, *_: Any) -> str:
+    # make rigid gMonthYear
+    if isinstance(content, (date, datetime)):
+        year, month = content.year, content.month  # extract parts from date
+    else:  # other types of input handled
+        content = str(content).strip()  # via trimmed string
+        sign = 1
+        if content[0] == "-":  # extract sign if present
+            sign = -1
+            content = content[1:]
+        # split into parts
+        [year, month, *ignored_rest] = content.split("-")
+        # and ensure they are int with carried sign
+        year, month = int(year) * sign, int(month)
+    # https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html
+    # for examples of correct value formatting
+    content = f"{"-" if year < 0 else ""}{abs(year):04d}-{month:02d}"
+    return xsd_value(content, quote, "xsd:gYearMonth")
+
+
+def xsd_format_datetime(content: Any, quote: str, *_: Any) -> str:
     # make rigid datetime
     if not isinstance(content, datetime):
         asdtm = parser.isoparse(content)
@@ -91,13 +135,13 @@ def xsd_format_datetime(content, quote, suffix):
     return xsd_value(asdtm.isoformat(), quote, "xsd:dateTime")
 
 
-def xsd_format_uri(content, quote, suffix):
+def xsd_format_uri(content: str, quote: str, *_: Any) -> str:
     # assume content is valid uri for now
     uri = clean_uri_str(content)
     return xsd_value(uri, quote, "xsd:anyURI")
 
 
-def xsd_format_string(content, quote, suffix):
+def xsd_format_string(content: str, quote: str, suffix: str) -> str:
     # apply escape sequences: \ to \\ and quote to \quote
     escqt = f"\\{quote}"
     content = str(content).replace("\\", "\\\\").replace(quote, escqt)
@@ -120,13 +164,17 @@ XSD_FMT_TYPE_FN = {
     "xsd:datetime": xsd_format_datetime,
     "xsd:anyuri": xsd_format_uri,
     "xsd:string": xsd_format_string,
+    "xsd:gyear": xsd_format_gyear,
+    "year": xsd_format_gyear,
+    "yyyy": xsd_format_gyear,
+    "xsd:gyearmonth": xsd_format_gmonthyear,
+    "year-month": xsd_format_gmonthyear,
+    "yyyy-mm": xsd_format_gmonthyear,
 }
 
 
-def xsd_format(content, type_name: str, quote: str = "'"):
+def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
-    if content is None:
-        content = ""
 
     suffix = None
     if type_name.startswith("@"):
@@ -145,16 +193,16 @@ def xsd_format(content, type_name: str, quote: str = "'"):
     return type_format_fn(content, quote, suffix)
 
 
-def uri_format(uri: str):
+def uri_format(uri: str) -> str:
     uri = clean_uri_str(uri)
     return f"<{uri}>"
 
 
-def uritexpand(template: str, context):
+def uritexpand(template: str, context: dict) -> str:
     return URITemplate(template).expand(context)
 
 
-def regexreplace(find: str, replace: str, text: str):
+def regexreplace(find: str, replace: str, text: str) -> str:
     return re.sub(find, replace, text)
 
 
@@ -162,7 +210,7 @@ class ValueMapper:
     def __init__(self):
         self._map = dict()
 
-    def add(self, key, val):
+    def add(self, key: Any, val: Any) -> None:
         if key in self._map:
             assert val == self._map[key], (
                 f"duplicate key {key} with distinct"

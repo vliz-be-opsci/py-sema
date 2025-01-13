@@ -1,6 +1,7 @@
-import unittest
 from datetime import date, datetime
 from typing import Callable
+
+import pytest
 
 from sema.commons.j2.j2_functions import Filters, Functions, ValueMapper
 
@@ -11,290 +12,327 @@ xsd_fmt = Filters.all()["xsd"]
 uri_fmt = Filters.all()["uri"]
 
 
-class TestXSDFormatting(unittest.TestCase):
-    def test_fn(self):
-        self.assertIsNotNone(xsd_fmt, "function not found")
-        self.assertTrue(isinstance(xsd_fmt, Callable), "function not callable")
-
-    def test_bool(self):
-        short_name = "boolean"
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            self.assertEqual(
-                xsd_fmt(True, type_name),
-                "'true'^^xsd:boolean",
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt("anything", type_name, '"'),
-                '"true"^^xsd:boolean',
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt(False, type_name, '"'),
-                '"false"^^xsd:boolean',
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt(0, type_name),
-                "'false'^^xsd:boolean",
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt(None, type_name),
-                "'false'^^xsd:boolean",
-                "bad %s format" % type_name,
-            )
-
-    def test_int(self):
-        short_name = "integer"
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            self.assertEqual(
-                xsd_fmt(1, type_name),
-                "'1'^^xsd:integer",
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt(-10, type_name, '"'),
-                '"-10"^^xsd:integer',
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt(0, type_name, '"'),
-                '"0"^^xsd:integer',
-                "bad %s format" % type_name,
-            )
-
-            with self.assertRaises(
-                AssertionError,
-                msg="leading zero's should be dealth with before formatting",
-            ):
-                xsd_fmt(
-                    "001", type_name
-                )  # you should not simply assume this to become 1
-            # in stead -- force int casting:
-            self.assertEqual(
-                xsd_fmt(int("001"), type_name),
-                "'1'^^xsd:integer",
-                "bad %s format" % type_name,
-            )
-
-    def test_double(self):
-        short_name = "double"
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            self.assertEqual(
-                xsd_fmt(1.0, type_name),
-                "'1.0'^^xsd:double",
-                "bad %s format" % type_name,
-            )
-            self.assertEqual(
-                xsd_fmt("1", type_name),
-                "'1.0'^^xsd:double",
-                "bad %s format" % type_name,
-            )  # automatic to float
-            self.assertEqual(
-                xsd_fmt(1, type_name),
-                "'1.0'^^xsd:double",
-                "bad %s format" % type_name,
-            )  # automatic to float
-            self.assertEqual(
-                xsd_fmt(1.00, type_name),
-                "'1.0'^^xsd:double",
-                "bad %s format" % type_name,
-            )  # reformatting sideeffect
-            # so actual forced float casting is not needed any more (but works)
-            self.assertEqual(
-                xsd_fmt(float(1), type_name),
-                "'1.0'^^xsd:double",
-                "bad %s format" % type_name,
-            )
-
-    def test_date(self):
-        long_name = "xsd:date"
-        short_name = long_name[4:]
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            val = "1970-05-06"
-            values = [val, date.fromisoformat(val)]
-            for v in values:
-                fmt = "'" + str(v) + "'^^" + long_name
-
-                self.assertEqual(
-                    xsd_fmt(v, type_name), fmt, "bad %s format" % type_name
-                )
-
-    def test_datetime(self):
-        long_name = "xsd:dateTime"
-        short_name = long_name[4:]
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            val = "2021-09-30T16:25:50+02:00"
-            values = [val, datetime.fromisoformat(val)]
-
-            for v in values:
-                fmt = "'" + val + "'^^" + long_name
-                self.assertEqual(
-                    xsd_fmt(v, type_name), fmt, "bad %s format" % type_name
-                )
-
-    def test_uri(self):
-        long_name = "xsd:anyURI"
-        short_name = long_name[4:]
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            val = "https://example.org/for/testing"
-            fmt = "'" + val + "'^^" + long_name
-            self.assertEqual(
-                xsd_fmt(val, type_name), fmt, "bad %s format" % type_name
-            )
-
-    def test_uri_cleaning(self):
-        long_name = "xsd:anyURI"
-        short_name = long_name[4:]
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            val = "https://example.org/for/[testing]"
-            clean_val = "https://example.org/for/%5Btesting%5D"
-            fmt = "'" + clean_val + "'^^" + long_name
-            self.assertEqual(
-                xsd_fmt(val, type_name), fmt, "bad %s format" % type_name
-            )
-
-    def test_string(self):
-        long_name = "xsd:string"
-        short_name = long_name[4:]
-        for pfx in ("", "xsd:"):
-            type_name = pfx + short_name
-            self.assertEqual(
-                xsd_fmt("Hello!", type_name),
-                "'Hello!'^^xsd:string",
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt("'", type_name, quote='"'),
-                '"\'"^^xsd:string',
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt('"', type_name, quote="'"),
-                "'\"'^^xsd:string",
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt("'", type_name, quote="'"),
-                "'\\''^^xsd:string",
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt('"', type_name, quote='"'),
-                '"\\""^^xsd:string',
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt(">'<", type_name, quote="'"),
-                "'>\\'<'^^xsd:string",
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt(">\n<", type_name, quote="'"),
-                "'''>\n<'''^^xsd:string",
-                f"bad {type_name} format",
-            )
-            self.assertEqual(
-                xsd_fmt(">\n<", type_name, quote='"'),
-                '""">\n<"""^^xsd:string',
-                f"bad {type_name} format",
-            )
-
-        def test_lang_string(self):
-            self.assertEqual(
-                xsd_fmt("Hello!", "@en"),
-                "'Hello!'@en",
-                "bad language-string format",
-            )
-            self.assertEqual(
-                xsd_fmt("ceci n'est pas une texte", "@fr"),
-                "'ceci n\\'est pas une texte'@fr",
-                "bad language-string formatting with quote-escapes",
-            )
-            self.assertEqual(
-                xsd_fmt("As \\ said before", "@en"),
-                "'As \\\\ said before'@en",
-                "bad language-string formatting with backslash-escapes",
-            )
+def test_xsd_fmt() -> None:
+    assert xsd_fmt is not None, "xsd_fmt function not found"
+    assert isinstance(xsd_fmt, Callable), "xsd_fmt function not callable"
 
 
-class TestURIFormatting(unittest.TestCase):
-    def test_fn(self):
-        self.assertIsNotNone(uri_fmt, "function not found")
-        self.assertTrue(isinstance(uri_fmt, Callable), "function not callable")
+def assertFormat(
+    content: any,
+    type_name: str,
+    expected: str,
+    quote: str | None = "'",
+) -> None:
+    format = xsd_fmt(content, type_name, quote)
+    assert format == expected, (
+        f"unexpected {type_name} format for {content} using {quote}: "
+        f"{format} != {expected}"
+    )
 
-    def test_nobase(self):
-        uri = "<https://example.org/%5Bsquare-brackets%5D>"
-        fmt = uri_fmt("https://example.org/[square-brackets]")
-        self.assertEqual(fmt, uri)
+
+def assertCase(short_name: str, case: tuple) -> None:
+    content, expected, *quote = case
+    quote = quote[0] if quote else "'"
+    for pfx in ("", "xsd:"):
+        assertFormat(content, pfx + short_name, expected, quote)
 
 
-class TestURITemplateExpansion(unittest.TestCase):
-    def test_fn(self):
-        self.assertIsNotNone(uritexpand_fmt, "function not found")
-        self.assertTrue(
-            isinstance(uritexpand_fmt, Callable), "function not callable"
+@pytest.mark.parametrize(
+    "case",
+    [
+        (("true", '"true"^^xsd:boolean', '"')),
+        (("false", '"false"^^xsd:boolean', '"')),
+        (("true", "'true'^^xsd:boolean")),
+        (("false", "'false'^^xsd:boolean")),
+        ((1, "'true'^^xsd:boolean")),
+        (("anything", "'true'^^xsd:boolean")),
+        ((True, "'true'^^xsd:boolean")),
+        ((0, "'false'^^xsd:boolean")),
+        ((False, "'false'^^xsd:boolean")),
+    ],
+)
+def test_bool(case: tuple[str, str, str | None]) -> None:
+    assertCase("boolean", case)
+
+
+def test_rigid_bool() -> None:
+    # None conversion required before formatting
+    with pytest.raises(TypeError):
+        xsd_fmt(None, "xsd:boolean")
+        raise Exception("None should not be accepted as bool value")
+
+    # [] conversion (empty or not) required before formatting
+    with pytest.raises(TypeError):
+        xsd_fmt([], "xsd:boolean")
+        raise Exception("[] should not be accepted as bool value")
+
+    # {} conversion (empty or not) required before formatting
+    with pytest.raises(TypeError):
+        xsd_fmt({}, "xsd:boolean")
+        raise Exception("{} should not be accepted as bool value")
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((1, '"1"^^xsd:integer', '"')),
+        ((1, "'1'^^xsd:integer")),
+        ((-10, '"-10"^^xsd:integer', '"')),
+        ((0, '"0"^^xsd:integer', '"')),
+        ((int(1.0), "'1'^^xsd:integer")),
+        ((int("001"), "'1'^^xsd:integer")),
+        (("1000", "'1000'^^xsd:integer")),
+    ],
+)
+def test_int(case: tuple[str, str, str | None]) -> None:
+    assertCase("integer", case)
+
+
+def test_rigid_int() -> None:
+    # leading zero's should be dealth with before formatting
+    with pytest.raises(ValueError):
+        xsd_fmt("001", "xsd:integer")
+        raise Exception(
+            "leading zero's should not be accepted in strings for int value"
         )
 
-    def test_all(self):
-        uri = "https://vliz.be/code/pysubyt/test/item#somepath"
-        fmt = uritexpand_fmt(
-            "https://vliz.be/code/pysubyt/test/item{#id}", {"id": "somepath"}
-        )
-        self.assertEqual(fmt, uri)
+    # floats should not be accepted
+    with pytest.raises(ValueError):
+        xsd_fmt(1.0, "xsd:integer")
+        raise Exception("floats should not be accepted as int value")
 
-
-class TestRegexFormatting(unittest.TestCase):
-    def test_fn(self):
-        self.assertIsNotNone(regexreplace_fmt, "function not found")
-        self.assertTrue(
-            isinstance(regexreplace_fmt, Callable), "function not callable"
+    # floats disguised as strings should not be accepted
+    with pytest.raises(ValueError):
+        xsd_fmt("1.0", "xsd:integer")
+        raise Exception(
+            "floats disguised as strings should not be accepted as int value"
         )
 
-    def test_all(self):
-        text = "is-kept"
-        fmt = regexreplace_fmt("^[^:]*:", "", "all-after-semicolon:is-kept")
-        self.assertEqual(fmt, text)
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((1.0, "'1.0'^^xsd:double")),
+        (("1", "'1.0'^^xsd:double")),
+        ((1, "'1.0'^^xsd:double")),
+        ((float(1), "'1.0'^^xsd:double")),
+    ],
+)
+def test_double(case: tuple[str, str, str | None]) -> None:
+    assertCase("double", case)
 
 
-class TestMapFormatting(unittest.TestCase):
-    key_name = "Alpha-2 code"
-    val_name = "Alpha-3 code"
-    key_val = str(3)
-    val_val = str(4)
-    map_test = [
-        {key_name: key_val, val_name: val_val},
+@pytest.mark.parametrize(
+    "case",
+    [
+        (("1970-05-06", "'1970-05-06'^^xsd:date")),
+        ((date.fromisoformat("1970-05-06"), "'1970-05-06'^^xsd:date")),
+        ((date(1970, 5, 6), "'1970-05-06'^^xsd:date")),
+        (("2021-09-30T16:25:50+02:00", "'2021-09-30'^^xsd:date")),
+        (
+            (
+                datetime.fromisoformat("2021-09-30T16:25:50+02:00").date(),
+                "'2021-09-30'^^xsd:date",
+            )
+        ),
+    ],
+)
+def test_date(case: tuple[str, str, str | None]) -> None:
+    assertCase("date", case)
+
+
+def test_rigid_date() -> None:
+    with pytest.raises(TypeError):
+        xsd_fmt(datetime.fromisoformat("2021-09-30T16:25:50+02:00"), "date")
+        raise Exception("datetime should not be accepted as date value")
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (
+            (
+                "2021-09-30T16:25:50+02:00",
+                "'2021-09-30T16:25:50+02:00'^^xsd:dateTime",
+            )
+        ),
+        (
+            (
+                datetime.fromisoformat("2021-09-30T16:25:50+02:00"),
+                "'2021-09-30T16:25:50+02:00'^^xsd:dateTime",
+            )
+        ),
+    ],
+)
+def test_datetime(case: tuple[str, str, str | None]) -> None:
+    assertCase("dateTime", case)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((2021, "'2021'^^xsd:gYear")),
+        (("2021", "'2021'^^xsd:gYear")),
+        ((date(2021, 1, 1), "'2021'^^xsd:gYear")),
+        ((12004, "'12004'^^xsd:gYear")),
+        ((922, "'0922'^^xsd:gYear")),
+        ((-45, "'-0045'^^xsd:gYear")),
+    ],
+)
+def test_gyear(case: tuple[str, str, str | None]) -> None:
+    assertCase("gYear", case)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ("2021-09", "'2021-09'^^xsd:gYearMonth"),
+        (date(2021, 9, 1), "'2021-09'^^xsd:gYearMonth"),
+        ("2021-09-30", "'2021-09'^^xsd:gYearMonth"),
+        ("922-09-17", "'0922-09'^^xsd:gYearMonth"),
+        ("-45-05", "'-0045-05'^^xsd:gYearMonth"),
+    ],
+)
+def test_gyearmonth(case: tuple[str, str, str | None]) -> None:
+    assertCase("gYearMonth", case)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (
+            (
+                "https://example.org/for/testing",
+                "'https://example.org/for/testing'^^xsd:anyURI",
+            )
+        ),
+        (
+            (
+                "https://example.org/for/[testing]",
+                "'https://example.org/for/%5Btesting%5D'^^xsd:anyURI",
+            )
+        ),
+    ],
+)
+def test_uri(case: tuple[str, str, str | None]) -> None:
+    assertCase("anyURI", case)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (("Hello!", '"Hello!"^^xsd:string', '"')),
+        (("Hello!", "'Hello!'^^xsd:string")),
+        (("'", "'\\''^^xsd:string")),
+        (("'", '"\'"^^xsd:string', '"')),
+        (('"', "'\"'^^xsd:string")),
+        (('"', '"\\""^^xsd:string', '"')),
+        ((">'<", "'>\\'<'^^xsd:string")),
+        ((">\n<", "'''>\n<'''^^xsd:string")),
+        ((">\n<", '""">\n<"""^^xsd:string', '"')),
+        (
+            (
+                "ceci n'est pas une texte",
+                "'ceci n\\'est pas une texte'^^xsd:string",
+            )
+        ),
+        (("As \\ said before", "'As \\\\ said before'^^xsd:string")),
+    ],
+)
+def test_string(case: tuple[str, str, str | None]) -> None:
+    assertCase("string", case)
+
+
+def test_lang_string() -> None:
+    format = xsd_fmt("Hello!", "@en")
+    expected = "'Hello!'@en"
+    assert format == expected, "unexpected language-string format"
+
+    format_fr = xsd_fmt("ceci n'est pas une texte", "@fr")
+    expected_fr = "'ceci n\\'est pas une texte'@fr"
+    assert format_fr == expected_fr, (
+        "unexpected language-string format with quote-escapes",
+    )
+
+    format_en = xsd_fmt("As \\ said before", "@en")
+    expected_en = "'As \\\\ said before'@en"
+    assert format_en == expected_en, (
+        "unexpected language-string format with backslash-escapes",
+    )
+
+
+def test_uri_fmt() -> None:
+    assert uri_fmt is not None, "uri_fmt function not found"
+    assert isinstance(uri_fmt, Callable), "uri_fmt function not callable"
+
+
+def test_nobase() -> None:
+    fmt = uri_fmt("https://example.org/[square-brackets]")
+    exp = "<https://example.org/%5Bsquare-brackets%5D>"
+    assert fmt == exp, "unexpected uri format for nobase"
+
+
+def test_urit_fn() -> None:
+    assert uritexpand_fmt is not None, "uritexpand_fmt function not found"
+    assert isinstance(uritexpand_fmt, Callable), (
+        "uritexpand_fmt function not callable",
+    )
+
+
+def test_urit() -> None:
+    fmt = uritexpand_fmt(
+        "https://vliz.be/code/pysubyt/test/item{#id}",
+        {"id": "somepath"},
+    )
+    exp = "https://vliz.be/code/pysubyt/test/item#somepath"
+    assert fmt == exp, "unexpected uri result for uritexpand test"
+
+
+def test_regexreplace_fn() -> None:
+    assert regexreplace_fmt is not None, "regexreplace_fmt function not found"
+    assert isinstance(regexreplace_fmt, Callable), (
+        "regexreplace_fmt function not callable",
+    )
+
+
+def test_regexreplace() -> None:
+    fmt = regexreplace_fmt("^[^:]*:", "", "all-after-semicolon:is-kept")
+    exp = "is-kept"
+    assert fmt == exp, "unexpected regexreplace result"
+
+
+def test_mapbuild_fn() -> None:
+    assert map_build_fmt is not None, "map_build_fmt function not found"
+    assert isinstance(map_build_fmt, Callable), (
+        "map_build_fmt function not callable",
+    )
+
+
+def test_mapbuild() -> None:
+    map_expects = {"a": 5, "b": 6, "c": 7}
+    map_test: list[dict[str, str | int]] = [
+        {"from": "a", "to": map_expects["a"]},
+        {"from": "b", "to": map_expects["b"]},
     ]
-    fmt = map_build_fmt(map_test, key_name, val_name)
 
-    # TODO: Redo this tests.
-    def test_fn(self):
-        self.assertIsNotNone(map_build_fmt, "function not found")
-        self.assertTrue(
-            isinstance(map_build_fmt, Callable), "function not callable"
+    # check building the map
+    map_fmt = map_build_fmt(map_test, "from", "to")
+    assert map_fmt is not None, "map not built"
+    assert isinstance(map_fmt, ValueMapper), "map not a ValueMapper instance"
+    assert map_fmt._map["a"] == map_expects["a"], "map not built correctly"
+    assert map_fmt._map["b"] == map_expects["b"], "map not built correctly"
+
+    # check adding to the map
+    map_fmt.add("c", map_expects["c"])
+    assert "c" in map_fmt._map, "key not added to map"
+    assert len(map_fmt._map) == len(map_expects), "key not added correctly"
+    assert map_fmt._map["c"] == map_expects["c"], "value not added correctly"
+
+    # check applying the map
+    for origin in map_expects:
+        record = {"from-field": origin}
+        map_fmt.apply(record, "from-field", "to-field")
+        assert "to-field" in record, "map not applied"
+        assert record["to-field"] == map_expects[origin], (
+            "map not applied correctly",
         )
-
-    def test_all(self):
-        self.assertIsInstance(self.fmt, ValueMapper)
-        self.assertEqual(self.fmt._map[self.key_val], self.val_val)
-
-    def test_add(self):
-        key_name = "Alpha-5 code"
-        key_val = 9
-        self.fmt.add(key_name, key_val)
-        self.assertDictEqual(
-            self.fmt._map, self.fmt._map | {key_name: key_val}
-        )
-
-    def test_apply(self):
-        key_name = "Alpha-8 code"
-        self.fmt.apply(self.map_test[0], self.key_name, key_name)
-        assert key_name in self.map_test[0]
