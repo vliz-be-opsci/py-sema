@@ -31,11 +31,12 @@ def assertFormat(
 
 
 def assertCase(
-    short_name: str, case: tuple, pfx_variants: list[str] | None = ["xsd:"]
+    short_name: str, case: tuple, pfx_variants: list[str] | None = None
 ) -> None:
     content, expected, *quote = case
     quote = quote[0] if quote else "'"
-    pfx_variants.append("")
+    pfx_variants = pfx_variants or ["xsd:"]  # default is to apply xsd: prefix
+    pfx_variants.append("")  # in all cases we should also test without prefix
     for pfx in pfx_variants:
         assertFormat(content, pfx + short_name, expected, quote)
 
