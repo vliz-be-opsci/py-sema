@@ -30,10 +30,11 @@ def assertFormat(
     )
 
 
-def assertCase(short_name: str, case: tuple) -> None:
+def assertCase(short_name: str, case: tuple, pfx_variants: list[str] | None = ["xsd:"]) -> None:
     content, expected, *quote = case
     quote = quote[0] if quote else "'"
-    for pfx in ("", "xsd:"):
+    pfx_variants.append("")
+    for pfx in pfx_variants:
         assertFormat(content, pfx + short_name, expected, quote)
 
 
@@ -270,6 +271,74 @@ def test_nobase() -> None:
     fmt = uri_fmt("https://example.org/[square-brackets]")
     exp = "<https://example.org/%5Bsquare-brackets%5D>"
     assert fmt == exp, "unexpected uri format for nobase"
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((datetime(2024, 1, 13, 11, 48, 29), "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
+        ((date(2024, 1, 13), "'2024-01-13'^^xsd:date", "'")),
+        (("2024-01-13T11:48:29", "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
+        (("2024-01-13", "'2024-01-13'^^xsd:date", "'")),
+        (("2024-01", "'2024-01'^^xsd:gYearMonth", "'")),
+        (("2024", "'2024'^^xsd:gYear", "'")),
+        ((2024, "'2024'^^xsd:gYear", "'")),
+    ],
+)
+def test_auto_date(case: tuple[str, str, str | None]) -> None:
+    assertCase("auto-date", case, [])  # no prefix-variants to test
+
+
+def test_fail_auto_date() -> None:
+    with pytest.raises(ValueError):
+        xsd_fmt("brol", "auto-date")
+        raise Exception("auto-date should not accept strings that have no meaningfull date format")
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((1, "'1'^^xsd:integer", "'")),
+        ((1, "'1'^^xsd:integer")),
+        (("1", "'1'^^xsd:integer")),
+        ((1.0, "'1.0'^^xsd:double", "'")),
+        ((1.0, "'1.0'^^xsd:double")),
+        (("1.0", "'1.0'^^xsd:double")),
+    ],
+)
+def test_auto_number(case: tuple[str, str, str | None]) -> None:
+    assertCase("auto-number", case, [])  # no prefix-variants to test
+
+
+def test_fail_auto_number() -> None:
+    with pytest.raises(ValueError):
+        xsd_fmt("3.14.15", "auto-number")
+        raise Exception("auto-number should not accept strings that have no meaningfull date format")
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        (("https://example.org/basic", "'https://example.org/basic'^^xsd:anyURI", "'")),
+        (("https://example.org/[square-brackets]", "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI", "'")),
+        (("https://example.org/[square-brackets]", "'https://example.org/%5Bsquare-brackets%5D'^^xsd:anyURI")),
+        ((1, "'1'^^xsd:integer", "'")),
+        (("1", "'1'^^xsd:integer", "'")),
+        ((True, "'true'^^xsd:boolean", "'")),
+        (("true", "'true'^^xsd:boolean", "'")),
+        (("false", "'false'^^xsd:boolean", "'")),
+        ((1.0, "'1.0'^^xsd:double", "'")),
+        (("1.0", "'1.0'^^xsd:double", "'")),
+        ((date(2024, 1, 13), "'2024-01-13'^^xsd:date", "'")),
+        (("2024-01-13T11:48:29", "'2024-01-13T11:48:29'^^xsd:dateTime", "'")),
+        (("2024-01-13", "'2024-01-13'^^xsd:date", "'")),
+        (("2024-01", "'2024-01'^^xsd:gYearMonth", "'")),
+        # (("2024", "'2024'^^xsd:gYear", "'")),  -- will never happen as integer inference is stronger
+        (("brol", "'brol'^^xsd:string", "'")),
+    ],
+)
+def test_auto_any(case: tuple[str, str, str | None]) -> None:
+    assertCase("auto", case, [])  # no prefix-variants to test
 
 
 def test_urit_fn() -> None:

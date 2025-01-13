@@ -256,7 +256,7 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
     if formatted_date is not None:
         return formatted_date
     # 13. string is valid uri
-    if check_valid_uri(str(content)):
+    if check_valid_uri(clean_uri_str(str(content))):
         return xsd_format_uri(content, quote)
     # 14. remaining string content
     return xsd_format_string(content, quote, None)
@@ -279,6 +279,7 @@ XSD_FMT_TYPE_FN = {
     "auto-date": xsd_auto_format_date,
     "auto-number": xsd_auto_format_number,
     "auto-any": xsd_auto_format_any,
+    "auto": xsd_auto_format_any,
 }
 
 
@@ -291,13 +292,17 @@ def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
         # assuming string content for further quoting rules
         type_name = "xsd:string"
 
-    if not type_name.startswith("xsd:"):
-        type_name = "xsd:" + type_name
-
+    # first try
     type_format_fn = XSD_FMT_TYPE_FN.get(type_name.lower(), None)
-    assert type_format_fn is not None, (
-        "type_name '%s' not supported." % type_name
-    )
+    if not type_name.startswith("auto"):
+        if not type_name.startswith("xsd:"):
+            type_name = "xsd:" + type_name
+
+        # second try
+        type_format_fn = XSD_FMT_TYPE_FN.get(type_name.lower(), None)
+        assert type_format_fn is not None, (
+            "type_name '%s' not supported." % type_name
+        )
 
     return type_format_fn(content, quote, suffix)
 
