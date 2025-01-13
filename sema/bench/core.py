@@ -189,8 +189,11 @@ class Sembench(ServiceBase):
             try:
                 self.dispatch_task(task)
             except Exception as e:
-                log.error(f"{task.task_id} failed with exception: {e}")
+                log.error(
+                    f"{task.task_id} in {self.sembench_config_path} "
+                    f"failed with exception: {e}")
                 if self.fail_fast:
+                    log.error("Fail fast Mode enabled. Exiting.")
                     raise e
 
     @Trace.init(Trace)
