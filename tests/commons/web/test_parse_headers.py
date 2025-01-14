@@ -45,7 +45,12 @@ def test_parse_headers(
     ("mode", "content", "expected_error", "expected_result"),
     [
         ("invalid-mode", "some-content", "mode should be one of", None),
-        ("content-type", "invalidtype;extra", None, ("text/plain", {"extra": ""})),
+        (
+            "content-type",
+            "invalidtype;extra",
+            None,
+            ("text/plain", {"extra": ""}),
+        ),
     ],
 )
 def test_parse_headers_errors(
@@ -60,4 +65,6 @@ def test_parse_headers_errors(
             raise AssertionError("There should have been an error")
     else:
         result = parse_header(content, mode)
-        assert result == expected_result, f"Expected {expected_result}, but got {result}"
+        assert result == expected_result, (
+            f"Expected {expected_result}, " f"but got {result}"
+        )

@@ -161,7 +161,8 @@ class Discovery(ServiceBase):
     def _extract_triples_from_response(self, resp: Response):
         # note we can be sure the response is ok, as we checked that before
         resp_mime_type, options = get_parsed_header(
-            resp.headers, "Content-Type",
+            resp.headers,
+            "Content-Type",
         )
         if not resp_mime_type:
             log.debug(f"no content-type header in {resp.url=}")
