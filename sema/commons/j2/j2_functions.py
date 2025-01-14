@@ -103,7 +103,7 @@ def xsd_format_gyear(content: Any, quote: str, *_: Any) -> str:
     # we should be sure of int now
     # see https://www.datypic.com/sc/xsd11/t-xsd_gYear.html
     # for examples of correct value formatting
-    content = f"{"-" if year < 0 else ""}{abs(year):04d}"
+    content = f"{'-' if year < 0 else ''}{abs(year):04d}"
     return xsd_value(content, quote, "xsd:gYear")
 
 
@@ -123,7 +123,7 @@ def xsd_format_gyearmonth(content: Any, quote: str, *_: Any) -> str:
         year, month = int(year) * sign, int(month)
     # https://www.datypic.com/sc/xsd11/t-xsd_gYearMonth.html
     # for examples of correct value formatting
-    content = f"{"-" if year < 0 else ""}{abs(year):04d}-{month:02d}"
+    content = f"{'-' if year < 0 else ''}{abs(year):04d}-{month:02d}"
     return xsd_value(content, quote, "xsd:gYearMonth")
 
 
