@@ -45,7 +45,7 @@ class FoundVariants(ServiceResult, StatusMonitor):
             else None
         )
         cdispval, cdispparams = get_parsed_header(
-            response.headers, "Content-Disposition"  # type: ignore
+            response.headers, "Content-Disposition",
         )
         cdispfile = (
             cdispparams.get("filename") if cdispval == "attachment" else None

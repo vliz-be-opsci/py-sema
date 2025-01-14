@@ -22,7 +22,7 @@ def download_to_file(
         dump_path=Path(dump_path),
         filename=filename,
         url=url,
-        mime_type=get_parsed_header(response.headers, "Content-Type")[0],  # type: ignore # noqa
+        mime_type=get_parsed_header(response.headers, "Content-Type")[0],
         profile=headers.get("Accept-profile", None),
         content=content,
     )

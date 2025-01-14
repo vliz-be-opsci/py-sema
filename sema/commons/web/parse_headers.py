@@ -2,7 +2,7 @@ from email.message import EmailMessage
 
 
 def parse_header(
-    content: str, mode: str = "content-type"
+    content: str, mode: str = "content-type",
 ) -> tuple[str, dict[str, str]]:
     # deal with empty content
     if content is None:
@@ -27,5 +27,8 @@ def parse_header(
     return main, params
 
 
-def get_parsed_header(headers, key) -> tuple[str, dict[str, str]]:
+def get_parsed_header(
+    headers: dict[str, str],
+    key: str,
+) -> tuple[str, dict[str, str]]:
     return parse_header(headers.get(key, None), key)

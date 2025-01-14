@@ -191,7 +191,7 @@ class Sembench(ServiceBase):
             except Exception as e:
                 log.error(
                     f"{task.task_id} in {self.sembench_config_path} "
-                    f"failed with exception: {e}"
+                    f"failed with exception: {e}",
                 )
                 if self.fail_fast:
                     log.error("Fail fast Mode enabled. Exiting.")
