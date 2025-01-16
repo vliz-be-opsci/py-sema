@@ -136,8 +136,15 @@ class PatternedFileSink(Sink):
     def _add(
         self, file_path: str, part: str, source_mtime: float | None = None
     ):
+        out_path: Path = Path(file_path)
+        if out_path.exists() and out_path.is_dir():
+            log.warning(
+                f"Skipping creation of {file_path} as it is a directory. "
+            )
+            return
+        # else
         sink_mtime = (
-            Path(file_path).stat().st_mtime if Path(file_path).exists() else 0
+            out_path.stat().st_mtime if out_path.exists() else 0
         )
         if source_mtime and (source_mtime < sink_mtime):
             log.info(
@@ -145,6 +152,7 @@ class PatternedFileSink(Sink):
                 f"(source_mtime = {source_mtime}; sink_mtime = {sink_mtime})"
             )
             return
+        # else
         assert_writable(file_path, self._force_output)
         log.info(f"Creating {file_path}")
         with open(file_path, "w", encoding="utf-8") as f:
@@ -157,6 +165,8 @@ class PatternedFileSink(Sink):
         source_mtime: float | None = None,
     ):
         assert item is not None, "No data context available to expand template"
+        # TODO check if all required fields in the template are available (not-empty) in the item
+        # warn if not
         file_path = self._name_template.expand(item)
         if self._allow_repeated_sink_paths:
             extended_file_path = file_path[:]
