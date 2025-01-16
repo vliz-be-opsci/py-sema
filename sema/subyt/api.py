@@ -299,20 +299,24 @@ class Generator(ABC):
             """Actually pushes the item queued"""
             item = self.queued_item
             log.debug(f"processing item _ = {item}")
-            part = self.render(
-                _=item,
-                sets=self.sets,
-                ctrl={
-                    "isFirst": self.isFirst,
-                    "isLast": self.isLast,
-                    "index": self.index,
-                    "settings": self.generator_settings,
-                },
-                **self.variables,
-            )
-            self.sink.open()
-            self.sink.add(part, item, self.source_mtime)
-            self.sink.close()
+            try:
+                part = self.render(
+                    _=item,
+                    sets=self.sets,
+                    ctrl={
+                        "isFirst": self.isFirst,
+                        "isLast": self.isLast,
+                        "index": self.index,
+                        "settings": self.generator_settings,
+                    },
+                    **self.variables,
+                )
+                self.sink.open()
+                self.sink.add(part, item, self.source_mtime)
+                self.sink.close()
+            except Exception as e:
+                log.exception(f"error while processing {item=}", e)
+
             self.queued_item = None
             self.isFirst = False
             self.index += 1
