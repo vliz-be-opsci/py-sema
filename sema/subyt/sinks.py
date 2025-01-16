@@ -171,8 +171,8 @@ class PatternedFileSink(Sink):
                     or item[var_name] == ""
                 ):
                     log.warning(
-                        f"PatternSink expansion of pattern {self._name_template.uri} requires "
-                        f"field '{var_name}' to be present in item which is not the case."
+                        f"{self} expansion requires field '{var_name}'. "
+                        "It is however not present in the current item."
                     )
         file_path = self._name_template.expand(item)
         if self._allow_repeated_sink_paths:
