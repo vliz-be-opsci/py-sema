@@ -143,9 +143,7 @@ class PatternedFileSink(Sink):
             )
             return
         # else
-        sink_mtime = (
-            out_path.stat().st_mtime if out_path.exists() else 0
-        )
+        sink_mtime = out_path.stat().st_mtime if out_path.exists() else 0
         if source_mtime and (source_mtime < sink_mtime):
             log.info(
                 f"Aborting creation of {file_path} "
@@ -165,8 +163,17 @@ class PatternedFileSink(Sink):
         source_mtime: float | None = None,
     ):
         assert item is not None, "No data context available to expand template"
-        # TODO check if all required fields in the template are available (not-empty) in the item
-        # warn if not
+        for template_var in self._name_template.variables:
+            for var_name in template_var.variable_names:
+                if (
+                    var_name not in item
+                    or item[var_name] is None
+                    or item[var_name] == ""
+                ):
+                    log.warning(
+                        f"PatternSink expansion of pattern {self._name_template.uri} requires "
+                        f"field '{var_name}' to be present in item which is not the case."
+                    )
         file_path = self._name_template.expand(item)
         if self._allow_repeated_sink_paths:
             extended_file_path = file_path[:]

@@ -1,10 +1,17 @@
-import pytest
 import logging
 import os
 import random
 import string
 import tempfile
-from sema.subyt.sinks import PatternedFileSink, SingleFileSink, StdOutSink, SinkFactory
+
+import pytest
+
+from sema.subyt.sinks import (
+    PatternedFileSink,
+    SingleFileSink,
+    SinkFactory,
+    StdOutSink,
+)
 
 log = logging.getLogger(__name__)
 
@@ -31,12 +38,13 @@ def test_factory(identifier, expected_type):
 
 
 @pytest.mark.parametrize(
-    "items", [
+    "items",
+    [
         [
             {
                 "id": i,
                 "key": f"{i:04d}",
-                "data": f"data-{i:d}-{rand_alfanum_str(20)}"
+                "data": f"data-{i:d}-{rand_alfanum_str(20)}",
             }
             for i in range(4)
         ]
@@ -51,7 +59,9 @@ def test_sink_outputs(items):
     count = len(items)
 
     with tempfile.TemporaryDirectory(dir=temp) as temp_folder:
-        all_in_one_sink = SinkFactory.make_sink(os.path.join(temp_folder, "all.out"))
+        all_in_one_sink = SinkFactory.make_sink(
+            os.path.join(temp_folder, "all.out")
+        )
 
         separate_files_sink = SinkFactory.make_sink(
             os.path.join(temp_folder, "item-{key}.out")
@@ -66,7 +76,7 @@ def test_sink_outputs(items):
         # assert there are now count +1 files
         # +1 for the all-out and one for each item
         foundfiles = len(os.listdir(temp_folder))
-        assert (count + 1 == foundfiles), (
+        assert count + 1 == foundfiles, (
             "expecting exactly one more files than the number of items "
             f"in the folder {temp_folder} "
             f"found {foundfiles} files - but expected {count + 1}",
@@ -75,9 +85,7 @@ def test_sink_outputs(items):
         # assert content of the item files
         all_data = ""
         for item in items:
-            item_file = os.path.join(
-                temp_folder, f"item-{item['id']:04d}.out"
-            )
+            item_file = os.path.join(temp_folder, f"item-{item['id']:04d}.out")
             with open(item_file, "r") as f:
                 content = f.read()
                 assert item["data"] == content, (
@@ -92,7 +100,7 @@ def test_sink_outputs(items):
                 "aggregated content for all items should match",
             )
 
-        # test the leniency of pattern production 
+        # test the leniency of pattern production
         # by removing one {key} in the available items
         items[1]["key"] = ""
         log.debug(f"updated items is now: {items}")
@@ -108,7 +116,7 @@ def test_sink_outputs(items):
         # this should have worked without errors
         # and created one less extra file then the number of items
         newfoundfiles = len(os.listdir(temp_folder)) - foundfiles
-        assert (count - 1 == newfoundfiles), (
+        assert count - 1 == newfoundfiles, (
             "unexpectd amount of newly generated files when one key was empty "
             f"in the folder {temp_folder} "
             f"found {newfoundfiles} new files - but expected {count - 1}",
