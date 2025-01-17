@@ -9,17 +9,18 @@ from .api import Sink
 log = logging.getLogger(__name__)
 
 
-def assert_writable(file_path: str, force_output: bool = False):
+def assert_writable(path_name: str | Path, force_output: bool = False):
+    out_path = Path(path_name)
     if not force_output:
-        assert not os.path.isfile(
-            file_path
-        ), f"File to write '{file_path}' already exists"
-    parent_path = Path(file_path).parent.absolute()
-    if not os.path.exists(parent_path):
-        os.makedirs(parent_path)
-    assert os.access(
-        parent_path, os.W_OK
-    ), f"Can not write to folder '{parent_path}' for creating new files"
+        assert not out_path.exists(), (
+            f"File to write '{path_name}' already exists"
+        )
+    # ensure parent folder exists
+    parent_path = out_path.parent.absolute()
+    parent_path.mkdir(parents=True, exist_ok=True)
+    assert os.access(parent_path, os.W_OK), (
+        f"Can not write to folder '{parent_path}' for creating new files",
+    )
 
 
 class SinkFactory:
@@ -74,17 +75,17 @@ class StdOutSink(Sink):
 
 
 class SingleFileSink(Sink):
-    def __init__(self, file_path: str, force_output: bool = False):
+    def __init__(self, path_name: str, force_output: bool = False):
         super().__init__()
-        assert_writable(file_path, force_output)
-        self._file_path = file_path
+        assert_writable(path_name, force_output)
+        self._file_path: Path = Path(path_name)
         self._force_output = force_output
-        if Path(file_path).exists():
-            self.mtimes = {file_path: os.stat(file_path).st_mtime}
+        if self._file_path.exists():
+            self.mtimes = {path_name: self._file_pathpath_name.stats().st_mtime}
 
     def __repr__(self):
         return (
-            f"SingleFileSink('{str(Path(self._file_path).resolve())}', "
+            f"SingleFileSink('{str(self._file_path.resolve())}', "
             f"{self._force_output})"
         )
 
