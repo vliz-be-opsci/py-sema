@@ -1,5 +1,4 @@
 import logging
-import unittest
 from collections.abc import Iterable
 from typing import Callable
 
@@ -107,18 +106,12 @@ class SimplePassGenerator(Generator):
         return render
 
 
-class TestAPIProcessor(unittest.TestCase):
-    """Core purpose of this test is checking up on the processor behaviour
-    More precisely - checking if all items are correctly processed and
-        the ctrl variables are set correctly
-    """
-
-    def test_processor(self):
-        TESTSIZE = 5
-        TESTNAME = "something to be actually ignored but just tested"
-        fg = SimplePassGenerator(TESTNAME, TESTSIZE)
-        inputs = dict(_=SimpleRangeSource(TESTSIZE))
-        generator_settings = GeneratorSettings()
-        sink = CountingSink(TESTSIZE)
-        fg.process(TESTNAME, inputs, generator_settings, sink)
-        sink.evaluate()
+def test_processor():
+    TESTSIZE = 5
+    TESTNAME = "something to be actually ignored but just tested"
+    fg = SimplePassGenerator(TESTNAME, TESTSIZE)
+    inputs = dict(_=SimpleRangeSource(TESTSIZE))
+    generator_settings = GeneratorSettings()
+    sink = CountingSink(TESTSIZE)
+    fg.process(TESTNAME, inputs, generator_settings, sink)
+    sink.evaluate()
