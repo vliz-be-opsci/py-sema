@@ -13,8 +13,7 @@ SUBYT_TEST_FOLDER = Path(__file__).absolute().parent
 def test_allow_repeated_sink_paths():
     Subyt(
         source=str(
-            SUBYT_TEST_FOLDER
-            / "resources/data_with_repeated_identifiers.csv"
+            SUBYT_TEST_FOLDER / "resources/data_with_repeated_identifiers.csv"
         ),
         sink=str(SUBYT_TEST_FOLDER / "tmp/data/{key}.ttl"),
         template_name="data.ttl.j2",
@@ -31,14 +30,13 @@ def test_allow_repeated_sink_paths():
 def test_disallow_repeated_sink_paths():
     subyt = Subyt(
         source=str(
-            SUBYT_TEST_FOLDER
-            / "resources/data_with_repeated_identifiers.csv"
+            SUBYT_TEST_FOLDER / "resources/data_with_repeated_identifiers.csv"
         ),
         sink=str(SUBYT_TEST_FOLDER / "tmp/data/{key}.ttl"),
         template_name="data.ttl.j2",
         template_folder=str(SUBYT_TEST_FOLDER / "resources"),
         conditional=True,
-        break_on_error=True,  # be sure to break on error 
+        break_on_error=True,  # be sure to break on error
     )
     with pytest.raises(RuntimeError):
         subyt.process()

@@ -40,7 +40,8 @@ def test_cases_roundtrip():
         case_mode = ",".join(case_parts)
         case_generator_settings = GeneratorSettings(case_mode)
         for key in keys:
-            assert case_vals[key] == case_generator_settings.__getattr__(key), (
+            settings_val = case_generator_settings.__getattr__(key)
+            assert case_vals[key] == settings_val, (
                 f"wrong setting for key '{key}' via modstr "
                 f"'{case_mode}' should be {case_vals[key]}",
             )

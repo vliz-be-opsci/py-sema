@@ -132,7 +132,7 @@ class CollectionSource(Source):
         assert len(self._sourcefiles) > 0, (
             f"{self} should have content files.",
         )
-        self.mtimes = {str(p): p.stat().st_mtime for p in self._sourcefiles}
+        self._init_mtimes(self._sourcefiles)
         self._reset()
 
     def _reset(self):
@@ -191,9 +191,9 @@ class FolderSource(CollectionSource):
     def __init__(self, folder_path: Path):
         super().__init__()
         self._collection_path = folder_path.absolute()
-        self._init_sourcefiles([
-            f for f in self._collection_path.iterdir() if f.is_file()
-        ])
+        self._init_sourcefiles(
+            [f for f in self._collection_path.iterdir() if f.is_file()]
+        )
 
     def __repr__(self):
         return f"FolderSource('{self._collection_path}')"
@@ -204,9 +204,9 @@ class GlobSource(CollectionSource):
         super().__init__()
         self._collection_path = Path(pattern_root_dir).absolute()
         self._pattern: str = pattern
-        self._init_sourcefiles([
-            f for f in self._collection_path.glob(pattern) if f.is_file()
-        ])
+        self._init_sourcefiles(
+            [f for f in self._collection_path.glob(pattern) if f.is_file()]
+        )
 
     def __repr__(self):
         return f"GlobSource('{self._pattern}', '{self._collection_path}')"

@@ -2,8 +2,8 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Callable, Dict
 from pathlib import Path
+from typing import Callable, Dict
 
 log = logging.getLogger(__name__)
 
@@ -55,10 +55,18 @@ class Source(ABC):
     def __exit__(self, *exc):
         """Source context cleanup"""
 
+    def _init_mtimes(self, file_paths: list[Path]):
+        """Initializes the source, sets the mtimes dict for the source_files"""
+        if file_paths:
+            self.mtimes = {
+                str(file_path): file_path.stat().st_mtime
+                for file_path in file_paths
+                if file_path.exists() and file_path.is_file()
+            }
+
     def _init_source(self, source_path: Path):
-        """Initializes the source, setting the lastModifiedTime for each file"""
-        if source_path.exists():
-            self.mtimes = {str(source_path): source_path.stat().st_mtime}
+        """Initializes the source, setting the mtime for the sourcefile"""
+        self._init_mtimes([source_path])
 
 
 # TODO make a pandas source in sources.py
@@ -101,7 +109,9 @@ class GeneratorSettings:
             ]
         )
 
-    def __init__(self, modifiers: str | None = None, *, break_on_error: bool = False):
+    def __init__(
+        self, modifiers: str | None = None, *, break_on_error: bool = False
+    ):
         self._values = {
             key: val["default"]
             for (key, val) in GeneratorSettings._scheme.items()

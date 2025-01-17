@@ -8,7 +8,11 @@ from sema.subyt import Subyt
 from sema.subyt.api import GeneratorSettings
 from sema.subyt.j2.generator import JinjaBasedGenerator
 from sema.subyt.sources import SourceFactory
-from tests.subyt.test_generator import AssertingSink, get_expected_parts, get_indicator_from_name
+from tests.subyt.test_generator import (
+    AssertingSink,
+    get_expected_parts,
+    get_indicator_from_name,
+)
 
 log = logging.getLogger(__name__)
 
@@ -75,9 +79,7 @@ def test_conditional():
     inp_names = [
         i for i in inp_names if i != "data_glob"
     ]  # filter "data_glob" folder source out
-    inp_names.extend(
-        ["data_glob/*.json"]
-    )  # insert "glob pattern" glob source
+    inp_names.extend(["data_glob/*.json"])  # insert "glob pattern" glob source
     for inp_name in inp_names:
         key = get_indicator_from_name(inp_name, fallback="_")
         assert key not in inputs, (

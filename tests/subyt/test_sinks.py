@@ -2,10 +2,9 @@ import logging
 import random
 import string
 import tempfile
+from pathlib import Path
 
 import pytest
-
-from pathlib import Path
 
 from sema.subyt.sinks import (
     PatternedFileSink,
@@ -63,7 +62,9 @@ def test_sink_outputs(items):
         all_file = temp_path / "all.out"
         all_in_one_sink = SinkFactory.make_sink(str(all_file))
 
-        separate_files_sink = SinkFactory.make_sink(str(temp_path / "item-{key}.out"))
+        separate_files_sink = SinkFactory.make_sink(
+            str(temp_path / "item-{key}.out")
+        )
 
         for sink in [all_in_one_sink, separate_files_sink]:
             sink.open()

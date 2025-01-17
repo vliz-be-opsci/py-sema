@@ -61,7 +61,7 @@ class Subyt(ServiceBase):
         :param allow_repeated_sink_paths: allows to repeat sink paths
             Only applies when using a patterned-output sink.
             When set to True generated output for later records to the same
-            filenames will actually end up in variant filenames 
+            filenames will actually end up in variant filenames
             (i.e. extended with an index number)
             When set to False (default), the generator will raise an error if
             later records attempt to write to the same file.
@@ -71,7 +71,7 @@ class Subyt(ServiceBase):
             Default is False (no conditional processing / always run)
         :type conditional: bool | str
         :param break_on_error: stops processing when an error occurs
-            When set to True, any error during processing will prevent 
+            When set to True, any error during processing will prevent
             remaining records to be processed.
             When set to False (default), all records should get an equal
             chance to be processed.
@@ -102,7 +102,9 @@ class Subyt(ServiceBase):
         )
         self._conditional = bool(conditional)
         self._variables = variables
-        self._generator_settings = GeneratorSettings(mode, break_on_error=break_on_error)
+        self._generator_settings = GeneratorSettings(
+            mode, break_on_error=break_on_error
+        )
 
         # output options
         if sink is None:

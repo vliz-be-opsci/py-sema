@@ -1,6 +1,6 @@
 import logging
-
 from pathlib import Path
+
 from sema.subyt.api import GeneratorSettings, Sink
 from sema.subyt.j2.generator import JinjaBasedGenerator
 from sema.subyt.sources import SourceFactory

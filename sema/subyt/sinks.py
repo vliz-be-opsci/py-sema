@@ -13,7 +13,7 @@ def assert_writable(path_name: str | Path, force_output: bool = False):
     out_path = Path(path_name)
     if not force_output:
         assert not out_path.exists(), (
-            f"File to write '{path_name}' already exists"
+            f"File to write '{path_name}' already exists",
         )
     # ensure parent folder exists
     parent_path = out_path.parent.absolute()
@@ -81,7 +81,9 @@ class SingleFileSink(Sink):
         self._file_path: Path = Path(path_name)
         self._force_output = force_output
         if self._file_path.exists():
-            self.mtimes = {path_name: self._file_pathpath_name.stats().st_mtime}
+            self.mtimes = {
+                path_name: self._file_pathpath_name.stats().st_mtime
+            }
 
     def __repr__(self):
         return (
