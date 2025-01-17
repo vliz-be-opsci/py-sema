@@ -91,7 +91,9 @@ class SourceFactory:
         # check for url
         if check_valid_url(str(identifier)):
             mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
-            assert False, "TODO remote Source support - see issues #8"
+            raise NotImplementedError(
+                "Remote Source support not implemented yet - see issues #8"
+            )
 
         # else get input types nicely split str vs Path
         source_path: Path = Path(identifier)
