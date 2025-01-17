@@ -3,6 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Callable, Dict
+from pathlib import Path
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +55,11 @@ class Source(ABC):
     def __exit__(self, *exc):
         """Source context cleanup"""
 
+    def _init_source(self, source_path: Path):
+        """Initializes the source, setting the lastModifiedTime for each file"""
+        if source_path.exists():
+            self.mtimes = {str(source_path): source_path.stat().st_mtime}
+
 
 # TODO make a pandas source in sources.py
 
@@ -95,11 +101,13 @@ class GeneratorSettings:
             ]
         )
 
-    def __init__(self, modifiers: str | None = None):
+    def __init__(self, modifiers: str | None = None, *, break_on_error: bool = False):
         self._values = {
             key: val["default"]
             for (key, val) in GeneratorSettings._scheme.items()
         }
+        # add API only keys...
+        self._values.update({"break_on_error": break_on_error})
         if modifiers is not None:
             self.load_from_modifiers(modifiers)
 
@@ -125,9 +133,9 @@ class GeneratorSettings:
                 for (key, val) in self._values.items()
                 if key.startswith(part)
             ]
-            assert (
-                len(found) == 1
-            ), f"ambiguous modifier string '{part}' matches list: {found}"
+            assert len(found) == 1, (
+                f"ambiguous modifier string '{part}' matches list: {found}",
+            )
             key = found[0]
             assert not set_parts[key], (
                 "ambiguous modifier string "
@@ -144,6 +152,7 @@ class GeneratorSettings:
             [
                 "no-" + key if not val else key
                 for (key, val) in self._values.items()
+                if key in GeneratorSettings._scheme.keys()
             ]
         )
 
@@ -314,8 +323,10 @@ class Generator(ABC):
                 self.sink.open()
                 self.sink.add(part, item, self.source_mtime)
                 self.sink.close()
-            except Exception as e:
-                log.exception(f"error while processing {item=}", e)
+            except Exception:
+                log.exception(f"error while processing {item=}")
+                if self.generator_settings.break_on_error:
+                    raise
 
             self.queued_item = None
             self.isFirst = False
