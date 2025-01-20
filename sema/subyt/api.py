@@ -2,6 +2,7 @@ import itertools
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
+from pathlib import Path
 from typing import Callable, Dict
 
 log = logging.getLogger(__name__)
@@ -54,6 +55,19 @@ class Source(ABC):
     def __exit__(self, *exc):
         """Source context cleanup"""
 
+    def _init_mtimes(self, file_paths: list[Path]):
+        """Initializes the source, sets the mtimes dict for the source_files"""
+        if file_paths:
+            self.mtimes = {
+                str(file_path): file_path.stat().st_mtime
+                for file_path in file_paths
+                if file_path.exists() and file_path.is_file()
+            }
+
+    def _init_source(self, source_path: Path):
+        """Initializes the source, setting the mtime for the sourcefile"""
+        self._init_mtimes([source_path])
+
 
 # TODO make a pandas source in sources.py
 
@@ -95,11 +109,15 @@ class GeneratorSettings:
             ]
         )
 
-    def __init__(self, modifiers: str | None = None):
+    def __init__(
+        self, modifiers: str | None = None, *, break_on_error: bool = False
+    ):
         self._values = {
             key: val["default"]
             for (key, val) in GeneratorSettings._scheme.items()
         }
+        # add API only keys...
+        self._values.update({"break_on_error": break_on_error})
         if modifiers is not None:
             self.load_from_modifiers(modifiers)
 
@@ -125,9 +143,9 @@ class GeneratorSettings:
                 for (key, val) in self._values.items()
                 if key.startswith(part)
             ]
-            assert (
-                len(found) == 1
-            ), f"ambiguous modifier string '{part}' matches list: {found}"
+            assert len(found) == 1, (
+                f"ambiguous modifier string '{part}' matches list: {found}",
+            )
             key = found[0]
             assert not set_parts[key], (
                 "ambiguous modifier string "
@@ -144,6 +162,7 @@ class GeneratorSettings:
             [
                 "no-" + key if not val else key
                 for (key, val) in self._values.items()
+                if key in GeneratorSettings._scheme.keys()
             ]
         )
 
@@ -299,20 +318,26 @@ class Generator(ABC):
             """Actually pushes the item queued"""
             item = self.queued_item
             log.debug(f"processing item _ = {item}")
-            part = self.render(
-                _=item,
-                sets=self.sets,
-                ctrl={
-                    "isFirst": self.isFirst,
-                    "isLast": self.isLast,
-                    "index": self.index,
-                    "settings": self.generator_settings,
-                },
-                **self.variables,
-            )
-            self.sink.open()
-            self.sink.add(part, item, self.source_mtime)
-            self.sink.close()
+            try:
+                part = self.render(
+                    _=item,
+                    sets=self.sets,
+                    ctrl={
+                        "isFirst": self.isFirst,
+                        "isLast": self.isLast,
+                        "index": self.index,
+                        "settings": self.generator_settings,
+                    },
+                    **self.variables,
+                )
+                self.sink.open()
+                self.sink.add(part, item, self.source_mtime)
+                self.sink.close()
+            except Exception:
+                log.exception(f"error while processing {item=}")
+                if self.generator_settings.break_on_error:
+                    raise
+
             self.queued_item = None
             self.isFirst = False
             self.index += 1

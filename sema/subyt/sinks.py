@@ -9,17 +9,18 @@ from .api import Sink
 log = logging.getLogger(__name__)
 
 
-def assert_writable(file_path: str, force_output: bool = False):
+def assert_writable(path_name: str | Path, force_output: bool = False):
+    out_path = Path(path_name)
     if not force_output:
-        assert not os.path.isfile(
-            file_path
-        ), f"File to write '{file_path}' already exists"
-    parent_path = Path(file_path).parent.absolute()
-    if not os.path.exists(parent_path):
-        os.makedirs(parent_path)
-    assert os.access(
-        parent_path, os.W_OK
-    ), f"Can not write to folder '{parent_path}' for creating new files"
+        assert not out_path.exists(), (
+            f"File to write '{path_name}' already exists",
+        )
+    # ensure parent folder exists
+    parent_path = out_path.parent.absolute()
+    parent_path.mkdir(parents=True, exist_ok=True)
+    assert os.access(parent_path, os.W_OK), (
+        f"Can not write to folder '{parent_path}' for creating new files",
+    )
 
 
 class SinkFactory:
@@ -74,17 +75,19 @@ class StdOutSink(Sink):
 
 
 class SingleFileSink(Sink):
-    def __init__(self, file_path: str, force_output: bool = False):
+    def __init__(self, path_name: str, force_output: bool = False):
         super().__init__()
-        assert_writable(file_path, force_output)
-        self._file_path = file_path
+        assert_writable(path_name, force_output)
+        self._file_path: Path = Path(path_name)
         self._force_output = force_output
-        if Path(file_path).exists():
-            self.mtimes = {file_path: os.stat(file_path).st_mtime}
+        if self._file_path.exists():
+            self.mtimes = {
+                str(self._file_path): self._file_path.stats().st_mtime
+            }
 
     def __repr__(self):
         return (
-            f"SingleFileSink('{str(Path(self._file_path).resolve())}', "
+            f"SingleFileSink('{str(self._file_path.resolve())}', "
             f"{self._force_output})"
         )
 
@@ -136,15 +139,21 @@ class PatternedFileSink(Sink):
     def _add(
         self, file_path: str, part: str, source_mtime: float | None = None
     ):
-        sink_mtime = (
-            Path(file_path).stat().st_mtime if Path(file_path).exists() else 0
-        )
+        out_path: Path = Path(file_path)
+        if out_path.exists() and out_path.is_dir():
+            log.warning(
+                f"Skipping creation of {file_path} as it is a directory. "
+            )
+            return
+        # else
+        sink_mtime = out_path.stat().st_mtime if out_path.exists() else 0
         if source_mtime and (source_mtime < sink_mtime):
             log.info(
                 f"Aborting creation of {file_path} "
                 f"(source_mtime = {source_mtime}; sink_mtime = {sink_mtime})"
             )
             return
+        # else
         assert_writable(file_path, self._force_output)
         log.info(f"Creating {file_path}")
         with open(file_path, "w", encoding="utf-8") as f:
@@ -157,6 +166,17 @@ class PatternedFileSink(Sink):
         source_mtime: float | None = None,
     ):
         assert item is not None, "No data context available to expand template"
+        for template_var in self._name_template.variables:
+            for var_name in template_var.variable_names:
+                if (
+                    var_name not in item
+                    or item[var_name] is None
+                    or item[var_name] == ""
+                ):
+                    log.warning(
+                        f"{self} expansion requires field '{var_name}'. "
+                        "It is however not present in the current item."
+                    )
         file_path = self._name_template.expand(item)
         if self._allow_repeated_sink_paths:
             extended_file_path = file_path[:]

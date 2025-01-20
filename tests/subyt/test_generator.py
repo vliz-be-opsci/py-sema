@@ -1,6 +1,5 @@
 import logging
-import os
-import unittest
+from pathlib import Path
 
 from sema.subyt.api import GeneratorSettings, Sink
 from sema.subyt.j2.generator import JinjaBasedGenerator
@@ -10,9 +9,8 @@ log = logging.getLogger(__name__)
 
 
 class AssertingSink(Sink):
-    def __init__(self, test):
+    def __init__(self):
         super().__init__()
-        self._test = test
         self._parts = []
 
     def load_parts(self, parts):
@@ -20,7 +18,7 @@ class AssertingSink(Sink):
         self._index = 0
 
     def _assert_count(self):
-        self._test.assertEqual(self._index, len(self._parts))
+        assert self._index == len(self._parts), "not all parts were rendered"
 
     def add(self, part: str, item: dict = None, source_mtime: float = None):
         log.debug(f"part received no. {self._index}:\n--\n{part}\n--")
@@ -29,9 +27,7 @@ class AssertingSink(Sink):
         log.debug(f"expected part == \n{expected}\n")
         log.debug(f"actual part == \n{part}\n")
         log.debug(f"expectations ok: {bool(part == expected)}")
-        self._test.assertEqual(
-            expected,
-            part,
+        assert expected == part, (
             f"unexpected rendering for part at index {self._index}",
         )
         self._index += 1
@@ -66,76 +62,65 @@ def get_indicator_from_name(
     known_cases = {"data_glob/*.json": "glob"}
     if name in known_cases.keys():
         return known_cases[name]
-    stem = os.path.splitext(name)[0]
+    stem = Path(name).stem
     indicator = (
         stem[stem.index(splitter) + 1 :] if splitter in stem else fallback
     )
     return indicator
 
 
-class TestJinjaGenerator(unittest.TestCase):
-    def test_templates(self):
-        log.debug("beginning test_templates")
-        self.maxDiff = None
-        base = os.path.abspath(os.path.dirname(__file__))
-        tpl_path = os.path.join(base, "templates")
-        out_path = os.path.join(base, "out")
-        inp_path = os.path.join(base, "in")
+def test_templates():
+    base: Path = Path(__file__).parent.relative_to(Path(".").absolute())
+    log.debug(f"beginning test_templates in {base !s}")
+    tpl_path: Path = base / "templates"
+    out_path: Path = base / "out"
+    inp_path: Path = base / "in"
 
-        g = JinjaBasedGenerator(tpl_path)
+    g = JinjaBasedGenerator(tpl_path)
 
-        inputs = dict()
-        inp_content = next(
-            os.walk(inp_path), (None, None, [])
-        )  # the stuff in the folder
-        inp_names = list(inp_content[2])  # the files
-        inp_names.extend(inp_content[1])  # the folders too
-        inp_names = [
-            i for i in inp_names if i != "data_glob"
-        ]  # filter "data_glob" folder source out
-        inp_names.extend(
-            ["data_glob/*.json"]
-        )  # insert "glob pattern" glob source
-        for inp_name in inp_names:
-            key = get_indicator_from_name(inp_name, fallback="_")
-            assert key not in inputs, (
-                f"duplicate key '{key}' for input '"
-                f"{inp_name}' --> object[{inputs[key]}]"
+    inputs = dict()
+    inp_names = [p.name for p in inp_path.iterdir()]  # the stuff in the folder
+    inp_names = [
+        nm for nm in inp_names if nm != "data_glob"
+    ]  # filter "data_glob" folder source out to avoid FolderSource for it
+    inp_names.extend(
+        ["data_glob/*.json"]
+    )  # insert "glob pattern" glob source for that folder in stead
+    for inp_name in inp_names:
+        key = get_indicator_from_name(inp_name, fallback="_")
+        assert key not in inputs, (
+            f"duplicate key '{key}' for input '"
+            f"{inp_name}' --> object[{inputs[key]}]"
+        )
+        inputs[key] = SourceFactory.make_source(str(inp_path / inp_name))
+
+    assert "_" in inputs, "the base set should be available"
+    sink = AssertingSink()
+
+    # read all names (files) in the tpl_path
+    tpl_names = [p.name for p in tpl_path.iterdir() if p.is_file()]
+
+    for tpl_name in tpl_names:
+        # load the expected parts from the matching output-file in the sink
+        sink.load_parts(get_expected_parts(out_path / tpl_name))
+        generator_settings = GeneratorSettings(
+            get_indicator_from_name(tpl_name)
+        )
+
+        # process
+        log.debug(f"processing test-template: {tpl_path / tpl_name !s}")
+        try:
+            g.process(
+                tpl_name,
+                inputs,
+                generator_settings,
+                sink,
+                vars_dict={"my_domain": "realexample.org"},
             )
-            inputs[key] = SourceFactory.make_source(
-                os.path.join(inp_path, inp_name)
-            )
+        except Exception:
+            log.exception("failed to process template")
+            raise
 
-        self.assertTrue("_" in inputs, "the base set should be available")
-        sink = AssertingSink(self)
-
-        # read all names (files) in the tpl_path
-        names = next(os.walk(tpl_path), (None, None, []))[2]  # [] if no file
-
-        for name in names:
-            # load the expected parts from the matching output-file in the sink
-            sink.load_parts(get_expected_parts(os.path.join(out_path, name)))
-            generator_settings = GeneratorSettings(
-                get_indicator_from_name(name)
-            )
-
-            # process
-            log.debug(
-                f"processing test-template: {os.path.join(tpl_path, name)}"
-            )
-            try:
-                g.process(
-                    name,
-                    inputs,
-                    generator_settings,
-                    sink,
-                    vars_dict={"my_domain": "realexample.org"},
-                )
-            except Exception as e:
-                log.exception(e)
-                log.exception("failed to process template")
-                raise
-
-            # assure all records were passed
-            sink.evaluate()
-        log.debug("ending test_templates")
+        # assure all records were passed
+        sink.evaluate()
+    log.debug("ending test_templates")

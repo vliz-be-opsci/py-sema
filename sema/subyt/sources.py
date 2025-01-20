@@ -7,19 +7,19 @@ from pathlib import Path
 from typing import Callable
 
 import requests
-import validators
 from typeguard import check_type
+
+from sema.commons.clean.clean import check_valid_url
 
 from .api import Source
 
 log = logging.getLogger(__name__)
 
 
-def assert_readable(file_path):
-    assert os.path.isfile(
-        file_path
-    ), f"File to read '{file_path}' does not exist"
-    assert os.access(file_path, os.R_OK), f"Can not read '{file_path}'"
+def assert_readable(path_name: str | Path):
+    in_path = Path(path_name)
+    assert in_path.is_file(), f"File to read '{path_name}' does not exist"
+    assert os.access(in_path, os.R_OK), f"Can not read '{path_name}'"
 
 
 def fname_from_cdisp(cdisp):
@@ -45,9 +45,9 @@ class SourceFactory:
         self._register[mime] = sourceClass
 
     def _find(self, mime: str):
-        assert (
-            mime in self._register
-        ), f"no Source class available for mime '{mime}'"
+        assert mime in self._register, (
+            f"no Source class available for mime '{mime}'",
+        )
         return self._register[mime]
 
     @staticmethod
@@ -87,42 +87,55 @@ class SourceFactory:
         return mimetypes.guess_type(identifier)[0]  # type: ignore
 
     @staticmethod
-    def make_source(identifier: str) -> Source:
-        if validators.url(identifier):
+    def make_source(identifier: str | Path) -> Source:
+        # check for url
+        if check_valid_url(str(identifier)):
             mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
-            assert False, "TODO remote Source support - see issues #8"
+            raise NotImplementedError(
+                "Remote Source support not implemented yet - see issues #8"
+            )
 
-        # else
-        if os.path.isdir(identifier):
-            source = FolderSource(identifier)
+        # else get input types nicely split str vs Path
+        source_path: Path = Path(identifier)
+        identifier = str(identifier)
+        # check for folder source
+        source: Source = None
+        if source_path.is_dir():
+            source = FolderSource(source_path)
             return source
 
-        # else
+        # else check for glob
         if glob.has_magic(identifier):
             source = GlobSource(identifier)
             return source
 
-        # else
+        # else should be single file with source tuned to mime
         mime: str = SourceFactory.mime_from_identifier(identifier)
-        assert (
-            mime is not None
-        ), f"no valid mime derived from identifier '{identifier}'"
-        sourceClass: Callable[[str], Source] = SourceFactory.instance()._find(
-            mime
+        assert mime is not None, (
+            f"no valid mime derived from identifier '{identifier}'",
         )
-        source: Source = sourceClass(identifier)
-
+        sourceClass: Callable[[str], Source] = None
+        sourceClass = SourceFactory.instance()._find(mime)
+        source = sourceClass(source_path)
         return source
 
 
 class CollectionSource(Source):
     def __init__(self) -> None:
         super().__init__()
-        self._collection_path = "."
-        self._sourcefiles = []
+        self._collection_path: Path = Path(".")
+        self._sourcefiles: list[Path] = []
 
     def __repr__(self):
         return f"{type(self).__name__}('{self._collection_path}')"
+
+    def _init_sourcefiles(self, source_paths: list[Path]):
+        self._sourcefiles = sorted(source_paths)
+        assert len(self._sourcefiles) > 0, (
+            f"{self} should have content files.",
+        )
+        self._init_mtimes(self._sourcefiles)
+        self._reset()
 
     def _reset(self):
         self._current_source = None
@@ -138,9 +151,7 @@ class CollectionSource(Source):
         self._ix += 1
         if self._ix < len(self._sourcefiles):
             self._current_source = SourceFactory.make_source(
-                os.path.join(
-                    self._collection_path, self._sourcefiles[self._ix]
-                )
+                self._sourcefiles[self._ix]
             )
             self._current_iter = self._current_source.__enter__()
         else:
@@ -179,37 +190,28 @@ class CollectionSource(Source):
 
 
 class FolderSource(CollectionSource):
-    def __init__(self, folder_path):
+    def __init__(self, folder_path: Path):
         super().__init__()
-        self._collection_path = os.path.abspath(folder_path)
-        self._sourcefiles = sorted(
-            list(next(os.walk(self._collection_path), (None, None, []))[2])
+        self._collection_path = folder_path.absolute()
+        self._init_sourcefiles(
+            [f for f in self._collection_path.iterdir() if f.is_file()]
         )
-        assert (
-            len(self._sourcefiles) > 0
-        ), f"FolderSource '{self._collection_path}' should have content files."
-        self._reset()
-        self.mtimes = {}
-        for p in self._sourcefiles:
-            p = Path(self._collection_path) / Path(p)
-            self.mtimes.update({str(p): os.stat(p).st_mtime})
+
+    def __repr__(self):
+        return f"FolderSource('{self._collection_path}')"
 
 
 class GlobSource(CollectionSource):
-    def __init__(self, pattern, pattern_root_dir="."):
+    def __init__(self, pattern: str, pattern_root_dir: str = "."):
         super().__init__()
-        self._collection_path = pattern_root_dir
-        self._sourcefiles = sorted(
-            [p for p in glob.glob(pattern) if os.path.isfile(p)]
+        self._collection_path = Path(pattern_root_dir).absolute()
+        self._pattern: str = pattern
+        self._init_sourcefiles(
+            [f for f in self._collection_path.glob(pattern) if f.is_file()]
         )
-        assert (
-            len(self._sourcefiles) > 0
-        ), f"GlobSource '{self._collection_path}' should have content files."
-        self._reset()
-        self.mtimes = {}
-        for p in self._sourcefiles:
-            p = Path(self._collection_path) / Path(p)
-            self.mtimes.update({str(p): os.stat(p).st_mtime})
+
+    def __repr__(self):
+        return f"GlobSource('{self._pattern}', '{self._collection_path}')"
 
 
 try:
@@ -220,12 +222,11 @@ try:
         Source producing iterator over data-set coming from CSV on file
         """
 
-        def __init__(self, csv_file_path):
+        def __init__(self, csv_file_path: Path):
             super().__init__()
             assert_readable(csv_file_path)
-            self._csv = csv_file_path
-            if Path(csv_file_path).exists():
-                self.mtimes = {csv_file_path: os.stat(csv_file_path).st_mtime}
+            self._csv: Path = csv_file_path.absolute()
+            self._init_source(self._csv)
 
         def __enter__(self):
             self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
@@ -235,13 +236,13 @@ try:
             self._csvfile.close()
 
         def __repr__(self):
-            return f"CSVFileSource('{os.path.abspath(self._csv)}')"
+            return f"CSVFileSource('{self._csv!s}')"
 
     SourceFactory.register("text/csv", CSVFileSource)
     # wrong, yet useful mime for csv:
     SourceFactory.register("application/csv", CSVFileSource)
 except ImportError:
-    log.warn("Python CSV module not available -- disabling CSV support!")
+    log.warning("Python CSV module not available -- disabling CSV support!")
 
 
 try:
@@ -252,14 +253,11 @@ try:
         Source producing iterator over data-set coming from json on file
         """
 
-        def __init__(self, json_file_path):
+        def __init__(self, json_file_path: Path):
             super().__init__()
             assert_readable(json_file_path)
-            self._json = json_file_path
-            if Path(json_file_path).exists():
-                self.mtimes = {
-                    json_file_path: os.stat(json_file_path).st_mtime
-                }
+            self._json = json_file_path.absolute()
+            self._init_source(self._json)
 
         def __enter__(self):
             # note this is loading everything in memory
@@ -283,11 +281,11 @@ try:
             pass
 
         def __repr__(self):
-            return f"JsonFileSource('{os.path.abspath(self._json)}')"
+            return f"JsonFileSource('{self._json!s}')"
 
     SourceFactory.register("application/json", JsonFileSource)
 except ImportError:
-    log.warn("Python JSON module not available -- disabling JSON support!")
+    log.warning("Python JSON module not available -- disabling JSON support!")
 
 
 try:
@@ -298,12 +296,11 @@ try:
         Source producing iterator over data-set coming from XML on file
         """
 
-        def __init__(self, xml_file_path):
+        def __init__(self, xml_file_path: Path):
             super().__init__()
             assert_readable(xml_file_path)
-            self._xml = xml_file_path
-            if Path(xml_file_path).exists():
-                self.mtimes = {xml_file_path: os.stat(xml_file_path).st_mtime}
+            self._xml: Path = xml_file_path.absolute()
+            self._init_source(self._xml)
 
         def __enter__(self):
             with open(self._xml, mode="r", encoding="utf-8-sig") as xmlfile:
@@ -324,11 +321,11 @@ try:
             pass
 
         def __repr__(self):
-            return f"XMLFileSource('{os.path.abspath(self._xml)}')"
+            return f"XMLFileSource('{self._xml}')"
 
     SourceFactory.map("eml", "text/xml")
     SourceFactory.register("text/xml", XMLFileSource)
     # wrong, yet useful mime for xml:
     SourceFactory.register("application/xml", XMLFileSource)
 except ImportError:
-    log.warn("Python XML module not available -- disabling XML support!")
+    log.warning("Python XML module not available -- disabling XML support!")

@@ -37,6 +37,7 @@ class Subyt(ServiceBase):
         overwrite_sink: bool | str = True,
         allow_repeated_sink_paths: bool | str = False,
         conditional: bool | str = False,
+        break_on_error: bool | str = False,
         variables: Dict[str, str] = {},
         mode: str = "it",
     ) -> None:
@@ -58,12 +59,22 @@ class Subyt(ServiceBase):
         :param overwrite_sink: overwrites the sink file even if it exists
         :type overwrite_sink: bool | str
         :param allow_repeated_sink_paths: allows to repeat sink paths
-            # TODO - what does this mean?
+            Only applies when using a patterned-output sink.
+            When set to True generated output for later records to the same
+            filenames will actually end up in variant filenames
+            (i.e. extended with an index number)
+            When set to False (default), the generator will raise an error if
+            later records attempt to write to the same file.
         :type allow_repeated_sink_paths: bool | str
         :param conditional: conditional processing only runs the generator
             if source or template fils are newer than the sink file
             Default is False (no conditional processing / always run)
         :type conditional: bool | str
+        :param break_on_error: stops processing when an error occurs
+            When set to True, any error during processing will prevent
+            remaining records to be processed.
+            When set to False (default), all records should get an equal
+            chance to be processed.
         :param variables: variables to be injected into the templates
         :type variables: Dict[str, str]
         :param mode: the mode to be used
@@ -91,7 +102,9 @@ class Subyt(ServiceBase):
         )
         self._conditional = bool(conditional)
         self._variables = variables
-        self._generator_settings = GeneratorSettings(mode)
+        self._generator_settings = GeneratorSettings(
+            mode, break_on_error=break_on_error
+        )
 
         # output options
         if sink is None:
@@ -101,6 +114,12 @@ class Subyt(ServiceBase):
             sink, bool(overwrite_sink), bool(allow_repeated_sink_paths)
         )
         log.debug(f"Subyt initialized with {self.__dict__}")
+        if not break_on_error and not allow_repeated_sink_paths:
+            log.warning(
+                "Not breaking on error in combination with "
+                "not allowing repeated sink paths. "
+                "This means duplicate sink paths will be silently ignored.",
+            )
 
         # internal statGraph()e
         self._generator = JinjaBasedGenerator(template_folder)
