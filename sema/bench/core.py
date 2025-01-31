@@ -13,6 +13,7 @@ from watchdog.observers import Observer
 from sema.bench.dispatcher import TaskDispatcher
 from sema.bench.task import Task
 from sema.commons.service import ServiceBase, ServiceResult, Trace
+from sema.commons.yml import LoaderBuilder
 
 log = getLogger(__name__)
 
@@ -129,22 +130,7 @@ class Sembench(ServiceBase):
     def _init_task_configs(self):
         conf_yml = str(self.sembench_config_path)
         context = {k: str(p) for k, p in self.locations.items()}
-
-        def resolver(
-            loader: yaml.SafeLoader, node: yaml.nodes.ScalarNode
-        ) -> str:
-            txt = loader.construct_scalar(node)
-            try:
-                txt = txt.format(**context)
-            except KeyError as ke:
-                log.error(
-                    f"config at {conf_yml} contains '{txt}' "
-                    f"with unknown key --> {ke}"
-                )
-            return txt
-
-        loader = yaml.SafeLoader
-        loader.add_constructor("!resolve", resolver)
+        loader = LoaderBuilder().to_resolve(context).build()
 
         with open(conf_yml, "r") as yml:
             self.task_configs = yaml.load(yml, Loader=loader)
