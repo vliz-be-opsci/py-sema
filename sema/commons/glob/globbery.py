@@ -12,6 +12,7 @@ def getMatchingGlobPaths(
     excludes: list[str] = [],
     *,
     onlyFiles: bool = False,
+    makeRelative: bool = True,
 ) -> list[Path]:
     """
     Get all paths under `root` that match any of the globs in `includes`
@@ -20,6 +21,7 @@ def getMatchingGlobPaths(
     @param includes: A list of globs to include.
     @param excludes: A list of globs to exclude.
     @param onlyFiles: If True, only return files, not directories.
+    @param makeRelative: If True, return paths relative to `root`.
     @return: A list of paths that match the globs.
     """
     found: set[Path] = set()
@@ -31,7 +33,8 @@ def getMatchingGlobPaths(
             if onlyFiles and path.is_dir():
                 log.debug(f"excluding {path} is folder")
                 continue
-            path = path.relative_to(root)
+            if makeRelative:
+                path = path.relative_to(root)
             log.debug(f"including {path}")
             found.add(path)
     return list(found)
@@ -87,6 +90,7 @@ def visitGlobPaths(
     applying: dict[str, Any] = {},
     *,
     onlyFiles: bool = False,
+    makeRelative: bool = True,
 ) -> dict[Path, Any]:
     """
     Visit all paths under `root` that match any of the globs in `includes`
@@ -98,13 +102,14 @@ def visitGlobPaths(
     @param applying: A dictionary of apply objects to pass to the visitor.
         Keys are globs.
     @param onlyFiles: If True, only visit files, not directories.
+    @param makeRelative: If True, return paths relative to `root` and before visit.
     @return: A dictionary of paths to visitor results.
         Keys are paths being visited.
     """
     results: dict[Path, Any] = dict()
     for include in includes:
         for path in root.glob(include):
-            relpath = path.relative_to(root)
+            relpath = path.relative_to(root) if makeRelative else path
             if any(path.match(exclude) for exclude in excludes):
                 log.debug(f"excluding {path} by {excludes}")
                 visitor.visitExcluded(relpath)

@@ -9,6 +9,7 @@ from sema.commons.fileformats import (
     format_from_filepath,
     is_supported_rdffilepath,
 )
+from sema.commons.glob import getMatchingGlobPaths
 from sema.commons.service import ServiceBase, ServiceResult
 from sema.commons.store import (
     GraphNameMapper,
@@ -48,8 +49,10 @@ def get_lastmod_by_fname(from_path: Path) -> Dict[str, datetime]:
     """
     return {
         str(p): datetime.fromtimestamp(p.stat().st_mtime, UTC_tz)
-        for p in from_path.glob("**/*")
-        if p.is_file() and is_supported_rdffilepath(p)
+        for p in getMatchingGlobPaths(
+            from_path, onlyFiles=True, makeRelative=False
+        )
+        if is_supported_rdffilepath(p)
     }
 
 
