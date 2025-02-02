@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
+from logging import getLogger
+
+
+log = getLogger(__name__)
 
 
 def getMatchingGlobPaths(
@@ -19,7 +23,19 @@ def getMatchingGlobPaths(
     @param onlyFiles: If True, only return files, not directories.
     @return: A list of paths that match the globs.
     """
-    ...  # implementation to come
+    found: Set[Path] = set()
+    for include in includes:
+        for path in root.glob(include):
+            if any(path.match(exclude) for exclude in excludes):
+                log.debug(f"excluding {path} by {excludes}")
+                continue
+            if onlyFiles and path.is_dir():
+                log.debug(f"excluding {path} is folder")
+                continue
+            path = path.relative_to(root)
+            log.debug(f"including {path}")
+            found.add(path)
+    return list(found)
 
 
 def pathMatchesGlob(path: Path, glob: str) -> bool:
@@ -29,18 +45,17 @@ def pathMatchesGlob(path: Path, glob: str) -> bool:
     @param glob: The glob to match against.
     @return: True if the path matches the glob.
     """
-    ...  # implementation to come
+    return path.match(glob)
 
 
 class GlobMatchVisitor(ABC):
     """Abstract interface for visiting paths matched by a glob."""
 
     @abstractmethod
-    def visitExcluded(self, path: Path, glob: str) -> Any:
+    def visitExcluded(self, path: Path) -> None:
         """
         Called when a path is excluded by a glob.
         @param path: The path that was excluded.
-        @param glob: The glob that excluded the path.
         """
         pass
 
@@ -50,6 +65,7 @@ class GlobMatchVisitor(ABC):
         Called when a file is visited.
         @param path: The file path.
         @param applying: A list of apply objects with matching globs.
+        @return: custom result of the visit to be aggregated by the caller.
         """
         pass
 
@@ -59,6 +75,7 @@ class GlobMatchVisitor(ABC):
         Called when a directory is visited.
         @param path: The directory path.
         @param applying: A list of apply objects with matching globs.
+        @return: custom result of the visit to be aggregated by the caller.
         """
         pass
 
@@ -85,4 +102,24 @@ def visitGlobPaths(
     @return: A dictionary of paths to visitor results.
         Keys are paths being visited.
     """
-    ...  # implementation to come
+    results: Dict[Path, Any] = dict()
+    for include in includes:
+        for path in root.glob(include):
+            relpath = path.relative_to(root)
+            if any(path.match(exclude) for exclude in excludes):
+                log.debug(f"excluding {path} by {excludes}")
+                visitor.visitExcluded(relpath)
+                continue
+            if onlyFiles and path.is_dir():
+                log.debug(f"excluding {path} is folder")
+                visitor.visitExcluded(relpath)
+                continue
+            # find all applying objects for this path
+            apps = [a for p, a in applying.items() if relpath.match(p)]
+            if path.is_dir():
+                log.debug(f"applying {apps} to dir {path}")
+                results[relpath] = visitor.visitDirectory(path, apps)
+            else:
+                log.debug(f"applying {apps} to file {path}")
+                results[relpath] = visitor.visitFile(path, apps)
+    return results
