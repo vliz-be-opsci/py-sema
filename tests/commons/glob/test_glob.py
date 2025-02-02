@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 from conftest import TEST_FOLDER, log
@@ -12,7 +12,7 @@ from sema.commons.glob import (
 )
 
 
-def test_getMatchingGlobPaths():
+def test_getMatchingGlobPaths() -> None:
     assert getMatchingGlobPaths
     root = TEST_FOLDER / "data/glob"
     assert root.exists() and root.is_dir()
@@ -54,42 +54,44 @@ def test_getMatchingGlobPaths():
         ("./sub/file.txt", "*.xml", False),
     ],
 )
-def test_pathMatchesGlob(path, glob, expected):
+def test_pathMatchesGlob(path, glob, expected) -> None:
     assert pathMatchesGlob(TEST_FOLDER / "data/glob" / path, glob) == expected
 
 
-def test_visitGlobPaths():
+def test_visitGlobPaths() -> None:
     assert visitGlobPaths
     assert GlobMatchVisitor
 
     class TestVisitor(GlobMatchVisitor):
-        def __init__(self):
+        def __init__(self) -> None:
             self.visited = []
 
         def visitExcluded(self, path: Path) -> None:
-            raise Exception(f"in this test we should not exclude path {path}")
+            raise RuntimeError(
+                f"in this test we should not exclude path {path}"
+            )
 
         def _apply_visited(
-            self, path: Path, result: Dict[str, bool], applying: List[Any]
-        ) -> Dict[str, bool]:
+            self, path: Path, result: dict[str, bool], applying: list[Any]
+        ) -> dict[str, bool]:
             self.visited.append(path)
             for apply in applying:
                 result.update(apply(path))
             return result
 
-        def visitFile(self, path: Path, applying: List[Any]) -> Any:
+        def visitFile(self, path: Path, applying: list[Any]) -> Any:
             return self._apply_visited(
                 path, {"is_file": True, "in_sub": False}, applying
             )
 
-        def visitDirectory(self, path: Path, applying: List[Any]) -> Any:
+        def visitDirectory(self, path: Path, applying: list[Any]) -> Any:
             return self._apply_visited(
                 path, {"is_dir": True, "in_sub": False}, applying
             )
 
     root = TEST_FOLDER / "data/glob"
     visitor = TestVisitor()
-    applying: Dict[str, any] = {
+    applying: dict[str, any] = {
         "*.xml": lambda p: {"is_xml": True},
         "*.txt": lambda p: {"is_txt": True},
         "*.csv": lambda p: {"is_csv": True},
@@ -145,3 +147,13 @@ def test_visitGlobPaths():
         "is_txt": True,
         "in_sub": True,
     }
+
+    # provoke the exception in the visitor for exclusions
+    with pytest.raises(RuntimeError):
+        visitGlobPaths(
+            visitor,
+            root,
+            includes=["**/*"],
+            applying=applying,
+            excludes=["*.txt"],
+        )

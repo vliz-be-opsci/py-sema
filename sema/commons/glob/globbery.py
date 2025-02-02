@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
 
 log = getLogger(__name__)
 
 
 def getMatchingGlobPaths(
     root: Path,
-    includes: List[str] = ["**/*"],
-    excludes: List[str] = [],
+    includes: list[str] = ["**/*"],
+    excludes: list[str] = [],
     *,
     onlyFiles: bool = False,
-) -> List[Path]:
+) -> list[Path]:
     """
     Get all paths under `root` that match any of the globs in `includes`
     and none of the globs in `excludes`.
@@ -22,7 +22,7 @@ def getMatchingGlobPaths(
     @param onlyFiles: If True, only return files, not directories.
     @return: A list of paths that match the globs.
     """
-    found: Set[Path] = set()
+    found: set[Path] = set()
     for include in includes:
         for path in root.glob(include):
             if any(path.match(exclude) for exclude in excludes):
@@ -59,7 +59,7 @@ class GlobMatchVisitor(ABC):
         pass
 
     @abstractmethod
-    def visitFile(self, path: Path, applying: List[Any]) -> Any:
+    def visitFile(self, path: Path, applying: list[Any]) -> Any:
         """
         Called when a file is visited.
         @param path: The file path.
@@ -69,7 +69,7 @@ class GlobMatchVisitor(ABC):
         pass
 
     @abstractmethod
-    def visitDirectory(self, path: Path, applying: List[Any]) -> Any:
+    def visitDirectory(self, path: Path, applying: list[Any]) -> Any:
         """
         Called when a directory is visited.
         @param path: The directory path.
@@ -82,12 +82,12 @@ class GlobMatchVisitor(ABC):
 def visitGlobPaths(
     visitor: GlobMatchVisitor,
     root: Path,
-    includes: List[str] = ["**/*"],
-    excludes: List[str] = [],
-    applying: Dict[str, Any] = {},
+    includes: list[str] = ["**/*"],
+    excludes: list[str] = [],
+    applying: dict[str, Any] = {},
     *,
     onlyFiles: bool = False,
-) -> Dict[Path, Any]:
+) -> dict[Path, Any]:
     """
     Visit all paths under `root` that match any of the globs in `includes`
     and none of the globs in `excludes`.
@@ -101,7 +101,7 @@ def visitGlobPaths(
     @return: A dictionary of paths to visitor results.
         Keys are paths being visited.
     """
-    results: Dict[Path, Any] = dict()
+    results: dict[Path, Any] = dict()
     for include in includes:
         for path in root.glob(include):
             relpath = path.relative_to(root)
