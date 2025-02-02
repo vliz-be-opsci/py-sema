@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
+from logging import getLogger
 from pathlib import Path
 from typing import Any, Dict, List, Set
-from logging import getLogger
-
 
 log = getLogger(__name__)
 
@@ -12,7 +11,7 @@ def getMatchingGlobPaths(
     includes: List[str] = ["**/*"],
     excludes: List[str] = [],
     *,
-    onlyFiles: bool = False
+    onlyFiles: bool = False,
 ) -> List[Path]:
     """
     Get all paths under `root` that match any of the globs in `includes`
@@ -87,7 +86,7 @@ def visitGlobPaths(
     excludes: List[str] = [],
     applying: Dict[str, Any] = {},
     *,
-    onlyFiles: bool = False
+    onlyFiles: bool = False,
 ) -> Dict[Path, Any]:
     """
     Visit all paths under `root` that match any of the globs in `includes`

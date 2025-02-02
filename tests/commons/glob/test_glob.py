@@ -1,13 +1,15 @@
 from pathlib import Path
 from typing import Any, Dict, List
+
+import pytest
+from conftest import TEST_FOLDER, log
+
 from sema.commons.glob import (
     GlobMatchVisitor,
     getMatchingGlobPaths,
     pathMatchesGlob,
     visitGlobPaths,
 )
-from conftest import TEST_FOLDER, log
-import pytest
 
 
 def test_getMatchingGlobPaths():
@@ -35,18 +37,23 @@ def test_getMatchingGlobPaths():
 
     # only text files not dirtectly under the 050/ folder
     log.debug("globtest - some txt files")
-    some_files = getMatchingGlobPaths(root, includes=["**/*.txt"], excludes=["050/*.txt"])
+    some_files = getMatchingGlobPaths(
+        root, includes=["**/*.txt"], excludes=["050/*.txt"]
+    )
     assert some_files
     assert len(some_files) == 3
 
 
-@pytest.mark.parametrize("path, glob, expected", [
-    ("./sub/file.txt", "**/*.txt", True),
-    ("./sub/file.txt", "**/f*.txt", True),
-    ("./sub/file.txt", "**/1*.txt", False),
-    ("./sub/file.txt", "*.txt", True),
-    ("./sub/file.txt", "*.xml", False),
-])
+@pytest.mark.parametrize(
+    "path, glob, expected",
+    [
+        ("./sub/file.txt", "**/*.txt", True),
+        ("./sub/file.txt", "**/f*.txt", True),
+        ("./sub/file.txt", "**/1*.txt", False),
+        ("./sub/file.txt", "*.txt", True),
+        ("./sub/file.txt", "*.xml", False),
+    ],
+)
 def test_pathMatchesGlob(path, glob, expected):
     assert pathMatchesGlob(TEST_FOLDER / "data/glob" / path, glob) == expected
 
@@ -62,17 +69,23 @@ def test_visitGlobPaths():
         def visitExcluded(self, path: Path) -> None:
             raise Exception(f"in this test we should not exclude path {path}")
 
-        def _apply_visited(self, path: Path, result: Dict[str, bool], applying: List[Any]) -> Dict[str, bool]:
+        def _apply_visited(
+            self, path: Path, result: Dict[str, bool], applying: List[Any]
+        ) -> Dict[str, bool]:
             self.visited.append(path)
             for apply in applying:
                 result.update(apply(path))
             return result
 
         def visitFile(self, path: Path, applying: List[Any]) -> Any:
-            return self._apply_visited(path, {"is_file": True, "in_sub": False}, applying)
+            return self._apply_visited(
+                path, {"is_file": True, "in_sub": False}, applying
+            )
 
         def visitDirectory(self, path: Path, applying: List[Any]) -> Any:
-            return self._apply_visited(path, {"is_dir": True, "in_sub": False}, applying)
+            return self._apply_visited(
+                path, {"is_dir": True, "in_sub": False}, applying
+            )
 
     root = TEST_FOLDER / "data/glob"
     visitor = TestVisitor()
@@ -84,17 +97,51 @@ def test_visitGlobPaths():
         "*/*": lambda p: {"in_sub": True},
     }
 
-    results = visitGlobPaths(visitor, root, includes=["**/*"], applying=applying)
+    results = visitGlobPaths(
+        visitor, root, includes=["**/*"], applying=applying
+    )
     assert results
     assert len(results) == 10
 
-    assert results[Path("010.txt")] == {"is_file": True, "is_txt": True, "in_sub": False}
-    assert results[Path("020.txt")] == {"is_file": True, "is_txt": True, "in_sub": False}
-    assert results[Path("030.csv")] == {"is_file": True, "is_csv": True, "in_sub": False}
-    assert results[Path("040.xml")] == {"is_file": True, "is_xml": True, "in_sub": False}
+    assert results[Path("010.txt")] == {
+        "is_file": True,
+        "is_txt": True,
+        "in_sub": False,
+    }
+    assert results[Path("020.txt")] == {
+        "is_file": True,
+        "is_txt": True,
+        "in_sub": False,
+    }
+    assert results[Path("030.csv")] == {
+        "is_file": True,
+        "is_csv": True,
+        "in_sub": False,
+    }
+    assert results[Path("040.xml")] == {
+        "is_file": True,
+        "is_xml": True,
+        "in_sub": False,
+    }
     assert results[Path("050")] == {"is_dir": True, "in_sub": False}
-    assert results[Path("050/060.txt")] == {"is_file": True, "is_txt": True, "in_sub": True}
-    assert results[Path("050/070.json")] == {"is_file": True, "is_json": True, "in_sub": True}
+    assert results[Path("050/060.txt")] == {
+        "is_file": True,
+        "is_txt": True,
+        "in_sub": True,
+    }
+    assert results[Path("050/070.json")] == {
+        "is_file": True,
+        "is_json": True,
+        "in_sub": True,
+    }
     assert results[Path("050/080")] == {"is_dir": True, "in_sub": True}
-    assert results[Path("050/080/090.txt")] == {"is_file": True, "is_txt": True, "in_sub": True}
-    assert results[Path("050/100.txt")] == {"is_file": True, "is_txt": True, "in_sub": True}
+    assert results[Path("050/080/090.txt")] == {
+        "is_file": True,
+        "is_txt": True,
+        "in_sub": True,
+    }
+    assert results[Path("050/100.txt")] == {
+        "is_file": True,
+        "is_txt": True,
+        "in_sub": True,
+    }
