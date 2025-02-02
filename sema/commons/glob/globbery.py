@@ -1,0 +1,88 @@
+from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any, Dict, List
+
+
+def getMatchingGlobPaths(
+    root: Path,
+    includes: List[str] = ["**/*"],
+    excludes: List[str] = [],
+    *,
+    onlyFiles: bool = False
+) -> List[Path]:
+    """
+    Get all paths under `root` that match any of the globs in `includes`
+    and none of the globs in `excludes`.
+    @param root: The root path to search under.
+    @param includes: A list of globs to include.
+    @param excludes: A list of globs to exclude.
+    @param onlyFiles: If True, only return files, not directories.
+    @return: A list of paths that match the globs.
+    """
+    ...  # implementation to come
+
+
+def pathMatchesGlob(path: Path, glob: str) -> bool:
+    """
+    Check if a path matches a glob.
+    @param path: The path to check.
+    @param glob: The glob to match against.
+    @return: True if the path matches the glob.
+    """
+    ...  # implementation to come
+
+
+class GlobMatchVisitor(ABC):
+    """Abstract interface for visiting paths matched by a glob."""
+
+    @abstractmethod
+    def visitExcluded(self, path: Path, glob: str) -> Any:
+        """
+        Called when a path is excluded by a glob.
+        @param path: The path that was excluded.
+        @param glob: The glob that excluded the path.
+        """
+        pass
+
+    @abstractmethod
+    def visitFile(self, path: Path, applying: List[Any]) -> Any:
+        """
+        Called when a file is visited.
+        @param path: The file path.
+        @param applying: A list of apply objects with matching globs.
+        """
+        pass
+
+    @abstractmethod
+    def visitDirectory(self, path: Path, applying: List[Any]) -> Any:
+        """
+        Called when a directory is visited.
+        @param path: The directory path.
+        @param applying: A list of apply objects with matching globs.
+        """
+        pass
+
+
+def visitGlobPaths(
+    visitor: GlobMatchVisitor,
+    root: Path,
+    includes: List[str] = ["**/*"],
+    excludes: List[str] = [],
+    applying: Dict[str, Any] = {},
+    *,
+    onlyFiles: bool = False
+) -> Dict[Path, Any]:
+    """
+    Visit all paths under `root` that match any of the globs in `includes`
+    and none of the globs in `excludes`.
+    @param visitor: The visitor to call for each path.
+    @param root: The root path to search under.
+    @param includes: A list of globs to include.
+    @param excludes: A list of globs to exclude.
+    @param applying: A dictionary of apply objects to pass to the visitor.
+        Keys are globs.
+    @param onlyFiles: If True, only visit files, not directories.
+    @return: A dictionary of paths to visitor results.
+        Keys are paths being visited.
+    """
+    ...  # implementation to come
