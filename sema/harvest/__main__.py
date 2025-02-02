@@ -9,6 +9,7 @@ from rdflib import Graph
 
 from sema.commons.cli import SemaArgsParser
 from sema.commons.fileformats import format_from_filepath
+from sema.commons.glob import getMatchingGlobPaths
 from sema.harvest import Harvest
 from sema.harvest.store import RDFStore, RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
@@ -133,10 +134,7 @@ def load_resource_into_graph(graph: Graph, resource: str | Path, format: str):
     # else
     # check if resource is a folder
     if resource_path.is_dir():
-        for sub in resource_path.glob("**/*"):
-            if sub.is_dir():
-                continue  # no recursion on folders, glob **/* does already
-            # else
+        for sub in getMatchingGlobPaths(resource_path, onlyFiles=True):
             format = format_from_filepath(sub, "turtle")
             load_resource_into_graph(graph, sub, format)
         return graph
