@@ -102,7 +102,8 @@ def visitGlobPaths(
     @param applying: A dictionary of apply objects to pass to the visitor.
         Keys are globs.
     @param onlyFiles: If True, only visit files, not directories.
-    @param makeRelative: If True, return paths relative to `root` and before visit.
+    @param makeRelative: If True, return paths relative to `root`.
+        Alsso makes them relative before visit.
     @return: A dictionary of paths to visitor results.
         Keys are paths being visited.
     """
