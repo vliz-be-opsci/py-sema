@@ -10,6 +10,7 @@ import requests
 from typeguard import check_type
 
 from sema.commons.clean.clean import check_valid_url
+from sema.commons.glob import getMatchingGlobPaths
 
 from .api import Source
 
@@ -207,7 +208,15 @@ class GlobSource(CollectionSource):
         self._collection_path = Path(pattern_root_dir).absolute()
         self._pattern: str = pattern
         self._init_sourcefiles(
-            [f for f in self._collection_path.glob(pattern) if f.is_file()]
+            [
+                f
+                for f in getMatchingGlobPaths(
+                    self._collection_path,
+                    includes=[pattern],
+                    onlyFiles=True,
+                    makeRelative=False,
+                )
+            ]
         )
 
     def __repr__(self):

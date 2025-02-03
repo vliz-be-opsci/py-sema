@@ -8,6 +8,7 @@ import yaml
 from rdflib.namespace import NamespaceManager
 from rdflib.plugins.sparql.parser import parseQuery
 
+from sema.commons.glob import getMatchingGlobPaths
 from sema.harvest.store import RDFStoreAccess
 
 from .helper import makeNSM, resolve_ppaths, resolve_sparql
@@ -325,8 +326,9 @@ class ConfigBuilder:
     def _files_folder(self):
         return [
             f.name
-            for f in Path(self.config_files_folder).rglob("*")
-            if f.is_file() and f.name.endswith((".yml", ".yaml"))
+            for f in getMatchingGlobPaths(
+                includes=["*.yml", "*.yaml"], onlyFiles=True
+            )
         ]
 
     def _load_yml_to_dict(self, file):
