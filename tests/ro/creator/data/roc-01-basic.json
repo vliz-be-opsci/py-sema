@@ -1,0 +1,89 @@
+{
+  "@context": "https://w3id.org/ro/crate/1.2-DRAFT/context",
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": { "@id": "https://w3id.org/ro/crate/1.2-DRAFT" },
+      "about": { "@id": "./" }
+    },
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "sameAs": [
+        { "@id": "https://base.domain/repo" },
+        { "@id": "https://doi.org/10.100.10010/something" }
+      ],
+      "name": "My first Research Object Crate",
+      "description": "This is a simple example of a Research Object Crate\nthat includes a few files and some metadata.\n\nIt is intended to test a new ro-creator component",
+      "datePublished": "2025-02-03",
+      "author": { "@id": "https://orcid.org/0000-0002-9648-6484" },
+      "contributor": [{ "@id": "https://orcid.org/0000-0002-9648-6484" }],
+      "maintainer": [
+        { "@id": "https://orcid.org/0000-0002-9648-6484" },
+        { "@id": "https://ror.org/0496vr396" }
+      ],
+      "publisher": { "@id": "https://ror.org/0496vr396" },
+      "contactPoint": { "@id": "https://orcid.org/0000-0002-9648-6484" },
+      "license": { "@id": "https://creativecommons.org/cc-by/4.0/" },
+      "hasPart": [
+        { "@id": "./content-file.ext" },
+        { "@id": "./content-dir/first.csv" },
+        { "@id": "./content-dir/second.csv" },
+        { "@id": "./content-dir/third.ttl" },
+        { "@id": "./specialfile" },
+        { "@id": "https://example.org/whatever.csv" }
+      ]
+    },
+    {
+      "@id": "./content-file.ext",
+      "@type": "File",
+      "encodingFormat": "application/octet-stream"
+    },
+    {
+      "@id": "./content-dir/first.csv",
+      "@type": "File",
+      "name": "My very firstly named csv",
+      "encodingFormat": "text/csv; charset=latin-1"
+    },
+    {
+      "@id": "./content-dir/second.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv; charset=utf-8"
+    },
+    {
+      "@id": "./content-dir/third.ttl",
+      "@type": "File",
+      "encodingFormat": "text/turtle"
+    },
+    {
+      "@id": "./specialfile",
+      "@type": "File",
+      "size": 1,
+      "encodingFormat": "application/octet-stream"
+    },
+    {
+      "@id": "https://example.org/whatever.csv",
+      "@type": "File"
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-9648-6484",
+      "@type": "Person",
+      "name": "Marc Portier, ir.",
+      "email": "sample.name@domain.example.org"
+    },
+    {
+      "@id": "https://ror.org/0496vr396",
+      "@type": "Organization",
+      "name": "Flanders Marine Institute - VLIZ, vzw",
+      "description": "The Flanders Marine Institute (VLIZ) is a centre for marine and coastal research. As a partner in various projects and networks it promotes and supports the international image of Flemish marine scientific research and the marine and coastal sciences in Flanders.",
+      "url": "http://www.vliz.be"
+    },
+    {
+      "@id": "https://creativecommons.org/licenses/by/4.0/",
+      "@type": "CreativeWork",
+      "name": "CC BY 4.0",
+      "description": "Creative Commons Attribution 4.0 International"
+    }
+  ]
+}
