@@ -82,7 +82,7 @@ class SingleFileSink(Sink):
         self._force_output = force_output
         if self._file_path.exists():
             self.mtimes = {
-                str(self._file_path): self._file_path.stats().st_mtime
+                str(self._file_path): self._file_path.stat().st_mtime
             }
 
     def __repr__(self):
