@@ -1,37 +1,36 @@
 uses: !strategy emobon-observatory  # directive to drive specific 
-base:  !resolve {domain}/{repo}
+base:  !resolve "{domain}/{repo}"
 name: "observatory-bpns-crate"
-datePublished: !resolve {now}
+datePublished: !resolve "{now}"
 description: "The EMO BON sampling data from the observatory BPNS",
 spatialCoverage:
-  at: 51.44333331, 2.808331
-  in: mrgid:26567
+  at: [51.44333331, 2.808331]
+  in: "mrgid:26567"
 temporalCoverage:  # same for all obs?
   start: 2021-07-01
-  end: !resolve {today}
+  end: !resolve "{today}"
 license: https://creativecommons.org/licenses/by/4.0/ # same for all obs?
 # keywords and themes derived from 'strategy'
 
 agents:
-  "https://orcid.org/0000-0002-8559-3508":  # Klaas Deneudt
-    roles: [ contact, maintainer]
-  "https://edmo.seadatanet.org/report/422": # VLIZ
+  "https://orcid.org/0000-0002-8559-3508":   # Klaas Deneudt
+    roles: [contact,maintainer]
+  "https://edmo.seadatanet.org/report/422":  # VLIZ
     roles: provider
-  "https://edmo.seadatanet.org/report/429": # UGENT
+  "https://edmo.seadatanet.org/report/429":  # UGENT
     roles: provider
-  "https://edmo.seadatanet.org/report/432": # RBINS
+  "https://edmo.seadatanet.org/report/432":  # RBINS
     roles: provider
   "https://edmo.seadatanet.org/report/2248": # KUL
     roles: provider
-  # last agents should be possible to imply/inject from emobon-strategy, 
+  # last agents should be possible to imply/inject from emobon-strategy,
   # no need to duplicate here
   EMOBON: # EMOBON
-    roles: [publisher, maintainer]
+    roles: [publisher,maintainer]
     is_a: Project
     url: https://embrc.eu/emo-bon
     name: "EMO BON"
     email: "emobon@embrc.eu"
-    url: https://embrc.eu/emo-bon
     parentOrganization: https://ror.org/0038zss6 
   "https://ror.org/0038zss60": # EMBRC-ERIC
     url: https://embrc.eu
@@ -61,11 +60,11 @@ content:
     - config/*
   autofill:
     "*.csv":  
-        content-type: text/csv; charset=utf8
+      content-type: text/csv; charset=utf8
     "*.ttl":
-        content-type: text/turtle
+      content-type: text/turtle
     "provenance/*.ttl":
-        content-type: text/turtle
-        conformsTo: https://todo-get-url.of/provenance-indicator
+      content-type: text/turtle
+      conformsTo: https://todo-get-url.of/provenance-indicator
     
   add:
