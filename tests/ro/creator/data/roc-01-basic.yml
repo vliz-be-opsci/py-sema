@@ -1,4 +1,5 @@
 uses: !strategy basic # idea to have a directive to drive specific plugable "strategies" for this
+# other idea is to have each strategy be able to produce a sample - with explaining comments like this
 ro:
   version: 1.2-DRAFT
   profile: !resolve "{domain}/example-profile/latest"
@@ -30,6 +31,14 @@ agents:
 
 content:
   datasets: off # do not list folders as data-set grouping constructs
+  # effect of `datasets: off`  or ommitted or `datasets: []`
+  # == all matching files (regardless of the depth of folder structure)
+  #    are going to be added as hasPart of the main dataset (ie the one with @id = "./" )
+  # alternatively `datasets: [ list of "./folder/subfolder", ...]`
+  # == leads to those to end up in the hasPart of the main Dataset
+  #    doing so to replace there (in the main DataSet) any
+  #    matching files that falls under their path
+  #    those replaced children end up making up their own hasPart)
   includes:
     - "**/*.*" # all nested files that at least have an extension
   excludes:
@@ -40,7 +49,7 @@ content:
       content-type: text/csv; charset=utf8
   add:
     specialfile: # additional individual file
-      size: 1
+      fileSize: 1MB
       content-type: application/octet-stream
 
     first.csv: # correcting autofill for this case
