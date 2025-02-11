@@ -2,7 +2,7 @@
 
 {# ---------------------------------------------------------------- countries #}
 {% macro uri_country(code) -%}
-<{{uritexpand("https://countries.org/iso-3{/code}", {"code": code}) }}>{# note: this creates a local conext dict #}
+{{ uritexpand("https://countries.org/iso-3{/code}", {"code": code}) | uri }}{# note: this creates a local conext dict #}
 {%- endmacro -%}
 
 {% macro ttl_country(country) -%}
@@ -13,7 +13,7 @@
 
 {# ----------------------------------------------------------------- entities #}
 {% macro uri_thing(thing) -%}
-<{{uritexpand("https://example.org/id/sample{#id}", thing)}}>{# note: this reuses the sample as context dict #}
+{{ uritexpand("https://example.org/id/sample{#id}", thing) | uri }}{# note: this reuses the sample as context dict #}
 {%- endmacro -%}
 
 {% macro ttl_thing(thing) -%}
