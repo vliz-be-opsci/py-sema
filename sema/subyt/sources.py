@@ -8,6 +8,7 @@ from typing import Callable
 
 import requests
 from typeguard import check_type
+from uritemplate import URITemplate
 
 from sema.commons.clean.clean import check_valid_url
 from sema.commons.glob import getMatchingGlobPaths
@@ -88,7 +89,16 @@ class SourceFactory:
         return mimetypes.guess_type(identifier)[0]  # type: ignore
 
     @staticmethod
-    def make_source(identifier: str | Path) -> Source:
+    def make_source(
+        identifier: str | Path, *, unique_pattern: str | None = None
+    ) -> Source:
+        source = SourceFactory._make_core_source(identifier)
+        if unique_pattern is not None:
+            source = FilteringSource(source, unique_pattern)
+        return source
+
+    @staticmethod
+    def _make_core_source(identifier: str | Path) -> Source:
         # check for url
         if check_valid_url(str(identifier)):
             mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
@@ -221,6 +231,39 @@ class GlobSource(CollectionSource):
 
     def __repr__(self):
         return f"GlobSource('{self._pattern}', '{self._collection_path}')"
+
+
+class FilteringSource(Source):
+    def __init__(self, core: Source, unique_pattern: str):
+        super().__init__()
+        self._core = core
+        self._unique_pattern = unique_pattern
+        self._unique_template = URITemplate(unique_pattern)
+
+    def __repr__(self):
+        return f"FilteringSource({self._core}, '{self._unique_pattern}')"
+
+    def __enter__(self):
+        class IterProxy:
+            def __init__(self, me):
+                self._me = me
+                self._core_iter = me._core.__enter__()
+                self._seen = set()
+
+            def __iter__(self):
+                self._me._reset()
+                return IterProxy(self._me)
+
+            def __next__(self):
+                item = next(self._core_iter)
+                unique = self._me._unique_template.expand(item)
+                if unique not in self._seen:
+                    self._seen.add(unique)
+                    return item
+                # else
+                return next(self)
+
+        return IterProxy(self)
 
 
 try:

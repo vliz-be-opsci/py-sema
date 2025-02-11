@@ -79,6 +79,18 @@ def get_arg_parser() -> SemaArgsParser:
     )
 
     parser.add_argument(
+        "-u",
+        "--unique",
+        metavar="PATTERN",  # meaning of the argument
+        action="store",
+        help=(
+            "Filters unique records. "
+            "Only the first record for which this {uritemplate} pattern "
+            "evaluates to a unique value will be processed."
+        ),
+    )
+
+    parser.add_argument(
         "-f",
         "--force",
         default=False,
@@ -135,6 +147,7 @@ def make_service(args: Namespace) -> Subyt:
         conditional=args.conditional,
         variables=SemaArgsParser.args_to_dict(args.var),
         mode=args.mode,
+        unique_pattern=args.output if args.unique == "#" else args.unique,
     )
 
 
