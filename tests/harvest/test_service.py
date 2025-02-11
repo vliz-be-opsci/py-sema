@@ -37,10 +37,15 @@ def test_travharv(store_info_sets):
     config = Path(__file__).parent / "config" / "base_test.yml"
 
     for store_info in store_info_sets:
-        travharv = TravHarv(
-            config,
-            store_info,
-        )
+        if store_info == ():
+            travharv = TravHarv(
+                str(config),
+            )
+        else:
+            travharv = TravHarv(
+                str(config),
+                store_info,
+            )
 
         travharv.process()
         assert not travharv.error_occurred

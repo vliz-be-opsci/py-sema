@@ -120,10 +120,15 @@ def test_scenario_one(
 
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test1_sparql.yml"
-        travharv = Harvest(
-            config,
-            store,
-        )
+        if store == ():
+            travharv = Harvest(
+                str(config),
+            )
+        else:
+            travharv = Harvest(
+                str(config),
+                store,
+            )
         length_store = len_store(travharv.target_store)
 
         travharv.process()
@@ -231,10 +236,15 @@ def test_scenario_three(
         config = CONFIGS / "dereference_test3_sparql.yml"
 
         try:
-            travharv = Harvest(
-                config,
-                store,
-            )
+            if store == ():
+                travharv = Harvest(
+                    str(config),
+                )
+            else:
+                travharv = Harvest(
+                    str(config),
+                    store,
+                )
             length_store = len_store(travharv.target_store)
             travharv.process()
         except Exception as e:
@@ -327,10 +337,15 @@ def test_scenario_four(
         log.debug("testing scenario four for %s", store)
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test4_sparql.yml"
-        travharv = Harvest(
-            config,
-            store,
-        )
+        if store == ():
+            travharv = Harvest(
+                str(config),
+            )
+        else:
+            travharv = Harvest(
+                str(config),
+                store,
+            )
         length_store = len_store(travharv.target_store)
         travharv.process()
         # assertions here
@@ -408,10 +423,15 @@ def test_scenario_five(
     for store in store_info_sets:
         log.debug(f"testing scenario one for {store}")
         config = CONFIGS / "dereference_test5_sparql.yml"
-        travharv = Harvest(
-            config,
-            store,
-        )
+        if store == ():
+            travharv = Harvest(
+                str(config),
+            )
+        else:
+            travharv = Harvest(
+                str(config),
+                store,
+            )
         length_store = len_store(travharv.target_store)
         travharv.process()
         # assertions here
