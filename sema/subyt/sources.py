@@ -244,15 +244,14 @@ class FilteringSource(Source):
         return f"FilteringSource({self._core}, '{self._unique_pattern}')"
 
     def __enter__(self):
-        class IterProxy:
+        class FilterIterProxy:
             def __init__(self, me):
                 self._me = me
                 self._core_iter = me._core.__enter__()
                 self._seen = set()
 
             def __iter__(self):
-                self._me._reset()
-                return IterProxy(self._me)
+                return FilterIterProxy(self._me)
 
             def __next__(self):
                 item = next(self._core_iter)
@@ -261,9 +260,13 @@ class FilteringSource(Source):
                     self._seen.add(unique)
                     return item
                 # else
+                log.debug(f"skipping record {item=} matching {unique=}")
                 return next(self)
 
-        return IterProxy(self)
+        return FilterIterProxy(self)
+
+    def __exit__(self):
+        self._core.__exit__()
 
 
 try:

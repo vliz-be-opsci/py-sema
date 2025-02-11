@@ -69,9 +69,6 @@ class Source(ABC):
         self._init_mtimes([source_path])
 
 
-# TODO make a pandas source in sources.py
-
-
 class GeneratorSettings:
     """Embodies all the actual possible modifiers to the process"""
 
