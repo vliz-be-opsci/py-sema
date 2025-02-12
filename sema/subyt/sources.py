@@ -194,9 +194,9 @@ class CollectionSource(Source):
 
         return IterProxy(self)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *exc):
         # exit the current open source
-        self._exitCurrent(exc_type, exc_val, exc_tb)
+        self._exitCurrent(*exc)
         self._reset()
 
 
@@ -270,8 +270,8 @@ class FilteringSource(Source):
 
         return FilterIterProxy(self)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._core.__exit__(exc_type, exc_val, exc_tb)
+    def __exit__(self, *exc):
+        self._core.__exit__(*exc)
 
 
 try:
@@ -292,7 +292,7 @@ try:
             self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
             return csv.DictReader(self._csvfile, delimiter=",")
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
+        def __exit__(self, *exc):
             self._csvfile.close()
 
         def __repr__(self):
@@ -337,7 +337,7 @@ try:
                     data = [data]
             return iter(data)
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
+        def __exit__(self, *exc):
             pass
 
         def __repr__(self):
@@ -377,7 +377,7 @@ try:
 
             return iter(data)
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
+        def __exit__(self, *exc):
             pass
 
         def __repr__(self):
