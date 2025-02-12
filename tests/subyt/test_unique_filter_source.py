@@ -114,7 +114,7 @@ def test_valid_unique_pattern() -> None:
 
 def test_unique_processing() -> None:
     json_source_path = str(DATA_FOLDER / "data_team.json").strip()
-    name = "filter-team-orcid.ttl"
+    name = "filter/unique-team-orcid.ttl"
     with tempfile.TemporaryDirectory() as tmpdirname:
         out_pattern = tmpdirname + "/orcid-{orcid:9}.ttl"
         # use the cli with the -u # option
