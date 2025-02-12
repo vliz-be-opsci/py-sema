@@ -239,6 +239,11 @@ class FilteringSource(Source):
         self._core = core
         self._unique_pattern = unique_pattern
         self._unique_template = URITemplate(unique_pattern)
+        if len(self._unique_template.variable_names) == 0:
+            raise ValueError(
+                f"unique_pattern for filtering '{unique_pattern}' "
+                "must have at least one variable in use."
+            )
 
     def __repr__(self):
         return f"FilteringSource({self._core}, '{self._unique_pattern}')"

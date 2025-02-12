@@ -1,0 +1,19 @@
+{# Template 'filter-team-orcid.ttl' 
+  Description: 'This template demonstrates support for filtering on top of data in /data-team.json' 
+  Author: Marc Portier
+  Date: 2025-02-12
+  Target vocabs: 
+    - ex: <https://example.org/unique/>
+    - foaf: <http://xmlns.com/foaf/0.1/>
+  Inputs: 
+    - input-file: (None)
+    - set-file(s): 
+        - data_team.json as team
+#}
+
+@prefix ex: <https://example.org/unique/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+{{uritexpand("https://orcid.org{/orcid}", _) | uri }}
+    a foaf:Person;
+    foaf:name {{ _.name | xsd("string") }}.

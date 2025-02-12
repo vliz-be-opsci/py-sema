@@ -228,7 +228,7 @@ class IteratorsFromSources(dict):
 
     def __exit__(self, *exc):
         for name, source in self.items():
-            source.__exit__()
+            source.__exit__(*exc)
 
 
 class Generator(ABC):
