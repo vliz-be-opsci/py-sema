@@ -153,12 +153,12 @@ class CollectionSource(Source):
         self._current_iter = None
         self._ix = -1
 
-    def _exitCurrent(self, exc_type, exc_val, exc_tb):
+    def _exitCurrent(self, *exc):
         if self._current_source is not None:
-            self._current_source.__exit__(exc_type, exc_val, exc_tb)
+            self._current_source.__exit__(*exc)
 
     def _nextSource(self):
-        self._exitCurrent()
+        self._exitCurrent(None, None, None)
         self._ix += 1
         if self._ix < len(self._sourcefiles):
             self._current_source = SourceFactory.make_source(
