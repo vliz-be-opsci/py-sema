@@ -159,7 +159,7 @@ def init_load(args: argparse.Namespace, store: RDFStore):
 
 
 def make_service(args: argparse.Namespace) -> Harvest:
-    store_info: list = args.store or []
+    store_info: list | None = args.store or None
     log.debug(f"{store_info=}")
     if store_info is not None:
         log.debug(f"make service for target store {store_info}")
@@ -167,7 +167,10 @@ def make_service(args: argparse.Namespace) -> Harvest:
         log.debug("make service for target store with no store_info provided")
     config = args.config[0]
     config = Path.cwd() / config
-    new_service = Harvest(config, store_info)
+    if store_info is not None:
+        new_service = Harvest(config, store_info)
+    else:
+        new_service = Harvest(config)
     return new_service
 
 

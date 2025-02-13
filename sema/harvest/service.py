@@ -34,11 +34,7 @@ class Harvest(ServiceBase):
     for all subjects in the configuration file.
     """
 
-    def __init__(
-        self,
-        config: str,
-        target_store_info: Optional[List[str]] = None,
-    ):
+    def __init__(self, config: str, *target_store_info: List[str]):
         """Assert all paths for given subjects.
         Given a configuration file, assert all paths
         for all subjects in the configuration file.
