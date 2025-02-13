@@ -90,7 +90,9 @@ class SourceFactory:
 
     @staticmethod
     def make_source(
-        identifier: str | Path, *, unique_pattern: str | None = None
+        identifier: str | Path,
+        *,
+        unique_pattern: str | None = None,
     ) -> Source:
         source = SourceFactory._make_core_source(identifier)
         if unique_pattern is not None:
@@ -153,11 +155,11 @@ class CollectionSource(Source):
         self._current_iter = None
         self._ix = -1
 
-    def _exitCurrent(self, *exc):
+    def _exitCurrent(self, *exc) -> None:
         if self._current_source is not None:
             self._current_source.__exit__(*exc)
 
-    def _nextSource(self):
+    def _nextSource(self) -> None:
         self._exitCurrent(None, None, None)
         self._ix += 1
         if self._ix < len(self._sourcefiles):
@@ -194,7 +196,7 @@ class CollectionSource(Source):
 
         return IterProxy(self)
 
-    def __exit__(self, *exc):
+    def __exit__(self, *exc) -> None:
         # exit the current open source
         self._exitCurrent(*exc)
         self._reset()
@@ -234,7 +236,7 @@ class GlobSource(CollectionSource):
 
 
 class FilteringSource(Source):
-    def __init__(self, core: Source, unique_pattern: str):
+    def __init__(self, core: Source, unique_pattern: str) -> None:
         super().__init__()
         self._core = core
         self._unique_pattern = unique_pattern
@@ -245,10 +247,10 @@ class FilteringSource(Source):
                 "must have at least one variable in use."
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"FilteringSource({self._core}, '{self._unique_pattern}')"
 
-    def __enter__(self):
+    def __enter__(self) -> object:
         class FilterIterProxy:
             def __init__(self, me):
                 self._me = me
@@ -270,7 +272,7 @@ class FilteringSource(Source):
 
         return FilterIterProxy(self)
 
-    def __exit__(self, *exc):
+    def __exit__(self, *exc) -> None:
         self._core.__exit__(*exc)
 
 
@@ -282,20 +284,20 @@ try:
         Source producing iterator over data-set coming from CSV on file
         """
 
-        def __init__(self, csv_file_path: Path):
+        def __init__(self, csv_file_path: Path) -> None:
             super().__init__()
             assert_readable(csv_file_path)
             self._csv: Path = csv_file_path.absolute()
             self._init_source(self._csv)
 
-        def __enter__(self):
+        def __enter__(self) -> object:
             self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
             return csv.DictReader(self._csvfile, delimiter=",")
 
-        def __exit__(self, *exc):
+        def __exit__(self, *exc) -> None:
             self._csvfile.close()
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"CSVFileSource('{self._csv!s}')"
 
     SourceFactory.register("text/csv", CSVFileSource)
@@ -313,13 +315,13 @@ try:
         Source producing iterator over data-set coming from json on file
         """
 
-        def __init__(self, json_file_path: Path):
+        def __init__(self, json_file_path: Path) -> None:
             super().__init__()
             assert_readable(json_file_path)
             self._json = json_file_path.absolute()
             self._init_source(self._json)
 
-        def __enter__(self):
+        def __enter__(self) -> object:
             # note this is loading everything in memory
             #   -- will not work for large sets
             #   in the future we might need to consider:
@@ -337,10 +339,10 @@ try:
                     data = [data]
             return iter(data)
 
-        def __exit__(self, *exc):
+        def __exit__(self, *exc) -> None:
             pass
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"JsonFileSource('{self._json!s}')"
 
     SourceFactory.register("application/json", JsonFileSource)
@@ -356,13 +358,13 @@ try:
         Source producing iterator over data-set coming from XML on file
         """
 
-        def __init__(self, xml_file_path: Path):
+        def __init__(self, xml_file_path: Path) -> None:
             super().__init__()
             assert_readable(xml_file_path)
             self._xml: Path = xml_file_path.absolute()
             self._init_source(self._xml)
 
-        def __enter__(self):
+        def __enter__(self) -> object:
             with open(self._xml, mode="r", encoding="utf-8-sig") as xmlfile:
                 xml_str = xmlfile.read()
                 xdict = xmlasdict.parse(xml_str)
@@ -377,10 +379,10 @@ try:
 
             return iter(data)
 
-        def __exit__(self, *exc):
+        def __exit__(self, *exc) -> None:
             pass
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return f"XMLFileSource('{self._xml}')"
 
     SourceFactory.map("eml", "text/xml")

@@ -99,7 +99,8 @@ class Subyt(ServiceBase):
             self._inputs.update(
                 {
                     "_": SourceFactory.make_source(
-                        source, unique_pattern=unique_pattern
+                        source,
+                        unique_pattern=unique_pattern,
                     )
                 }
             )

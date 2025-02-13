@@ -15,7 +15,7 @@ DATA_FOLDER = MY_FOLDER / "in"
 
 
 class FixedDataListSource(Source):
-    def __init__(self):
+    def __init__(self) -> None:
         self._data: list[dict[str, any]] = [
             {"name": "theo", "parent": "stef"},
             {"name": "fien", "parent": "marc"},
@@ -23,17 +23,17 @@ class FixedDataListSource(Source):
             {"name": "jef", "parent": "stef"},
         ]
 
-    def __enter__(self):
+    def __enter__(self) -> object:
         return iter(self._data)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *exc) -> None:
         pass
 
 
 def test_verify_base_source():
     fdls = FixedDataListSource()
     with fdls as items:
-        data = [item for item in items]
+        data = list(items)
         assert len(data) == 4
         assert data[0]["name"] == "theo"
         assert data[2]["parent"] == "marc"
@@ -43,7 +43,7 @@ def test_filtered_source() -> None:
     fdls = FixedDataListSource()
     upfs = FilteringSource(fdls, "the unique parent = {parent}")
     with upfs as items:
-        data = [item for item in items]
+        data = list(items)
         assert len(data) == 2
         assert data[0]["parent"] == "stef"
         assert data[1]["parent"] == "marc"
@@ -66,7 +66,7 @@ def test_filtered_csv_source() -> None:
     assert upfs is not None
     assert isinstance(upfs, FilteringSource)
     with upfs as items:
-        uniq_leadchar_countries = [item for item in items]
+        uniq_leadchar_countries = list(items)
 
         expected_leadchars = "AÅBCDEFGHIJKLMNOPQRSTUVWYZ"
         assert len(uniq_leadchar_countries) == len(expected_leadchars)
@@ -97,7 +97,7 @@ def test_filtered_json_source() -> None:
     )
     assert upfs is not None
     with upfs as items:
-        uniq_lead9_orcids = [item for item in items]
+        uniq_lead9_orcids = list(items)
         assert len(uniq_lead9_orcids) == 3
         print(f"{uniq_lead9_orcids=}")
         for i in range(0, 3):
