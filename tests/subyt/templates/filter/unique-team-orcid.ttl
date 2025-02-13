@@ -1,0 +1,20 @@
+{# 
+  Template: 'filter/unique-team-orcid.ttl' 
+  Description: 'This template works on top of data in /data-team.json. i
+    The Expected use is to have that set filtered through -u option' 
+  Author: Marc Portier
+  Date: 2025-02-12
+  "Target vocabs": 
+    - ex: <https://example.org/unique/>
+    - foaf: <http://xmlns.com/foaf/0.1/>
+  Inputs: 
+    - input-file:  in/data_team.json
+    - set-file(s):  None
+#}
+
+@prefix ex: <https://example.org/unique/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+{{uritexpand("https://orcid.org{/orcid}", _) | uri }}
+    a foaf:Person;
+    foaf:name {{ _.name | xsd("string") }}.

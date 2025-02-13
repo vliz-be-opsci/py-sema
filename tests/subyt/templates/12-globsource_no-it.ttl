@@ -1,6 +1,6 @@
 @prefix ex: <https://example.org/12-globsource_no-it/> .
 {% for city in sets['glob'] -%}
-<{{uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city)}}>
+{{ uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city) | uri }}
     a ex:city;
     ex:title {{ city.name | xsd("string", '"') }}.
 {% endfor %}

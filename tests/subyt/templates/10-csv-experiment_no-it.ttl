@@ -13,7 +13,7 @@
 @prefix ex : <https://example.org/> .
 
 {% for exp in sets['experiment'] -%}
-<{{uritexpand("https://example.org/{#primary_key}", exp)}}>
+{{ uritexpand("https://example.org/{#primary_key}", exp)| uri }}
 	a ex:experiment;
 	ex:type {{exp.experiment_type}};
 	ex:result {{exp.result}} .

@@ -21,14 +21,14 @@ ex:fullset ex:iteration {{ctrl.settings.iteration | xsd('boolean')}};
     {%- set ctrymap = map(sets['countries'], 'Alpha-3 code', 'Alpha-2 code') -%}
     {% for _ in sets['_'] -%}
         {%- set nothing = ctrymap.apply(_, 'country', 'ctry2') -%}
-<{{uritexpand('https://vliz.be/code/pysubyt/test/item{#id}',_)}}>
+{{uritexpand('https://vliz.be/code/pysubyt/test/item{#id}',_)| uri}}
     ex:name {{_.name | xsd('string')}};
     ex:country {{_.ctry2 | xsd('string')}}.
 {# force newline #}
     {%- endfor %}
     {%- for country in sets['countries'] -%}
         {%- if country['Alpha-2 code'] == 'BE' -%}
-<{{uritexpand('https://iso.org/countries{/Alpha-2 code}', country)}}> ex:name {{country['English short name lower case'] | xsd('@en')}}.
+{{uritexpand('https://iso.org/countries{/Alpha-2 code}', country) | uri}} ex:name {{country['English short name lower case'] | xsd('@en')}}.
 {# force newline #}
         {%- endif -%}
     {%- endfor %}

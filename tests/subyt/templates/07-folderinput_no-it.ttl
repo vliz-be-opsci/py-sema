@@ -12,7 +12,7 @@
 
 @prefix ex: <https://example.org/07-folderinput_no-it/> .
 {% for city in sets['cities'] -%}
-<{{uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city)}}>
+{{ uritexpand("https://example.org/flemish-cities/byzipcode{/id}", city) | uri }}
     a ex:city;
     ex:title {{ city.name | xsd("string", '"') }}.
 {% endfor %}

@@ -69,9 +69,6 @@ class Source(ABC):
         self._init_mtimes([source_path])
 
 
-# TODO make a pandas source in sources.py
-
-
 class GeneratorSettings:
     """Embodies all the actual possible modifiers to the process"""
 
@@ -231,7 +228,7 @@ class IteratorsFromSources(dict):
 
     def __exit__(self, *exc):
         for name, source in self.items():
-            source.__exit__()
+            source.__exit__(*exc)
 
 
 class Generator(ABC):
