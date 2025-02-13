@@ -18,7 +18,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 {% for colleague in sets['team'] -%}
-<{{uritexpand("https://orcid.org{/orcid}", colleague)}}>
+{{uritexpand("https://orcid.org{/orcid}", colleague) | uri }}
     a foaf:Person;
     foaf:name {{ colleague.name | xsd("string") }}.
 {# force newline #}

@@ -40,6 +40,7 @@ class Subyt(ServiceBase):
         break_on_error: bool | str = False,
         variables: Dict[str, str] = {},
         mode: str = "it",
+        unique_pattern: str | None = None,
     ) -> None:
         """Initialize the Subyt Service object
 
@@ -79,6 +80,8 @@ class Subyt(ServiceBase):
         :type variables: Dict[str, str]
         :param mode: the mode to be used
         :type mode: str
+        :param unique_pattern: the pattern evaluated to filter unique records
+        :type unique_pattern: str | None
         :return: Subyt object
         :rtype: Subyt
         """
@@ -93,7 +96,14 @@ class Subyt(ServiceBase):
         self.template_name = template_name
         self._inputs = {}
         if source:
-            self._inputs.update({"_": SourceFactory.make_source(source)})
+            self._inputs.update(
+                {
+                    "_": SourceFactory.make_source(
+                        source,
+                        unique_pattern=unique_pattern,
+                    )
+                }
+            )
         self._inputs.update(
             {
                 nm: SourceFactory.make_source(src)

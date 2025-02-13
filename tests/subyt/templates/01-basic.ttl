@@ -15,7 +15,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
 @prefix schema: <http://schema.org/>.
 @prefix geo: <http://www.opengis.net/ont/geosparql#>.
-<{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_)}}>
+{{uritexpand("https://vliz.be/code/pysubyt/test/item{#id}",_) | uri}}
   a ex:test ;
   ex:name {{_.name | xsd('string')}};
   schema:identifier '{{regexreplace('^[^:]*:', '', _.combi)}}';
