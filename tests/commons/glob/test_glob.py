@@ -31,7 +31,7 @@ def test_getMatchingGlobPaths() -> None:
 
     # all txt files
     log.debug("globtest - all txt files")
-    txt_files = getMatchingGlobPaths(root, includes=["**/*.txt"])
+    txt_files = getMatchingGlobPaths(root, includes="**/*.txt")
     assert txt_files
     assert len(txt_files) == 5
 
@@ -100,7 +100,7 @@ def test_visitGlobPaths() -> None:
     }
 
     results = visitGlobPaths(
-        visitor, root, includes=["**/*"], applying=applying
+        visitor, root, includes="**/*", applying=applying
     )
     assert results
     assert len(results) == 10
