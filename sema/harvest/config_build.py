@@ -327,7 +327,9 @@ class ConfigBuilder:
         return [
             f.name
             for f in getMatchingGlobPaths(
-                includes=["*.yml", "*.yaml"], onlyFiles=True
+                self.config_files_folder,
+                includes=["*.yml", "*.yaml"],
+                onlyFiles=True,
             )
         ]
 
