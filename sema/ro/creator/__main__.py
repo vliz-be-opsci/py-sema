@@ -3,6 +3,7 @@ from logging import getLogger
 from pathlib import Path
 
 from sema.commons.cli import Namespace, SemaArgsParser
+from sema.commons.glob import getMatchingGlobPaths
 from sema.ro.creator.rocreator import Roc
 
 log = getLogger(__name__)
@@ -75,17 +76,27 @@ def _find_rocyml(root: str) -> tuple[str, str]:
     """Find the roc yml file in the root folder"""
     root = Path(root)
     rocyml = Path("roc-me.yml")
+    if not root.exists():
+        raise FileNotFoundError(f"root path {root} does not exist")
+
     if root.is_dir():
         # find roc-*yml file -- warn if more then one, use if only one
-        ...
+        rocfiles: list[Path] = getMatchingGlobPaths(root, "roc-*.yml")
+        if len(rocfiles) > 1:
+            raise ValueError(
+                f"multiple roc yml files found in {root}, cannot proceed"
+            )
+        # else
+        if len(rocfiles) < 1:
+            raise FileNotFoundError(f"no roc yml file found in {root}")
+        # else exactly one is how we like it
+        rocyml = rocfiles[0]
 
     elif root.is_file():
         rocyml = root
         root = root.parent
+        rocyml = rocyml.relative_to(root)
 
-    # check if rocyml exists
-    # throw config error if not
-    # TODO guarantee rocyml is relative to root or absolute
     # make into str paths again before return
     return str(root), str(rocyml)
 

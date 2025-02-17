@@ -20,7 +20,16 @@ def test_help(capfd):
     assert out.startswith("usage: ")
 
 
-def test_cli(capfd):
+def test_cli_toomany_yml(capfd):
+    rocfile = ROCRATEROOT_FOLDER  
+    # not a file but a folder that contains multiplre roc-*.yml files
+
+    cli_line = f" {rocfile !s}"
+    success: bool = _main(*cli_line.split())
+    assert not success
+
+
+def test_cli_01(capfd):
     rocfile = ROCRATEROOT_FOLDER / "roc-01-basic.yml"
 
     cli_line = f" {rocfile !s}"
