@@ -1,8 +1,6 @@
 import logging
-from pathlib import Path
 
 from sema.commons.service import ServiceBase, ServiceResult, Trace
-
 
 log = logging.getLogger(__name__)
 

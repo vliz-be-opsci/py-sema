@@ -1,6 +1,6 @@
-from pathlib import Path
 import sys
 from logging import getLogger
+from pathlib import Path
 
 from sema.commons.cli import Namespace, SemaArgsParser
 from sema.ro.creator.rocreator import Roc
@@ -22,7 +22,7 @@ def get_arg_parser() -> SemaArgsParser:
         "-L",
         "--list",
         action="store_true",
-        required=True,
+        required=False,
         help="List all the available strategies. Prevents actual build.",
     )
 
@@ -31,7 +31,6 @@ def get_arg_parser() -> SemaArgsParser:
         "--make",
         metavar="strategy",  # meaning of the argument
         action="store",
-        default=".",  # local working directory
         help="Generates a ro-*yml file for the given strategy.",
     )
 
@@ -49,22 +48,27 @@ def get_arg_parser() -> SemaArgsParser:
     parser.add_argument(
         "root",
         action="store",
+        nargs="?",
         help=(
             "Path of the rocrate to work on. "
             "This where roc-*yml is found or (in case of -m) placed. "
-            "This is where ro-crate-metadata.json is placed."
+            "This is where ro-crate-metadata.json is placed. "
+            "Defaults to the current working directory."
         ),
     )
 
     parser.add_argument(
         "out",
         action="store",
+        nargs="?",
         help=(
             "Name of output-file to produce. "
-            "Defaults to ro-crate-metadata.json resp. roc-me.yml (for the -m case). "
+            "Defaults to ro-crate-metadata.json resp. "
+            "roc-me.yml (for the -m case). "
             "Can be absolute or relative to the specified root."
         ),
     )
+    return parser
 
 
 def _find_rocyml(root: str) -> tuple[str, str]:
@@ -113,9 +117,12 @@ def _main(*args_list) -> bool:
         # else
         if args.make:
             # generate the yml file for this particular strategy
-            # root and out are used to determine the location of the yml file to produce
+            # root and out are used to determine the location
+            # of the yml file to produce
             strategy_name: str = args.make
-            log.debug(f"generating the yml file for the given {strategy_name=}")
+            log.debug(
+                f"generating the yml file for the given {strategy_name=}"
+            )
             ...
             return
         # else
