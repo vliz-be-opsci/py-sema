@@ -2,10 +2,9 @@ import logging
 from pathlib import Path
 
 import pytest
-from rdflib import Graph
-from sema.harvest.config_build import ConfigBuilder, Config
-from sema.harvest.store import RDFStoreAccess
+
 from sema.harvest import Harvest
+from sema.harvest.config_build import ConfigBuilder
 
 log = logging.getLogger(__name__)
 
