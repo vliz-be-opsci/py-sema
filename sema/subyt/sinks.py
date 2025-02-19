@@ -106,7 +106,7 @@ class SingleFileSink(Sink):
         source_mtime: float | None = None,
     ):
         assert self._fopen is not None, "File to Sink to already closed"
-        log.info(f"Creating {self._file_path}")
+        log.info(f"SingleFileSink adding part to {self._file_path}")
         self._fopen.write(part)
 
 

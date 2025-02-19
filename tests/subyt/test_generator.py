@@ -9,18 +9,20 @@ log = logging.getLogger(__name__)
 
 
 class AssertingSink(Sink):
-    def __init__(self):
+    def __init__(self, parts: list = None):
         super().__init__()
-        self._parts = []
-
-    def load_parts(self, parts):
         self._parts = parts
         self._index = 0
+        self._already_open = False
+        self._already_closed = False
 
     def _assert_count(self):
         assert self._index == len(self._parts), "not all parts were rendered"
 
     def add(self, part: str, item: dict = None, source_mtime: float = None):
+        assert self._already_open, "sink.add called before sink.open"
+        assert not self._already_closed, "sink.add called after sink.close"
+
         log.debug(f"part received no. {self._index}:\n--\n{part}\n--")
         expected = self._parts[self._index].strip()
         part = part.strip()
@@ -33,10 +35,12 @@ class AssertingSink(Sink):
         self._index += 1
 
     def open(self):
-        pass
+        assert not self._already_open, "sink.open called twice"
+        self._already_open = True
 
     def close(self):
-        pass
+        assert not self._already_closed, "sink.close called twice"
+        self._already_closed = True
 
     def evaluate(self):
         self._assert_count()
@@ -95,14 +99,13 @@ def test_templates():
         inputs[key] = SourceFactory.make_source(str(inp_path / inp_name))
 
     assert "_" in inputs, "the base set should be available"
-    sink = AssertingSink()
 
     # read all names (files) in the tpl_path
     tpl_names = [p.name for p in tpl_path.iterdir() if p.is_file()]
 
     for tpl_name in tpl_names:
         # load the expected parts from the matching output-file in the sink
-        sink.load_parts(get_expected_parts(out_path / tpl_name))
+        sink = AssertingSink(get_expected_parts(out_path / tpl_name))
         generator_settings = GeneratorSettings(
             get_indicator_from_name(tpl_name)
         )
