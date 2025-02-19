@@ -310,10 +310,13 @@ class Generator(ABC):
             """
             self.isLast = True
             self.push()
+            self.sink.close()
 
         def push(self):
             """Actually pushes the item queued"""
             item = self.queued_item
+            if self.isFirst:
+                self.sink.open()
             log.debug(f"processing item _ = {item}")
             try:
                 part = self.render(
@@ -327,9 +330,7 @@ class Generator(ABC):
                     },
                     **self.variables,
                 )
-                self.sink.open()
                 self.sink.add(part, item, self.source_mtime)
-                self.sink.close()
             except Exception:
                 log.exception(f"error while processing {item=}")
                 if self.generator_settings.break_on_error:
