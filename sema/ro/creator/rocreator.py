@@ -1,6 +1,10 @@
 import logging
+import os
+from pathlib import Path
 
 from sema.commons.service import ServiceBase, ServiceResult, Trace
+from .api import RocModel, RocStrategy, write_model, read_roccfg
+from .strategies import RocStrategies
 
 log = logging.getLogger(__name__)
 
@@ -41,16 +45,31 @@ class Roc(ServiceBase):
         :param force: overwrites the output file even if it exists
         :type force: bool
         """
-        # upfront checks
-        # path resolving
-        # existance and writeability checks
         self._result = RocResult()
-        ...
+        # path resolving, exists, read-write checks
+        self._root: Path = Path(root)
+        if (not self._root.exists()) or (not self._root.is_dir()):
+            raise ValueError("root path does not exist or is not a folder")
+
+        self._rocymla: Path = self._root / rocyml
+        if (not self._rocyml.exists()) or (not self._rocyml.is_file()):
+            raise ValueError("roc yml file does not exist or is not a file")
+        if not os.access(self._rocyml, os.R_OK):
+            raise ValueError("roc yml file is not readable")
+
+        self._out: Path = self._root / out
+        if self._out.exists() and (not force):
+            raise ValueError("output file exists but is not a file")
+        if not self._out.exists():
+            self._out.parent.mkdir(parents=True, exist_ok=True)
 
     @Trace.init(Trace)
     def process(self) -> RocResult:
-        ...
-
+        roccfg: dict[str, any] = read_roccfg(self._rocyml)
+        sg_name: str = roccfg.get("uses", "basic")
+        sg = RocStrategies.get_strategy(sg_name)
+        rocm: RocModel = sg.build_model(roccfg)
+        write_model(rocm, self._out)
         self._result._success = True
 
         return self._result

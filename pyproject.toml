@@ -26,6 +26,7 @@ apscheduler = "^3.10.4"
 pyshacl = "^0.26.0"
 watchdog = "^4.0.1"
 pyyaml = "^6.0.2"
+singleton-decorator = "^1.0.0"
 
 [tool.poetry.group.docs]
 optional = true

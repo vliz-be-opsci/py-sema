@@ -21,7 +21,7 @@ def test_help(capfd):
 
 
 def test_cli_toomany_yml(capfd):
-    rocfile = ROCRATEROOT_FOLDER  
+    rocfile = ROCRATEROOT_FOLDER
     # not a file but a folder that contains multiplre roc-*.yml files
 
     cli_line = f" {rocfile !s}"
