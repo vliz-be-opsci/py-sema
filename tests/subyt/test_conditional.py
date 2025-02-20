@@ -89,14 +89,13 @@ def test_conditional():
         inputs[key] = SourceFactory.make_source(str(inp_path / inp_name))
 
     assert "_" in inputs, "the base set should be available"
-    sink = AssertingSink()
 
     # read all names (files) in the tpl_path
     tlp_names = [p.name for p in tpl_path.iterdir() if p.is_file()]
 
     for tlp_name in tlp_names:
         # load the expected parts from the matching output-file in the sink
-        sink.load_parts(get_expected_parts(out_path / tlp_name))
+        sink = AssertingSink(get_expected_parts(out_path / tlp_name))
         generator_settings = GeneratorSettings(
             get_indicator_from_name(tlp_name)
         )
