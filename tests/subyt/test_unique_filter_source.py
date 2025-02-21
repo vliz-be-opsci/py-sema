@@ -8,6 +8,7 @@ from sema.commons.glob import getMatchingGlobPaths
 from sema.subyt.__main__ import _main
 from sema.subyt.api import Source
 from sema.subyt.sources import CSVFileSource, FilteringSource, SourceFactory
+from tests.conftest import log
 
 MY_FOLDER = Path(__file__).parent
 TEMPLATES_FOLDER = MY_FOLDER / "templates"
@@ -125,8 +126,7 @@ def test_unique_processing() -> None:
             f" --output {out_pattern}"
             " --unique #"  # reuses out_pattern as the pattern for uniqueness
         )
-        print(f"{cli_line=}")
-        print(f"{cli_line.split()=}")
+        log.debug(f"{cli_line.split()=}")
         success: bool = _main(*cli_line.split())
         assert success
         # check the output files
