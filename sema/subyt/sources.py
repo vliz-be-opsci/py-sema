@@ -2,7 +2,6 @@ import glob
 import logging
 import mimetypes
 import os
-import re
 from pathlib import Path
 from typing import Callable
 
@@ -12,6 +11,7 @@ from uritemplate import URITemplate
 
 from sema.commons.clean.clean import check_valid_url
 from sema.commons.glob import getMatchingGlobPaths
+from sema.commons.web import parse_header
 
 from .api import Source
 
@@ -25,10 +25,13 @@ def assert_readable(path_name: str | Path):
 
 
 def fname_from_cdisp(cdisp):
-    return re.split(r"; ?filename=", cdisp, flags=re.IGNORECASE)
+    main, params = parse_header(cdisp, "content-disposition")
+    return params.get("filename", None)
 
 
 class SourceFactory:
+    """Helper class to create Source objects based on identifier for them."""
+
     _instance = None
 
     def __init__(self):
@@ -90,17 +93,63 @@ class SourceFactory:
 
     @staticmethod
     def make_source(
-        identifier: str | Path,
+        identifier: str | Path | dict,
         *,
         unique_pattern: str | None = None,
     ) -> Source:
+        """Factory method to create a Source object based on identifier.
+        @param identifier: specification of the source to build. This can be a
+            string, a Path object or a dictionary. If a string, it can be a
+            simple file path, a glob pattern, or a URL. The file path can be
+            extended with extra [+key=value] pairs to mimic the dictionary.
+            If a dictionary, it should have at least a key 'path' holding
+            the file path. Additinally an `ext` or `mime` key can be used to
+            specify the mime type of the source. Depending on that type extra
+            keys can be meaningful. (e.g. for csv header, delimiter, etc.)
+            If the identifier is a URL, the mime type is derived from the
+            response header.
+        @type identifier: str | Path | dict
+        @param unique_pattern: a pattern to filter out unique records from the
+            source. This pattern uses uripattern syntax and when expanded will
+            yield a value for each record that is used to filter records:
+            only the first record for each expanded value is processed as part
+            of the source.
+        @type unique_pattern: str | None
+        """
         source = SourceFactory._make_core_source(identifier)
         if unique_pattern is not None:
             source = FilteringSource(source, unique_pattern)
         return source
 
     @staticmethod
-    def _make_core_source(identifier: str | Path) -> Source:
+    def _parse_source_identifier(identifier: str | Path | dict) -> dict:
+        if isinstance(identifier, dict):
+            config = identifier
+            if "identifier" not in config:
+                config["identifier"] = str(config["path"])
+                config["path"] = Path(config["path"])
+            return config
+        # else
+        if isinstance(identifier, Path):
+            return {"identifier": identifier, "path": identifier}
+        # else
+        config: dict = dict()
+        if isinstance(identifier, str):
+            # split on '+', take first as new identifer, group rest as parts
+            first, *parts = identifier.split("+")
+            config["identifier"] = first
+            for part in parts:
+                key, value = part.split("=")
+                config[key] = value
+        if len(config) == 0:
+            raise ValueError(f"Invalid identifier '{identifier}'")
+        # else
+        return config
+
+    @staticmethod
+    def _make_core_source(identifier: str | Path | dict) -> Source:
+        config = SourceFactory._parse_source_identifier(identifier)
+        identifier = config["identifier"]
         # check for url
         if check_valid_url(str(identifier)):
             mime: str = SourceFactory.mime_from_remote(identifier)  # type: ignore # noqa
@@ -109,7 +158,7 @@ class SourceFactory:
             )
 
         # else get input types nicely split str vs Path
-        source_path: Path = Path(identifier)
+        source_path: Path = config.get("path", Path(identifier))
         identifier = str(identifier)
         # check for folder source
         source: Source = None
@@ -123,17 +172,29 @@ class SourceFactory:
             return source
 
         # else should be single file with source tuned to mime
-        mime: str = SourceFactory.mime_from_identifier(identifier)
+        mime: str = None
+        if "mime" in config:
+            mime = config["mime"]
+        elif "ext" in config:
+            mime = SourceFactory.instance().ext_2_mime.get(config["ext"])
+        else:
+            mime = SourceFactory.mime_from_identifier(identifier)
         assert mime is not None, (
             f"no valid mime derived from identifier '{identifier}'",
         )
         sourceClass: Callable[[str], Source] = None
         sourceClass = SourceFactory.instance()._find(mime)
-        source = sourceClass(source_path)
+        source = sourceClass(source_path, config)
         return source
 
 
 class CollectionSource(Source):
+    """Base class for Source implementations that are collections of sources.
+    Meaning they are based on a collection of files, like a folder or a glob
+    pattern. The content they represent is a concatenation of the content of
+    the files in the collection.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self._collection_path: Path = Path(".")
@@ -203,6 +264,9 @@ class CollectionSource(Source):
 
 
 class FolderSource(CollectionSource):
+    """Case of CollectionSource respresenting all the direct-child files
+    inside the specified folder."""
+
     def __init__(self, folder_path: Path):
         super().__init__()
         self._collection_path = folder_path.absolute()
@@ -215,6 +279,9 @@ class FolderSource(CollectionSource):
 
 
 class GlobSource(CollectionSource):
+    """Case of CollectionSource respresenting all the files matching the
+    specified glob pattern."""
+
     def __init__(self, pattern: str, pattern_root_dir: str = "."):
         super().__init__()
         self._collection_path = Path(pattern_root_dir).absolute()
@@ -236,6 +303,13 @@ class GlobSource(CollectionSource):
 
 
 class FilteringSource(Source):
+    """Decorating source implementation that filters out records based on
+    a unique pattern. Only the first record for each expanded value is
+    processed as part of the source.
+    Being a decorator means this can be applied to any other Source
+    implementation.
+    """
+
     def __init__(self, core: Source, unique_pattern: str) -> None:
         super().__init__()
         self._core = core
@@ -281,18 +355,38 @@ try:
 
     class CSVFileSource(Source):
         """
-        Source producing iterator over data-set coming from CSV on file
+        Source producing iterator over data-set coming from CSV on file.
+        The identifier (str or dict) for this source can have the following
+        extra keys:
+        - delimiter: the delimiter character used in the CSV file
+        - quotechar: the quote character used in the CSV file
+        - header: the header line of the CSV file (using the same delimiter)
         """
 
-        def __init__(self, csv_file_path: Path) -> None:
+        def __init__(self, csv_file_path: Path, config: dict = {}) -> None:
             super().__init__()
             assert_readable(csv_file_path)
             self._csv: Path = csv_file_path.absolute()
             self._init_source(self._csv)
+            self._csvconfig: dict = dict()
+            for key in ["delimiter", "quotechar", "header"]:
+                if key in config:
+                    self._csvconfig[key] = config[key]
 
         def __enter__(self) -> object:
             self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
-            return csv.DictReader(self._csvfile, delimiter=",")
+            # use config settings
+            delimiter: str = self._csvconfig.get("delimiter", ",")
+            quotechar: str = self._csvconfig.get("quotechar", '"')
+            header: str = self._csvconfig.get("header")
+            fieldnames: list = header.split(delimiter) if header else None
+
+            return csv.DictReader(
+                self._csvfile,
+                delimiter=delimiter,
+                quotechar=quotechar,
+                fieldnames=fieldnames,
+            )
 
         def __exit__(self, *exc) -> None:
             self._csvfile.close()
@@ -315,7 +409,7 @@ try:
         Source producing iterator over data-set coming from json on file
         """
 
-        def __init__(self, json_file_path: Path) -> None:
+        def __init__(self, json_file_path: Path, config: dict = {}) -> None:
             super().__init__()
             assert_readable(json_file_path)
             self._json = json_file_path.absolute()
@@ -358,7 +452,7 @@ try:
         Source producing iterator over data-set coming from XML on file
         """
 
-        def __init__(self, xml_file_path: Path) -> None:
+        def __init__(self, xml_file_path: Path, config: dict = {}) -> None:
             super().__init__()
             assert_readable(xml_file_path)
             self._xml: Path = xml_file_path.absolute()

@@ -1,0 +1,25 @@
+{# 
+  Template: 'extra/peep-ages.ttl'
+  Description: 'This template works on top of data in /resources/data_ages.psv
+    The Expected use is to have that file readable through extende source config' 
+  Author: Marc Portier
+  Date: 2025-02-21
+  "Target vocabs": 
+    - ex: <https://example.org/source_config/>
+    - foaf: <http://xmlns.com/foaf/0.1/>
+  Inputs: 
+    - input-file:  resources/data_ages.psv+ext=csv+header=name|age
+    - set-file(s):  None
+#}
+{%- if ctrl.isFirst %}
+@prefix ex: <https://example.org/peeps/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+{% endif -%}
+
+ex:{{ _.name | lower }}
+    a foaf:Person;
+    foaf:name {{ _.name | xsd("string") }};
+    ex:age {{ _.age | xsd("integer") }}
+.
+
