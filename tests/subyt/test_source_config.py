@@ -46,7 +46,7 @@ def test_parsing() -> None:
 
 
 @pytest.mark.parametrize("source_param", [CONFIG_DICT, CONFIG_STRING])
-def test_source_factory_config_handling(source_param: dict) -> None:
+def test_source_factory_config_handling(source_param: str | dict) -> None:
     source: Source = SourceFactory.make_source(source_param)
     assert source is not None
     assert isinstance(source, CSVFileSource)
@@ -81,7 +81,7 @@ def verify_output(outfile: Path) -> None:
 
 
 @pytest.mark.parametrize("source_param", [CONFIG_DICT, CONFIG_STRING])
-def test_api_with_string(source_param) -> None:
+def test_api_with_string(source_param: str | dict) -> None:
     with tempfile.TemporaryDirectory() as tmpdirname:
         outfile = Path(tmpdirname) / "output.ttl"
         subyt: Subyt = Subyt(

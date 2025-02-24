@@ -2,7 +2,6 @@ import glob
 import logging
 import mimetypes
 import os
-import re
 from pathlib import Path
 from typing import Callable
 
@@ -12,6 +11,7 @@ from uritemplate import URITemplate
 
 from sema.commons.clean.clean import check_valid_url
 from sema.commons.glob import getMatchingGlobPaths
+from sema.commons.web import parse_header
 
 from .api import Source
 
@@ -25,10 +25,13 @@ def assert_readable(path_name: str | Path):
 
 
 def fname_from_cdisp(cdisp):
-    return re.split(r"; ?filename=", cdisp, flags=re.IGNORECASE)
+    main, params = parse_header(cdisp, "content-disposition")
+    return params.get("filename", None)
 
 
 class SourceFactory:
+    """Helper class to create Source objects based on identifier for them."""
+
     _instance = None
 
     def __init__(self):
@@ -94,6 +97,25 @@ class SourceFactory:
         *,
         unique_pattern: str | None = None,
     ) -> Source:
+        """Factory method to create a Source object based on identifier.
+        @param identifier: specification of the source to build. This can be a
+            string, a Path object or a dictionary. If a string, it can be a
+            simple file path, a glob pattern, or a URL. The file path can be
+            extended with extra [+key=value] pairs to mimic the dictionary.
+            If a dictionary, it should have at least a key 'path' holding
+            the file path. Additinally an `ext` or `mime` key can be used to
+            specify the mime type of the source. Depending on that type extra
+            keys can be meaningful. (e.g. for csv header, delimiter, etc.)
+            If the identifier is a URL, the mime type is derived from the
+            response header.
+        @type identifier: str | Path | dict
+        @param unique_pattern: a pattern to filter out unique records from the
+            source. This pattern uses uripattern syntax and when expanded will
+            yield a value for each record that is used to filter records:
+            only the first record for each expanded value is processed as part
+            of the source.
+        @type unique_pattern: str | None
+        """
         source = SourceFactory._make_core_source(identifier)
         if unique_pattern is not None:
             source = FilteringSource(source, unique_pattern)
@@ -167,6 +189,12 @@ class SourceFactory:
 
 
 class CollectionSource(Source):
+    """Base class for Source implementations that are collections of sources.
+    Meaning they are based on a collection of files, like a folder or a glob
+    pattern. The content they represent is a concatenation of the content of
+    the files in the collection.
+    """
+
     def __init__(self) -> None:
         super().__init__()
         self._collection_path: Path = Path(".")
@@ -236,6 +264,9 @@ class CollectionSource(Source):
 
 
 class FolderSource(CollectionSource):
+    """Case of CollectionSource respresenting all the direct-child files
+    inside the specified folder."""
+
     def __init__(self, folder_path: Path):
         super().__init__()
         self._collection_path = folder_path.absolute()
@@ -248,6 +279,9 @@ class FolderSource(CollectionSource):
 
 
 class GlobSource(CollectionSource):
+    """Case of CollectionSource respresenting all the files matching the
+    specified glob pattern."""
+
     def __init__(self, pattern: str, pattern_root_dir: str = "."):
         super().__init__()
         self._collection_path = Path(pattern_root_dir).absolute()
@@ -269,6 +303,13 @@ class GlobSource(CollectionSource):
 
 
 class FilteringSource(Source):
+    """Decorating source implementation that filters out records based on
+    a unique pattern. Only the first record for each expanded value is
+    processed as part of the source.
+    Being a decorator means this can be applied to any other Source
+    implementation.
+    """
+
     def __init__(self, core: Source, unique_pattern: str) -> None:
         super().__init__()
         self._core = core
@@ -314,7 +355,12 @@ try:
 
     class CSVFileSource(Source):
         """
-        Source producing iterator over data-set coming from CSV on file
+        Source producing iterator over data-set coming from CSV on file.
+        The identifier (str or dict) for this source can have the following
+        extra keys:
+        - delimiter: the delimiter character used in the CSV file
+        - quotechar: the quote character used in the CSV file
+        - header: the header line of the CSV file (using the same delimiter)
         """
 
         def __init__(self, csv_file_path: Path, config: dict = {}) -> None:
