@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -33,6 +34,8 @@ def test_cli_01(capfd):
     rocfile = ROCRATEROOT_FOLDER / "roc-01-basic.yml"
 
     cli_line = f" {rocfile !s}"
+    os.environ["domain"] = "https://ex.org/"
+    os.environ["repo"] = "myrepo"
     success: bool = _main(*cli_line.split())
     assert success
     # todo assert the output file exists and conforms...

@@ -1,11 +1,10 @@
 import logging
 import os
 from pathlib import Path
-
 from sema.commons.service import ServiceBase, ServiceResult, Trace
+from .api import RocModel, RocStrategy, read_roccfg, write_model
+from .strategy.registry import RocStrategies
 
-from .api import RocModel, read_roccfg, write_model
-from .strategies import RocStrategies
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +51,7 @@ class Roc(ServiceBase):
         if (not self._root.exists()) or (not self._root.is_dir()):
             raise ValueError("root path does not exist or is not a folder")
 
-        self._rocymla: Path = self._root / rocyml
+        self._rocyml: Path = self._root / rocyml
         if (not self._rocyml.exists()) or (not self._rocyml.is_file()):
             raise ValueError("roc yml file does not exist or is not a file")
         if not os.access(self._rocyml, os.R_OK):
@@ -67,10 +66,10 @@ class Roc(ServiceBase):
     @Trace.init(Trace)
     def process(self) -> RocResult:
         roccfg: dict[str, any] = read_roccfg(self._rocyml)
-        sg_name: str = roccfg.get("uses", "basic")
-        sg = RocStrategies.get_strategy(sg_name)
-        rocm: RocModel = sg.build_model(roccfg)
-        write_model(rocm, self._out)
-        self._result._success = True
+        sg: RocStrategy
+        with RocStrategies().get_strategy(roccfg) as sg:
+            rocm: RocModel = sg.build_model(roccfg)
+            write_model(rocm, self._out)
 
+        self._result._success = True
         return self._result

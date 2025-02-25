@@ -1,4 +1,4 @@
-uses: !strategy emobon-observatory  # directive to drive specific 
+uses: emobon-observatory  # directive to drive specific 
 base:  !resolve "{domain}/{repo}"
 name: "observatory-bpns-crate"
 datePublished: !resolve "{now}"

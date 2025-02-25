@@ -1,4 +1,5 @@
-uses: !strategy basic # idea to have a directive to drive specific plugable "strategies" for this
+uses: #if string, then should be the strategy-name - if ommitted, then defaults to "basic"
+  strategy: basic # idea to have a directive to drive specific plugable "strategies" for this
 # other idea is to have each strategy be able to produce a sample - with explaining comments like this
 ro:
   version: 1.2-DRAFT
