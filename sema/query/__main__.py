@@ -261,7 +261,7 @@ def _main(*cli_args):
         variables_check(
             variables_template=vars_template, variables_given=params
         )
-    query = template_service.build_syntax(name=args.template_name, **params)
+    query = template_service.build_syntax(args.template_name, **params)
     print("performing query")
     log.debug("making exec service")
     data_source = GraphSource.build(*args.source)

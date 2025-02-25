@@ -383,6 +383,7 @@ def test_urit_fn() -> None:
 
 def test_urit() -> None:
     fmt = uritexpand_fmt(
+        None,  # placeholder for context, ignored in test
         "https://vliz.be/code/pysubyt/test/item{#id}",
         {"id": "somepath"},
     )

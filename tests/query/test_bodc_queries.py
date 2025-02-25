@@ -12,7 +12,7 @@ j2sqb = DefaultSparqlBuilder(DEFAULT_TEMPLATES_FOLDER)
 
 def test_bodc_listing_published_P06():
     nerc_server: GraphSource = GraphSource.build(BODC_ENDPOINT)
-    qry: str = j2sqb.build_syntax(name="bodc-listing.sparql", cc="P06")
+    qry: str = j2sqb.build_syntax("bodc-listing.sparql", cc="P06")
 
     result: QueryResult = nerc_server.query(sparql=qry)
     assert result is not None, "there should be a result"
@@ -25,7 +25,7 @@ def test_bodc_listing_knowndump_P06():
         ttl_dump.exists()
     ), f"need input file {str(ttl_dump)} for test to work"
     in_memory: GraphSource = GraphSource.build(str(ttl_dump))
-    qry: str = j2sqb.build_syntax(name="bodc-listing.sparql", cc="P06")
+    qry: str = j2sqb.build_syntax("bodc-listing.sparql", cc="P06")
 
     result: QueryResult = in_memory.query(sparql=qry)
     assert result is not None, "there should be a result"
@@ -38,7 +38,7 @@ def test_bodc_listing_fakedump():
         ttl_dump.exists()
     ), f"need input file {str(ttl_dump)} for test to work"
     in_memory: GraphSource = GraphSource.build(str(ttl_dump))
-    qry: str = j2sqb.build_syntax(name="bodc-listing.sparql", cc="fake")
+    qry: str = j2sqb.build_syntax("bodc-listing.sparql", cc="fake")
 
     result: QueryResult = in_memory.query(sparql=qry)
     assert result is not None, "there should be a result"
