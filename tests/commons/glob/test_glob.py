@@ -100,7 +100,10 @@ def test_visitGlobPaths() -> None:
     }
 
     results = visitGlobPaths(
-        visitor, root, includes="**/*", applying=applying
+        visitor,
+        root,
+        includes="**/*",
+        applying=applying,
     )
     assert results
     assert len(results) == 10

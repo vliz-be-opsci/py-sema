@@ -10,7 +10,7 @@ from sema.ro.creator.api import RocStrategy
 
 
 @singleton
-class RocStrategies():
+class RocStrategies:
     def __init__(self):
         self._strategies = {}
         self._load_embedded_strategies()

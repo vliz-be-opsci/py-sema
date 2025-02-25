@@ -18,7 +18,7 @@ def getMatchingGlobPaths(
     Get all paths under `root` that match any of the globs in `includes`
     and none of the globs in `excludes`.
     @param root: The root path to search under.
-    @param includes: A list of globs to include. 
+    @param includes: A list of globs to include.
         For convenience, a single string is also accepted.
     @param excludes: A list of globs to exclude.
         For convenience, a single string is also accepted.

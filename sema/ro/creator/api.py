@@ -9,15 +9,17 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import yaml
+
 from sema.commons.yml import LoaderBuilder
 
 
-class RocModel():
+class RocModel:
     """The internal model structuring all content expected inside a RO-Crate.
     The various RocStrategy implementations allow for how to popiulate up this
     from reading any specific yml file.
     Serialising these models to jsonld completes the work of the RoCreator.
     """
+
     ...
 
 
@@ -26,7 +28,8 @@ class RocStrategy(ABC):
 
     @abstractmethod
     def describe(self) -> str:
-        """Produce a short (< 255) description of what this strategy is about."""
+        """Produce a short (< 255 chars) description of what
+        this strategy is about."""
         pass
 
     @abstractmethod

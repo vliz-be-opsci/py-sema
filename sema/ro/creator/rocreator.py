@@ -3,7 +3,8 @@ import os
 from pathlib import Path
 
 from sema.commons.service import ServiceBase, ServiceResult, Trace
-from .api import RocModel, RocStrategy, write_model, read_roccfg
+
+from .api import RocModel, read_roccfg, write_model
 from .strategies import RocStrategies
 
 log = logging.getLogger(__name__)
