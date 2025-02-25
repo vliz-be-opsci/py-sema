@@ -75,7 +75,7 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
         """
         Fills a named template sparql
 
-        :param name: of the template
+        :param _template_name: of the template
         :param **variables: named context parameters to apply to the template
         """
         log.debug(
