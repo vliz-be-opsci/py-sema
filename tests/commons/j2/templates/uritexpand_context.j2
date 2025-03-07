@@ -1,0 +1,9 @@
+{#-template showcasing how uritexpand can take the global context for expansion 
+ # gets called in test with context:
+ #   - name = "global.name"
+ #   - record = {"name": "record.name"}
+-#}
+{{ name }}=global.name
+{{ record.name }}=record.name
+{{ uritexpand("http://ex.org{/name}") | uri }}=<http://ex.org/global.name>
+{{ uritexpand("http://ex.org{/name}", record) | uri }}=<http://ex.org/record.name>

@@ -4,6 +4,8 @@ from datetime import date, datetime
 from typing import Any
 
 from dateutil import parser
+from jinja2 import pass_context
+from jinja2.runtime import Context
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
@@ -312,7 +314,15 @@ def uri_format(uri: str) -> str:
     return f"<{uri}>"
 
 
-def uritexpand(template: str, context: dict) -> str:
+@pass_context
+def uritexpand(
+    j2ctx: Context,
+    template: str,
+    context: dict | None = None,
+) -> str:
+    context = context or {
+        k: v for k, v in j2ctx.get_all().items() if not callable(v)
+    }
     return URITemplate(template).expand(context)
 
 
