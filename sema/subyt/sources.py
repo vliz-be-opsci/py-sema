@@ -96,6 +96,7 @@ class SourceFactory:
         identifier: str | Path | dict,
         *,
         unique_pattern: str | None = None,
+        fake_empty: bool = False,
     ) -> Source:
         """Factory method to create a Source object based on identifier.
         @param identifier: specification of the source to build. This can be a
@@ -115,8 +116,21 @@ class SourceFactory:
             only the first record for each expanded value is processed as part
             of the source.
         @type unique_pattern: str | None
+        @param fake_empty: if True, any error in the factory process will lead
+            to returning a fake empty source. Else the eror is raised.
         """
-        source = SourceFactory._make_core_source(identifier)
+        try:
+            source = SourceFactory._make_core_source(identifier)
+        except Exception as e:
+            if fake_empty:
+                log.warning(
+                    f"Failed to create source from '{identifier}'",
+                    exc_info=e,
+                )
+                return EmptySource()
+            raise e
+        # else
+        # check for empty source
         if unique_pattern is not None:
             source = FilteringSource(source, unique_pattern)
         return source
@@ -348,6 +362,24 @@ class FilteringSource(Source):
 
     def __exit__(self, *exc) -> None:
         self._core.__exit__(*exc)
+
+
+class EmptySource(Source):
+    """
+    Fake Empty Source producing iterator over nothing.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __enter__(self) -> object:
+        return iter([])
+
+    def __exit__(self, *exc) -> None:
+        pass
+
+    def __repr__(self) -> str:
+        return "EmptySource()"
 
 
 try:
