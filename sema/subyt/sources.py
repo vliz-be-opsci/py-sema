@@ -20,8 +20,10 @@ log = logging.getLogger(__name__)
 
 def assert_readable(path_name: str | Path):
     in_path = Path(path_name)
-    assert in_path.is_file(), f"File to read '{path_name}' does not exist"
-    assert os.access(in_path, os.R_OK), f"Can not read '{path_name}'"
+    if not in_path.is_file():
+        raise ValueError(f"File to read '{path_name}' does not exist")
+    if not os.access(in_path, os.R_OK):
+        raise ValueError(f"Can not read '{path_name}'")
 
 
 def fname_from_cdisp(cdisp):
@@ -117,20 +119,21 @@ class SourceFactory:
             of the source.
         @type unique_pattern: str | None
         @param fake_empty: if True, any error in the factory process will lead
-            to returning a fake empty source. Else the eror is raised.
+            to returning a fake empty source. Else the error is raised.
         """
         try:
             source = SourceFactory._make_core_source(identifier)
-        except Exception as e:
-            if fake_empty:
-                log.warning(
-                    f"Failed to create source from '{identifier}'",
-                    exc_info=e,
-                )
-                return EmptySource()
-            raise e
-        # else
-        # check for empty source
+        except ValueError as e:
+            if not fake_empty:
+                raise e
+            # else
+            log.warning(
+                f"Failed to create source from '{identifier}'",
+                exc_info=e,
+            )
+            source = EmptySource()
+
+        # check for extra filtering need
         if unique_pattern is not None:
             source = FilteringSource(source, unique_pattern)
         return source
@@ -375,7 +378,7 @@ class EmptySource(Source):
     def __enter__(self) -> object:
         return iter([])
 
-    def __exit__(self, *exc) -> None:
+    def __exit__(self, *exc: object) -> None:
         pass
 
     def __repr__(self) -> str:
