@@ -5,3 +5,4 @@ sema.log
 .env
 tests/__sync__/
 tests/output/
+pytest.log
