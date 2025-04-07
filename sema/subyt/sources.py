@@ -121,6 +121,10 @@ class SourceFactory:
         @param fake_empty: if True, any error in the factory process will lead
             to returning a fake empty source. Else the error is raised.
         """
+        log.debug(
+            f"creating source from '{identifier}' "
+            f"with {unique_pattern=}, {fake_empty=}"
+        )
         try:
             source = SourceFactory._make_core_source(identifier)
         except ValueError as e:
