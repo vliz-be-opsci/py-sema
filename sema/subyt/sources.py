@@ -3,7 +3,7 @@ import logging
 import mimetypes
 import os
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable, ClassVar, Iterable
 
 import requests
 from typeguard import check_type
@@ -397,7 +397,7 @@ try:
         *,
         comment: str = "#",
         skip_blank_lines: bool = True,
-    ):
+    ) -> Iterable[str]:
         if comment is None and skip_blank_lines:
             return content  # nothing to do, just pass original content
         # else
@@ -416,7 +416,7 @@ try:
     class CSVFileSource(Source):
         """Accepted keys in the constructor config dict"""
 
-        CFGKEYS: set = {
+        CFGKEYS: ClassVar[set] = {
             "delimiter",
             "quotechar",
             "header",
@@ -447,11 +447,11 @@ try:
                     self._csvconfig[key] = config[key]
 
         def __enter__(self) -> object:
-            self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
+            self._csvfile = open(self._csv, encoding="utf-8-sig")
             # use config settings -- for CSVLinesFilter
             comment: str = self._csvconfig.get("comment", None)
             skip_blank_lines: bool = self._csvconfig.get(
-                "skip_blank_lines", False
+                "skip_blank_lines", False,
             )
             # and -- for csv.DictReader
             delimiter: str = self._csvconfig.get("delimiter", ",")
