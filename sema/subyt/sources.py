@@ -3,7 +3,7 @@ import logging
 import mimetypes
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Iterable
 
 import requests
 from typeguard import check_type
@@ -392,7 +392,38 @@ class EmptySource(Source):
 try:
     import csv
 
+    def csv_filter(
+        content: Iterable[str],
+        *,
+        comment: str = "#",
+        skip_blank_lines: bool = True,
+    ):
+        if comment is None and skip_blank_lines:
+            return content  # nothing to do, just pass original content
+        # else
+
+        # make filter
+        def not_comment_or_blank(line) -> bool:
+            if skip_blank_lines and not line.strip():
+                return False
+            if comment and line.startswith(comment):
+                return False
+            return True
+
+        # apply filter
+        return filter(not_comment_or_blank, content)
+
     class CSVFileSource(Source):
+        """Accepted keys in the constructor config dict"""
+
+        CFGKEYS: set = {
+            "delimiter",
+            "quotechar",
+            "header",
+            "comment",
+            "skip_blank_lines",
+        }
+
         """
         Source producing iterator over data-set coming from CSV on file.
         The identifier (str or dict) for this source can have the following
@@ -400,6 +431,9 @@ try:
         - delimiter: the delimiter character used in the CSV file
         - quotechar: the quote character used in the CSV file
         - header: the header line of the CSV file (using the same delimiter)
+        - comment: the comment character used in the CSV file,
+              this lead character indicates lines to be skipped
+        - skip_blank_lines: if True, blank lines are skipped
         """
 
         def __init__(self, csv_file_path: Path, config: dict = {}) -> None:
@@ -408,20 +442,29 @@ try:
             self._csv: Path = csv_file_path.absolute()
             self._init_source(self._csv)
             self._csvconfig: dict = dict()
-            for key in ["delimiter", "quotechar", "header"]:
+            for key in self.CFGKEYS:
                 if key in config:
                     self._csvconfig[key] = config[key]
 
         def __enter__(self) -> object:
             self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
-            # use config settings
+            # use config settings -- for CSVLinesFilter
+            comment: str = self._csvconfig.get("comment", None)
+            skip_blank_lines: bool = self._csvconfig.get(
+                "skip_blank_lines", False
+            )
+            # and -- for csv.DictReader
             delimiter: str = self._csvconfig.get("delimiter", ",")
             quotechar: str = self._csvconfig.get("quotechar", '"')
             header: str = self._csvconfig.get("header")
             fieldnames: list = header.split(delimiter) if header else None
 
             return csv.DictReader(
-                self._csvfile,
+                csv_filter(
+                    self._csvfile,
+                    comment=comment,
+                    skip_blank_lines=skip_blank_lines,
+                ),
                 delimiter=delimiter,
                 quotechar=quotechar,
                 fieldnames=fieldnames,
