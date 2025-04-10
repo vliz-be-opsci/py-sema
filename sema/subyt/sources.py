@@ -451,7 +451,8 @@ try:
             # use config settings -- for CSVLinesFilter
             comment: str = self._csvconfig.get("comment", None)
             skip_blank_lines: bool = self._csvconfig.get(
-                "skip_blank_lines", False,
+                "skip_blank_lines",
+                False,
             )
             # and -- for csv.DictReader
             delimiter: str = self._csvconfig.get("delimiter", ",")
