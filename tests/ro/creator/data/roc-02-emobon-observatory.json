@@ -1,0 +1,364 @@
+{
+  "@context": {
+    "@vocab": "https://w3id.org/ro/crate/1.2-DRAFT",
+    "prov": "http://www.w3.org/ns/prov#",
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#"
+  },
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "conformsTo": { "@id": "https://w3id.org/ro/crate/1.2-DRAFT" },
+      "about": { "@id": "./" }
+    },
+    {
+      "@id": "./",
+      "@type": ["Dataset", "dcat:Dataset"],
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "publisher": { "@id": "https://ror.org/0038zss60" },
+      "datePublished": "2025-02-03",
+      "name": "observatory-bpns-crate",
+      "dcat:contactPoint": [{ "@id": "https://orcid.org/0000-0002-8559-3508" }],
+      "description": "The EMO BON sampling data from the observatory BPNS",
+      "dct:relation": [
+        {
+          "@id": "https://github.com/emo-bon/sequencing-data"
+        }
+      ],
+      "keywords": [
+        "sample",
+        "measurement",
+        "biodiversity",
+        "long-term-changes",
+        "marine-environment",
+        "genetics",
+        "sediment-samples",
+        "water-samples",
+        "benthic-communities"
+      ],
+      "dcat:theme": [
+        { "@id": "http://semanticscience.org/resource/SIO_001050" },
+        { "@id": "http://purl.obolibrary.org/obo/ExO_0000067" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=2185" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=3505" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=1150" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=2365" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=6369" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=3248" },
+        { "@id": "https://vocabularyserver.com/asfa/?tema=2091" }
+      ],
+      "maintainer": [
+        { "@id": "_:EMOBON" },
+        { "@id": "https://orcid.org/0000-0002-8559-3508" }
+      ],
+      "provider": [
+        { "@id": "https://edmo.seadatanet.org/report/422" },
+        { "@id": "https://edmo.seadatanet.org/report/449" },
+        { "@id": "https://edmo.seadatanet.org/report/432" },
+        { "@id": "https://edmo.seadatanet.org/report/2248" }
+      ],
+      "spatialCoverage": {
+        "@type": "Place",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 51.433331,
+          "longitude": 2.808331
+        },
+        "containedInPlace": {
+          "@type": "Place",
+          "@id": "http://marineregions.org/mrgid/26567"
+        }
+      },
+      "temporalCoverage": "2021-07-01/2024-10-22",
+      "hasPart": [
+        { "@id": "logsheets/raw/" },
+        { "@id": "logsheets/transformed/" },
+        { "@id": "logsheets/filtered/" },
+        { "@id": "data-quality-control/" },
+        { "@id": "sediment/" },
+        { "@id": "water/" }
+      ]
+    },
+    {
+      "@id": "logsheets/raw/",
+      "@type": "Dataset",
+      "description": "The folder containing the logsheets harvested from the EMO BON google drive",
+      "hasPart": [
+        { "@id": "logsheets/raw/sediment_measured.csv" },
+        { "@id": "logsheets/raw/sediment_observatory.csv" },
+        { "@id": "logsheets/raw/sediment_sampling.csv" },
+        { "@id": "logsheets/raw/water_measured.csv" },
+        { "@id": "logsheets/raw/water_observatory.csv" },
+        { "@id": "logsheets/raw/water_sampling.csv" }
+      ]
+    },
+    {
+      "@id": "logsheets/transformed/",
+      "@type": "Dataset",
+      "description": "The folder containing the loghsheets filtered on a timeframe and corrected following quality control rules",
+      "hasPart": [
+        { "@id": "logsheets/transformed/sediment_measured.csv" },
+        { "@id": "logsheets/transformed/sediment_observatory.csv" },
+        { "@id": "logsheets/transformed/sediment_sampling.csv" },
+        { "@id": "logsheets/transformed/water_measured.csv" },
+        { "@id": "logsheets/transformed/water_observatory.csv" },
+        { "@id": "logsheets/transformed/water_sampling.csv" }
+      ]
+    },
+    {
+      "@id": "logsheets/filtered/",
+      "@type": "Dataset",
+      "description": "The folder containing the logsheets filtered on a timeframe",
+      "hasPart": [
+        { "@id": "logsheets/filtered/sediment_measured.csv" },
+        { "@id": "logsheets/filtered/sediment_observatory.csv" },
+        { "@id": "logsheets/filtered/sediment_sampling.csv" },
+        { "@id": "logsheets/filtered/water_measured.csv" },
+        { "@id": "logsheets/filtered/water_observatory.csv" },
+        { "@id": "logsheets/filtered/water_sampling.csv" }
+      ]
+    },
+    {
+      "@id": "logsheets/raw/sediment_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/raw/sediment_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observatory logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/raw/sediment_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/raw/water_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/raw/water_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observtory logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/raw/water_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/filtered/sediment_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/filtered/sediment_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observatory logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/filtered/sediment_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/filtered/water_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/filtered/water_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observatory logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/filtered/water_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/transformed/sediment_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/transformed/sediment_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observatory logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/transformed/sediment_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the sediment observatory"
+    },
+    {
+      "@id": "logsheets/transformed/water_measured.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The measurements logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/transformed/water_observatory.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The observatory logsheet for the water observatory"
+    },
+    {
+      "@id": "logsheets/transformed/water_sampling.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The sampling logsheet for the water observatory"
+    },
+    {
+      "@id": "data-quality-control/",
+      "@type": "Dataset",
+      "description": "The folder containing the outputs of the quality control code",
+      "hasPart": []
+    },
+    {
+      "@id": "data-quality-control/dqc.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The quality control report: checks 1"
+    },
+    {
+      "@id": "data-quality-control/logfile",
+      "@type": "File",
+      "encodingFormat": "text/plain",
+      "description": "The quality control report: checks 2"
+    },
+    {
+      "@id": "data-quality-control/report.csv",
+      "@type": "File",
+      "encodingFormat": "text/csv",
+      "description": "The quality control report: checks 3"
+    },
+    {
+      "@id": "sediment/",
+      "@type": "Dataset",
+      "description": "The folder containing the Turtle files created from the sediment logsheets",
+      "hasPart": [
+        { "@id": "sediment/measured/..." },
+        { "@id": "sediment/observatory/BPNS" },
+        { "@id": "sediment/sampling/..." }
+      ]
+    },
+    {
+      "@id": "water/",
+      "@type": "Dataset",
+      "description": "The folder containing the Turtle files of the measurements of the water observatory, generated from the quality-controlled logsheets.",
+      "hasPart": [
+        { "@id": "water/measured/..." },
+        { "@id": "water/observatory/BPNS" },
+        { "@id": "water/sampling/..." }
+      ]
+    },
+    {
+      "@id": "https://orcid.org/0000-0002-8559-3508",
+      "@type": "Person",
+      "name": "Klaas Deneudt",
+      "email": "klaas.deneudt@vliz.be",
+      "affiliation": { "@id": "https://edmo.seadatanet.org/report/422" }
+    },
+    {
+      "@id": "_:EMOBON",
+      "@type": "Project",
+      "name": "EMO BON",
+      "email": "emobon@embrc.eu",
+      "url": "https://www.embrc.eu/emo-bon",
+      "parentOrganization": {
+        "@id": "https://ror.org/0038zss60"
+      }
+    },
+    {
+      "@id": "https://ror.org/0038zss60",
+      "name": "EMBRC-ERIC",
+      "email": "secretariat@embrc.eu"
+    },
+    {
+      "@id": "https://edmo.seadatanet.org/report/422",
+      "@type": "Organization",
+      "name": "Flanders Marine Institute",
+      "url": "https://www.vliz.be"
+    },
+    {
+      "@id": "https://edmo.seadatanet.org/report/449",
+      "@type": "Organization",
+      "name": "Ghent University"
+    },
+    {
+      "@id": "https://edmo.seadatanet.org/report/432",
+      "@type": "Organization",
+      "name": "Royal Belgian Institute of Natural Sciences"
+    },
+    {
+      "@id": "https://edmo.seadatanet.org/report/2248",
+      "@type": "Organization",
+      "name": "Katholieke Universiteit Leuven"
+    },
+    {
+      "@id": "http://semanticscience.org/resource/SIO_001050",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "sample"
+    },
+    {
+      "@id": "http://purl.obolibrary.org/obo/ExO_0000067",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "measurement"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=2185",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Biodiversity"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=3505",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Long-term changes"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=1150",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Marine environment"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=2365",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Genetics"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=6369",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Sediment samples"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=3248",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Water samples"
+    },
+    {
+      "@id": "https://vocabularyserver.com/asfa/?tema=2091",
+      "@type": "skos:Concept",
+      "skos:prefLabel": "Benthic communities"
+    }
+  ]
+}
