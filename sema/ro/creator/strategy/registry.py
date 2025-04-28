@@ -5,7 +5,7 @@ from sema.ro.creator.api import RocStrategy, RocStrategyContext
 from .roc_basic import BasicStrategy
 
 # load registry of available and known strategies
-# run over embedde ones
+# run over embedded ones
 # consider some env to yml listing more strategies to load
 # expose a singleton strategy registry
 # with api for more strategies to be added
@@ -16,6 +16,7 @@ class RocStrategies:
     """The registry of all known RocStrategies.
     In fact it is a registry of RoCrateStrategyContexts
     but this is largely opaque to the user."""
+
     def __init__(self):
         self._strategies = {}
         self._load_embedded_strategies()
