@@ -45,10 +45,11 @@ def save_web_content(
     filepath = dump_path / filename
     with open(filepath, "w") as out:
         out.write(content)
-    # remember what this file is for
-    os.setxattr(filepath, "user.web.url", url.encode("utf-8"))  # type: ignore
-    os.setxattr(filepath, "user.web.mime_type", mime_type.encode("utf-8"))  # type: ignore # noqa
-    os.setxattr(filepath, "user.web.profile", profile.encode("utf-8"))  # type: ignore # noqa
+    # remember what this file is for - if the os supports it
+    if hasattr(os, "setxattr"):
+        os.setxattr(filepath, "user.web.url", url.encode("utf-8"))  # type: ignore
+        os.setxattr(filepath, "user.web.mime_type", mime_type.encode("utf-8"))  # type: ignore # noqa
+        os.setxattr(filepath, "user.web.profile", profile.encode("utf-8"))  # type: ignore # noqa
     return str(filepath.absolute())
 
 
