@@ -3,7 +3,7 @@ import logging
 import mimetypes
 import os
 from pathlib import Path
-from typing import Callable
+from typing import Callable, ClassVar, Iterable
 
 import requests
 from typeguard import check_type
@@ -20,8 +20,10 @@ log = logging.getLogger(__name__)
 
 def assert_readable(path_name: str | Path):
     in_path = Path(path_name)
-    assert in_path.is_file(), f"File to read '{path_name}' does not exist"
-    assert os.access(in_path, os.R_OK), f"Can not read '{path_name}'"
+    if not in_path.is_file():
+        raise ValueError(f"File to read '{path_name}' does not exist")
+    if not os.access(in_path, os.R_OK):
+        raise ValueError(f"Can not read '{path_name}'")
 
 
 def fname_from_cdisp(cdisp):
@@ -96,6 +98,7 @@ class SourceFactory:
         identifier: str | Path | dict,
         *,
         unique_pattern: str | None = None,
+        fake_empty: bool = False,
     ) -> Source:
         """Factory method to create a Source object based on identifier.
         @param identifier: specification of the source to build. This can be a
@@ -115,8 +118,26 @@ class SourceFactory:
             only the first record for each expanded value is processed as part
             of the source.
         @type unique_pattern: str | None
+        @param fake_empty: if True, any error in the factory process will lead
+            to returning a fake empty source. Else the error is raised.
         """
-        source = SourceFactory._make_core_source(identifier)
+        log.debug(
+            f"creating source from '{identifier}' "
+            f"with {unique_pattern=}, {fake_empty=}"
+        )
+        try:
+            source = SourceFactory._make_core_source(identifier)
+        except ValueError as e:
+            if not fake_empty:
+                raise e
+            # else
+            log.warning(
+                f"Failed to create source from '{identifier}'",
+                exc_info=e,
+            )
+            source = EmptySource()
+
+        # check for extra filtering need
         if unique_pattern is not None:
             source = FilteringSource(source, unique_pattern)
         return source
@@ -350,10 +371,59 @@ class FilteringSource(Source):
         self._core.__exit__(*exc)
 
 
+class EmptySource(Source):
+    """
+    Fake Empty Source producing iterator over nothing.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __enter__(self) -> object:
+        return iter([])
+
+    def __exit__(self, *exc: object) -> None:
+        pass
+
+    def __repr__(self) -> str:
+        return "EmptySource()"
+
+
 try:
     import csv
 
+    def csv_filter(
+        content: Iterable[str],
+        *,
+        comment: str = "#",
+        skip_blank_lines: bool = True,
+    ) -> Iterable[str]:
+        if comment is None and skip_blank_lines:
+            return content  # nothing to do, just pass original content
+        # else
+
+        # make filter
+        def not_comment_or_blank(line) -> bool:
+            if skip_blank_lines and not line.strip():
+                return False
+            if comment and line.startswith(comment):
+                return False
+            return True
+
+        # apply filter
+        return filter(not_comment_or_blank, content)
+
     class CSVFileSource(Source):
+        """Accepted keys in the constructor config dict"""
+
+        CFGKEYS: ClassVar[set] = {
+            "delimiter",
+            "quotechar",
+            "header",
+            "comment",
+            "skip_blank_lines",
+        }
+
         """
         Source producing iterator over data-set coming from CSV on file.
         The identifier (str or dict) for this source can have the following
@@ -361,6 +431,9 @@ try:
         - delimiter: the delimiter character used in the CSV file
         - quotechar: the quote character used in the CSV file
         - header: the header line of the CSV file (using the same delimiter)
+        - comment: the comment character used in the CSV file,
+              this lead character indicates lines to be skipped
+        - skip_blank_lines: if True, blank lines are skipped
         """
 
         def __init__(self, csv_file_path: Path, config: dict = {}) -> None:
@@ -369,20 +442,30 @@ try:
             self._csv: Path = csv_file_path.absolute()
             self._init_source(self._csv)
             self._csvconfig: dict = dict()
-            for key in ["delimiter", "quotechar", "header"]:
+            for key in self.CFGKEYS:
                 if key in config:
                     self._csvconfig[key] = config[key]
 
         def __enter__(self) -> object:
-            self._csvfile = open(self._csv, mode="r", encoding="utf-8-sig")
-            # use config settings
+            self._csvfile = open(self._csv, encoding="utf-8-sig")
+            # use config settings -- for CSVLinesFilter
+            comment: str = self._csvconfig.get("comment", None)
+            skip_blank_lines: bool = self._csvconfig.get(
+                "skip_blank_lines",
+                False,
+            )
+            # and -- for csv.DictReader
             delimiter: str = self._csvconfig.get("delimiter", ",")
             quotechar: str = self._csvconfig.get("quotechar", '"')
             header: str = self._csvconfig.get("header")
             fieldnames: list = header.split(delimiter) if header else None
 
             return csv.DictReader(
-                self._csvfile,
+                csv_filter(
+                    self._csvfile,
+                    comment=comment,
+                    skip_blank_lines=skip_blank_lines,
+                ),
                 delimiter=delimiter,
                 quotechar=quotechar,
                 fieldnames=fieldnames,

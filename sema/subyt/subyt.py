@@ -75,7 +75,8 @@ class Subyt(ServiceBase):
             When set to True, any error during processing will prevent
             remaining records to be processed.
             When set to False (default), all records should get an equal
-            chance to be processed.
+            chance to be processed. Also, missing files for
+            'extra_sources' will be silently replaced with empty ones.
         :param variables: variables to be injected into the templates
         :type variables: Dict[str, str]
         :param mode: the mode to be used
@@ -106,7 +107,10 @@ class Subyt(ServiceBase):
             )
         self._inputs.update(
             {
-                nm: SourceFactory.make_source(src)
+                nm: SourceFactory.make_source(
+                    src,
+                    fake_empty=not break_on_error,
+                )
                 for nm, src in extra_sources.items()
             }
         )
