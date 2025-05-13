@@ -13,7 +13,7 @@ from sema.commons.yml import LoaderBuilder
 
 class RocModel:
     """The internal model structuring all content expected inside a RO-Crate.
-    The various RocStrategy implementations allow for how to popiulate up this
+    The various RocStrategy implementations allow for how to populate up this
     from reading any specific yml file.
     Serialising these models to jsonld completes the work of the RoCreator.
     """
@@ -23,6 +23,7 @@ class RocModel:
 
 class RocStrategy(ABC):
     """Abstract interface for a ROC strategy."""
+
     @abstractmethod
     def describe(self) -> str:
         """Produce a short (< 255 chars) description of what
@@ -42,7 +43,9 @@ class RocStrategy(ABC):
         @param rocyml: The path to the roc yml file to be created.
         """
         if not self.rocyml_template_path.exists():
-            raise FileNotFoundError(f"roc yml template not found at {self.rocyml_template_path}")
+            raise FileNotFoundError(
+                f"roc yml template not found at {self.rocyml_template_path}"
+            )
         # else
         rocyml.parent.mkdir(parents=True, exist_ok=True)
         with self.rocyml_template_path.open() as src, rocyml.open("w") as dst:
@@ -56,6 +59,7 @@ class RocStrategy(ABC):
 
 class RocStrategyContext:
     """Base class for a context manager for a RocStrategy."""
+
     def __init__(self, name: str):
         super().__init__()
         self._name = name
