@@ -66,13 +66,21 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
         ast = self._templates_env.parse(*template_source)  # type: ignore
         return meta.find_undeclared_variables(ast)
 
-    def build_syntax(self, name: str, **variables) -> str:  # type: ignore
+    def build_syntax(
+        self,
+        _template_name: str,
+        /,
+        **variables,
+    ) -> str:  # type: ignore
         """
         Fills a named template sparql
 
-        :param name: of the template
+        :param _template_name: of the template
         :param **variables: named context parameters to apply to the template
         """
-        log.debug(f"building sparql query '{name}' with variables={variables}")
-        qry = self._get_rdfsyntax_template(name).render(variables)
+        log.debug(
+            f"building sparql query '{_template_name}' "
+            f"with variables={variables}"
+        )
+        qry = self._get_rdfsyntax_template(_template_name).render(variables)
         return qry

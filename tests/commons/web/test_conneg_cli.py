@@ -102,17 +102,19 @@ def test_cli(capfd):
         log.debug(f"{len(variants)=}")
         # run over files in tmpdirname
         dump_path: Path = Path(tmpdirname)
-        for f in [f for f in dump_path.glob("**/*") if f.is_file()]:
-            # get the metadata stored on the files
-            fattrs = {
-                k: os.getxattr(f, f"user.web.{k}").decode("utf-8")
-                for k in ("url", "mime_type", "profile")
-            }
-            assert fattrs["url"] == url
-            # find the matching csv output
-            v = variants_by_key.pop((fattrs["mime_type"], fattrs["profile"]))
-            assert v is not None
-            assert v["url"] == url
-            assert v["inRequested"] == "False"  # since we requested none
 
-        assert len(variants_by_key) == 0, "remaining variants exist"
+        if hasattr(os, "getxattr"):
+            for f in [f for f in dump_path.glob("**/*") if f.is_file()]:
+                # get the metadata stored on the files
+                fattrs = {
+                    k: os.getxattr(f, f"user.web.{k}").decode("utf-8")
+                    for k in ("url", "mime_type", "profile")
+                }
+                assert fattrs["url"] == url
+                # find the matching csv output
+                v = variants_by_key.pop((fattrs["mime_type"], fattrs["profile"]))
+                assert v is not None
+                assert v["url"] == url
+                assert v["inRequested"] == "False"  # since we requested none
+
+            assert len(variants_by_key) == 0, "remaining variants exist"

@@ -1,0 +1,8 @@
+#This does not have a header
+#All lines have a name, a TAB character and an age 
+Bram	40
+Steve	48
+# well, unless the line is empty
+
+# even the really old ones
+Marc	54

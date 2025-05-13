@@ -224,6 +224,13 @@ SELECT ?mime ?profile WHERE {{
                 continue
             already_done.add((mime_type, profile))
             resp = self._get_variant_response(mime_type, profile)
+            if resp is None:
+                log.debug(
+                    f"FAILED request {self.url} with "
+                    f"{mime_type=}, {profile=}"
+                )
+                return
+            # else
             self._found.add_variant(
                 mime_type=mime_type, profile=profile, response=resp
             )
