@@ -128,10 +128,11 @@ class Discovery(ServiceBase):
 
     def _add_triples_from_text(self, content, mimetype, source_url):
         if mimetype not in self.SUPPORTED_MIMETYPES:
-            return False
-        # else
+            log.debug(f"mimetype {mimetype} not supported for {source_url=}")
+            # return False
         EXTRA_FORMATS = {
             "application/octet-stream": "turtle",
+            "binary/octet-stream": "turtle",  # added for s3
             "application/json": "json-ld",
         }
         format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
