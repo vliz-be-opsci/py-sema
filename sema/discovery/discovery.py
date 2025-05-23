@@ -145,33 +145,34 @@ class Discovery(ServiceBase):
                 source_url,
             )
             # return False
-        EXTRA_FORMATS = {
-            "application/octet-stream": "turtle",
-            "binary/octet-stream": "turtle",  # added for s3
-            "application/json": "json-ld",
-        }
-        format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
-        try:
-            g: Graph = Graph().parse(
-                data=content, format=format, publicID=source_url
-            )
-            log.debug(
-                f"parsed {len(g)} triples from {source_url} in {format=}"
-            )
-            # Note: pure application/json parsing will not fail,
-            # but simply return an empty graph
-            # still we attempt that case because e.g. github pages
-            # will serve jsonld as json
-            if len(g) == 0:
-                return False
-            # else
-            self._result._graph += g
-            return True
-        except Exception as e:
-            log.exception(
-                f"failed to parse content from {source_url} in {format=}",
-                exc_info=e,
-            )
+        formats_to_try = [
+            "turtle",
+            "json-ld",
+            "n3",
+            "nt",
+            "trig",
+            "nquads",
+            "xml",
+        ]
+
+        for fmt in formats_to_try:
+            try:
+                g: Graph = Graph().parse(
+                    data=content, format=fmt, publicID=source_url
+                )
+                log.debug(
+                    f"parsed {len(g)} triples from {source_url} in {fmt=}"
+                )
+                if len(g) > 0:
+                    self._result._graph += g
+                    return True
+            except Exception as e:
+                log.debug(
+                    f"failed to parse content from {source_url} in {fmt=}",
+                    exc_info=e,
+                )
+
+        # if we get here, we have not found any triples
         return False
 
     def _extract_triples_from_response(self, resp: Response):
