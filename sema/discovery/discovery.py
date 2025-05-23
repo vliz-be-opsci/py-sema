@@ -128,12 +128,22 @@ class Discovery(ServiceBase):
 
     def _add_triples_from_text(self, content, mimetype, source_url):
         """
-        Attempts to parse RDF triples from text content and add them to the result graph.
-        
-        Tries to determine the appropriate RDF serialization format from the MIME type or known overrides, then parses the content. If parsing succeeds and triples are found, adds them to the result graph and returns True; otherwise, returns False. Logs parsing errors and unsupported MIME types.
+        Attempts to parse RDF triples from text content
+        and add them to the result graph.
+        Tries to determine the appropriate RDF serialization
+        format from the MIME type
+        or known overrides, then parses the content.
+        If parsing succeeds and triples are found,
+        adds them to the result graph and returns True;
+        otherwise, returns False. Logs parsing errors
+        and unsupported MIME types.
         """
         if mimetype not in self.SUPPORTED_MIMETYPES:
-            log.debug(f"mimetype {mimetype} not supported for {source_url=}")
+            log.debug(
+                "mimetype %s not supported for source_url=%s",
+                mimetype,
+                source_url,
+            )
             # return False
         EXTRA_FORMATS = {
             "application/octet-stream": "turtle",
