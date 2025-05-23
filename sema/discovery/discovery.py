@@ -9,7 +9,7 @@ from requests.models import Response
 from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url
-from sema.commons.fileformats import format_from_filepath, mime_to_format
+from sema.commons.fileformats import format_from_filepath
 from sema.commons.service import (
     ServiceBase,
     ServiceResult,
