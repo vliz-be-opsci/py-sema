@@ -2,12 +2,11 @@ import logging
 from uuid import uuid4
 
 import rdflib
-import validators
 from rdflib.namespace import NamespaceManager
 
 from sema.harvest.store import RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
-
+from sema.commons.clean.clean import check_valid_url
 from .config_build import AssertPath
 from .execution_report import (
     GraphAdditionReport,
@@ -46,7 +45,7 @@ class SubjPropPathAssertion:
         :param config_name: str
 
         """
-        log.debug(subject)
+        log.debug(f"Assertion Subject: {subject}")
         self.subject = self._subject_str_check(subject)
         if not self.subject:
             log.warning(f"Subject is not a valid URIRef or str: {subject}")
@@ -98,41 +97,41 @@ class SubjPropPathAssertion:
 
     def _subject_str_check(self, subject):
         """
-        Check if subject is a strict str
-        , if subject is rdflib.term.URIRef , convert to str
+        Normalize the subject to a valid URI string if possible.
+
+        - If subject is a valid URI string, return it.
+        - If subject is a rdflib.URIRef, convert to string and validate.
+        - If subject is a rdflib.query.ResultRow, extract the first value and validate.
+        - Return None if not valid.
         """
-        if type(subject) is str and validators.url(subject):
+        # If subject is a valid string URI
+        if isinstance(subject, str) and check_valid_url(subject):
             log.debug(f"Subject is a valid URIRef: {subject}")
             return subject
-        if "localhost" in subject:
-            log.debug(f"Subject is a valid localhost URIRef: {subject}")
-            return str(subject)
-        if (
-            type(subject) is rdflib.query.ResultRow
-            or type(subject) is rdflib.URIRef
-        ):
-            # extract URIRef from ResultRow
-            if type(subject) is rdflib.query.ResultRow:
-                subject_row = subject[0]
-                if type(subject_row) is dict:
-                    subject_row = subject_row[
-                        "value"
-                    ]  # janky way of getting the URIRef from the ResultRow
-                log.debug(f"Subject row: {subject_row}")
-                if validators.url(subject_row):
-                    return str(subject_row)
-                if "localhost" in subject_row:
-                    return str(subject_row)
-                log.warning(f"Subject row is not a URIRef: {subject_row}")
-            if validators.url(str(subject)):
-                return str(subject)
-            if "localhost" in str(subject):
-                return str(subject)
-            log.warning(f"Subject is not a URIRef: {subject}")
-        log.debug(f"Subject is of type {type(subject)}")
-        if not validators.url(str(subject)):
-            log.warning(f"Subject is not a URIRef or a str: {subject}")
+
+        # If subject is a rdflib.URIRef
+        if isinstance(subject, rdflib.URIRef):
+            subject_str = str(subject)
+            if check_valid_url(subject_str):
+                log.debug(f"Subject is a valid rdflib.URIRef: {subject_str}")
+                return subject_str
+            log.warning(f"rdflib.URIRef is not a valid URI: {subject_str}")
             return None
+
+        # If subject is a rdflib.query.ResultRow
+        if isinstance(subject, rdflib.query.ResultRow):
+            subject_row = subject[0]
+            # If the row is a dict, extract the 'value' key
+            if isinstance(subject_row, dict):
+                subject_row = subject_row.get("value")
+            log.debug(f"Subject row: {subject_row}")
+            if subject_row and check_valid_url(str(subject_row)):
+                return str(subject_row)
+            log.warning(f"Subject row is not a valid URIRef: {subject_row}")
+            return None
+
+        log.debug(f"Subject is of unsupported type: {type(subject)}")
+        return None
 
     def assert_path(self):
         """

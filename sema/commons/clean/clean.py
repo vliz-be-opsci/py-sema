@@ -45,6 +45,7 @@ def check_valid_urn(urn: str) -> bool:
         URN8141.from_string(urn)
         return True
     except InvalidURNFormatError:
+        log.debug(f"Invalid URN format: {urn}")
         return False
 
 
