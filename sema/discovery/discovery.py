@@ -9,7 +9,7 @@ from requests.models import Response
 from urllib3.exceptions import ResponseError
 
 from sema.commons.clean import check_valid_url
-from sema.commons.fileformats import format_from_filepath, mime_to_format
+from sema.commons.fileformats import format_from_filepath
 from sema.commons.service import (
     ServiceBase,
     ServiceResult,
@@ -127,35 +127,52 @@ class Discovery(ServiceBase):
         return resp if resp.ok else None
 
     def _add_triples_from_text(self, content, mimetype, source_url):
+        """
+        Attempts to parse RDF triples from text content
+        and add them to the result graph.
+        Tries to determine the appropriate RDF serialization
+        format from the MIME type
+        or known overrides, then parses the content.
+        If parsing succeeds and triples are found,
+        adds them to the result graph and returns True;
+        otherwise, returns False. Logs parsing errors
+        and unsupported MIME types.
+        """
         if mimetype not in self.SUPPORTED_MIMETYPES:
-            return False
-        # else
-        EXTRA_FORMATS = {
-            "application/octet-stream": "turtle",
-            "application/json": "json-ld",
-        }
-        format = mime_to_format(mimetype) or EXTRA_FORMATS.get(mimetype, None)
-        try:
-            g: Graph = Graph().parse(
-                data=content, format=format, publicID=source_url
-            )
             log.debug(
-                f"parsed {len(g)} triples from {source_url} in {format=}"
+                "mimetype %s not supported for source_url=%s",
+                mimetype,
+                source_url,
             )
-            # Note: pure application/json parsing will not fail,
-            # but simply return an empty graph
-            # still we attempt that case because e.g. github pages
-            # will serve jsonld as json
-            if len(g) == 0:
-                return False
-            # else
-            self._result._graph += g
-            return True
-        except Exception as e:
-            log.exception(
-                f"failed to parse content from {source_url} in {format=}",
-                exc_info=e,
-            )
+            # return False
+        formats_to_try = [
+            "turtle",
+            "json-ld",
+            "n3",
+            "nt",
+            "trig",
+            "nquads",
+            "xml",
+        ]
+
+        for fmt in formats_to_try:
+            try:
+                g: Graph = Graph().parse(
+                    data=content, format=fmt, publicID=source_url
+                )
+                log.debug(
+                    f"parsed {len(g)} triples from {source_url} in {fmt=}"
+                )
+                if len(g) > 0:
+                    self._result._graph += g
+                    return True
+            except Exception as e:
+                log.debug(
+                    f"failed to parse content from {source_url} in {fmt=}",
+                    exc_info=e,
+                )
+
+        # if we get here, we have not found any triples
         return False
 
     def _extract_triples_from_response(self, resp: Response):
