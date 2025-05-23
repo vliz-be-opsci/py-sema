@@ -4,9 +4,10 @@ from uuid import uuid4
 import rdflib
 from rdflib.namespace import NamespaceManager
 
+from sema.commons.clean.clean import check_valid_url
 from sema.harvest.store import RDFStoreAccess
 from sema.harvest.url_to_graph import get_graph_for_format
-from sema.commons.clean.clean import check_valid_url
+
 from .config_build import AssertPath
 from .execution_report import (
     GraphAdditionReport,
@@ -101,7 +102,8 @@ class SubjPropPathAssertion:
 
         - If subject is a valid URI string, return it.
         - If subject is a rdflib.URIRef, convert to string and validate.
-        - If subject is a rdflib.query.ResultRow, extract the first value and validate.
+        - If subject is a rdflib.query.ResultRow,
+          extract the first value and validate.
         - Return None if not valid.
         """
         # If subject is a valid string URI
