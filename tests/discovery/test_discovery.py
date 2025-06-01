@@ -20,6 +20,7 @@ HTTPD_EXTENSION_MAP: Dict[str, str] = {
     ".jsonld": "application/ld+json",
     ".ttl": "text/turtle",
     ".html": "text/html",
+    "": "binary/octet-stream",
 }
 
 # Update DIRECT_CASES to use local URIs with a domain
@@ -43,6 +44,11 @@ DIRECT_CASES: List[Tuple[str, str, int]] = [
         "rocrate.html",
         "application/json",
         532,
+    ),
+    (
+        "s3_bucket",
+        "text/turtle",
+        86,
     ),
 ]
 
