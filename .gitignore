@@ -6,3 +6,4 @@ sema.log
 tests/__sync__/
 tests/output/
 pytest.log
+venv/
