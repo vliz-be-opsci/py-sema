@@ -8,8 +8,8 @@ log = getLogger(__name__)
 
 def getMatchingGlobPaths(
     root: Path,
-    includes: list[str] = ["**/*"],
-    excludes: list[str] = [],
+    includes: list[str] | str = ["**/*"],
+    excludes: list[str] | str = [],
     *,
     onlyFiles: bool = False,
     makeRelative: bool = True,
@@ -19,12 +19,18 @@ def getMatchingGlobPaths(
     and none of the globs in `excludes`.
     @param root: The root path to search under.
     @param includes: A list of globs to include.
+        For convenience, a single string is also accepted.
     @param excludes: A list of globs to exclude.
+        For convenience, a single string is also accepted.
     @param onlyFiles: If True, only return files, not directories.
     @param makeRelative: If True, return paths relative to `root`.
     @return: A list of paths that match the globs.
     """
     found: set[Path] = set()
+    if isinstance(includes, str):
+        includes = [includes]
+    if isinstance(excludes, str):
+        excludes = [excludes]
     for include in includes:
         for path in root.glob(include):
             if any(path.match(exclude) for exclude in excludes):
@@ -85,8 +91,8 @@ class GlobMatchVisitor(ABC):
 def visitGlobPaths(
     visitor: GlobMatchVisitor,
     root: Path,
-    includes: list[str] = ["**/*"],
-    excludes: list[str] = [],
+    includes: list[str] | str = ["**/*"],
+    excludes: list[str] | str = [],
     applying: dict[str, Any] = {},
     *,
     onlyFiles: bool = False,
@@ -98,7 +104,9 @@ def visitGlobPaths(
     @param visitor: The visitor to call for each path.
     @param root: The root path to search under.
     @param includes: A list of globs to include.
+        For convenience, a single string is also accepted.
     @param excludes: A list of globs to exclude.
+        For convenience, a single string is also accepted.
     @param applying: A dictionary of apply objects to pass to the visitor.
         Keys are globs.
     @param onlyFiles: If True, only visit files, not directories.
@@ -108,6 +116,10 @@ def visitGlobPaths(
         Keys are paths being visited.
     """
     results: dict[Path, Any] = dict()
+    if isinstance(includes, str):
+        includes = [includes]
+    if isinstance(excludes, str):
+        excludes = [excludes]
     for include in includes:
         for path in root.glob(include):
             relpath = path.relative_to(root) if makeRelative else path

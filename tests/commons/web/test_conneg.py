@@ -54,7 +54,7 @@ def expected_marine_info_variants(type_id: str):
         (
             "text/html",
             "http://www.w3.org/ns/dx/conneg/altr",
-            f"-{type_id}-alt.html",
+            None,
         ),
         (
             "text/turtle",
@@ -67,30 +67,30 @@ def expected_marine_info_variants(type_id: str):
 @pytest.mark.parametrize(
     "url, expected",
     (
-        # 2024-08-08 -- marineinfo.org is showing conneg issues
-        # - see https://vliz.atlassian.net/browse/IMIS-1586
-        # - see https://vliz.atlassian.net/browse/IMIS-1587
-        # when fixed these test cases can be added again
-        # (
-        #     "https://marineinfo.org/id/person/38476",
-        #     expected_marine_info_variants("person-38476"),
-        # ),
-        # (
-        #     "https://marineinfo.org/id/collection/619",
-        #     expected_marine_info_variants("collection-619"),
-        # ),
-        # (
-        #     "https://marineinfo.org/id/institute/36",
-        #     expected_marine_info_variants("institute-36"),
-        # ),
-        # (
-        #     "https://marineinfo.org/id/project/5315",
-        #     expected_marine_info_variants("project-5315"),
-        # ),
+        (
+            "https://marineinfo.org/id/person/38476",
+            expected_marine_info_variants("person-38476"),
+        ),
+        (
+            "https://marineinfo.org/id/collection/619",
+            expected_marine_info_variants("collection-619"),
+        ),
+        (
+            "https://marineinfo.org/id/institute/36",
+            expected_marine_info_variants("institute-36"),
+        ),
+        (
+            "https://marineinfo.org/id/project/5315",
+            expected_marine_info_variants("project-5315"),
+        ),
+        # inclusion of test blocked by ttl formatting issue in marineinfo
+        # - see https://vliz.atlassian.net/browse/IMIS-1805
         # (
         #     "https://marineinfo.org/id/publication/307837",
         #     expected_marine_info_variants("publication-307837"),
         # ),
+        # inclusion of test is blocked by conneg issue in marineinfo
+        # - see https://vliz.atlassian.net/browse/IMIS-1806
         # (
         #     "https://marineinfo.org/id/dataset/90",
         #     expected_marine_info_variants("dataset-90")
@@ -256,10 +256,10 @@ def test_conneg_eval(url, expected):
             else:
                 assert (
                     filename is not None
-                ), f"Missing filename for {url} {exp_suffix=}"
+                ), f"Missing filename for {url},{exp_mime},{exp_profile} {exp_suffix=}"
                 assert filename.endswith(
                     exp_suffix
-                ), f"{filename=} for {url} not ending with {exp_suffix=}"
+                ), f"{filename=} for {url},{exp_mime},{exp_profile} not ending with {exp_suffix=}"
 
             if exp_mime in {"text/turtle", "application/ld+json"}:
                 try:

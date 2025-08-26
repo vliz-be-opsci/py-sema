@@ -1,0 +1,62 @@
+uses: #if string, then should be the strategy-name - if ommitted, then defaults to "basic"
+  strategy: basic # idea to have a directive to drive specific plugable "strategies" for this
+# other idea is to have each strategy be able to produce a sample - with explaining comments like this
+ro:
+  version: 1.2-DRAFT
+  profile: !resolve "{domain}/example-profile/latest"
+base: !resolve "{domain}/{repo}"
+sameas:
+  - doi:10.100.10010/something
+name: My first Research Object Crate
+description: >
+  This is a simple example of a Research Object Crate
+  that includes a few files and some metadata.
+
+  It is intended to test a new ro-creator component
+datePublished: 2024-02-03
+license: https://creativecommons.org/licenses/by/4.0/
+
+agents:
+  https://orcid.org/0000-0002-9648-6484: # Marc Portier
+    roles: [author, contributor, contact, maintainer]
+    sameas:
+      - https://oceanexpert.org/expert/mpo
+      - https://fairsharing.org/users/8685
+      - https://www.rd-alliance.org/members/marc-portier/
+      - https://www.linkedin.com/in/marcportier/
+      - https://github.com/mpo-vliz
+    email: sample.name@domain.example.org
+  https://ror.org/0496vr396: # VLIZ
+    roles: [publisher, maintainer]
+    url: https://www.vliz.be
+
+content:
+  datasets: off # do not list folders as data-set grouping constructs
+  # effect of `datasets: off`  or ommitted or `datasets: []`
+  # == all matching files (regardless of the depth of folder structure)
+  #    are going to be added as hasPart of the main dataset (ie the one with @id = "./" )
+  # alternatively `datasets: [ list of "./folder/subfolder", ...]`
+  # == leads to those to end up in the hasPart of the main Dataset
+  #    doing so to replace there (in the main DataSet) any
+  #    matching files that falls under their path
+  #    those replaced children end up making up their own hasPart)
+  includes:
+    - "**/*.*" # all nested files that at least have an extension
+  excludes:
+    - "roc-*.yml"
+    - "roc-*.json"
+  autofill:
+    "*.csv":
+      content-type: text/csv; charset=utf8
+  add:
+    specialfile: # additional individual file
+      fileSize: 1MB
+      content-type: application/octet-stream
+
+    first.csv: # correcting autofill for this case
+      name: My very firstly named csv
+      content-type: text/csv; charset=latin-1
+
+    https://example.org/whatever.csv: # external content
+      autofill: off
+      conformsTo: https://example.org/profile/anything
