@@ -7,4 +7,4 @@ tests/__sync__/
 tests/output/
 pytest.log
 venv/
-tdd_*.py
+*tdd_*.py
