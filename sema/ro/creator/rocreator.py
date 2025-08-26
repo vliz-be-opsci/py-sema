@@ -1,75 +1,121 @@
-import logging
-import os
+import yaml
 from pathlib import Path
-from sema.commons.service import ServiceBase, ServiceResult, Trace
-from .api import RocModel, RocStrategy, read_roccfg, write_model
-from .strategy.registry import RocStrategies
+from sema.commons.ogm import ObjectGraphMapper
+from sema.commons.yml import LoaderBuilder
+from .roblueprint import ROBlueprint
+from typing import override
+
+# log = logging.getLogger(__name__) # TODO implement logging
+
+class ROCreator(ObjectGraphMapper):
+    @override
+    def __init__(self,
+            blueprint_path,
+            *args,
+            blueprint_env={},
+            rocrate_path=None,
+            force=True,
+            **kwargs
+        ):
+        super().__init__(*args, blueprint_path=blueprint_path, **kwargs)
+        self.blueprint_env = blueprint_env
+        self.rocrate_path = Path(rocrate_path) if rocrate_path else None
+        self.force = force
+    
+    @override
+    def _parse_blueprint(self):
+        loader = LoaderBuilder().to_resolve(self.blueprint_env).build()
+        with open(self.blueprint_path, "r", encoding="utf-8") as file:
+            data = yaml.load(file, Loader=loader)
+        head, body = self._split_blueprint(data)
+        self.blueprint = ROBlueprint(body=body, glob_root=self.rocrate_path, **head)
+        self._blueprint_parsed = True
 
 
-log = logging.getLogger(__name__)
+    def _map(self):
+        if not self._blueprint_parsed: self._parse_blueprint()
+        root_dataset = self.create_rnode(identifier="./", a="Dataset")
+        self.create_rnode(
+            identifier="ro-crate-metadata.json",
+            a="CreativeWork",
+            property={
+                "about": root_dataset,
+            }
+        )
+        for identifier, property in self.blueprint.body.items():
+            type = property.get("$type")
+            if type: property.pop("$type")
 
+            label = property.get("$label")
+            if label: property.pop("$label")
 
-class RocResult(ServiceResult):
-    """Result of the Roc service"""
+            if "://" in identifier:
+                self.create_inode(
+                    identifier=identifier,
+                    a=type,
+                    label=label,
+                    property=property
+                )
+            else:
+                self.create_rnode(
+                    identifier=identifier,
+                    a=type,
+                    label=label,
+                    property=property
+                )
+                assert not self.blueprint.nested_datasets, "nested datasets are not yet supported" # TODO support nested datasets
+                if type == "File":
+                    self.update_node(
+                        identifier=root_dataset,
+                        property={"hasPart": identifier}
+                    )
 
-    def __init__(self):
-        self._success = False
+        self._mapped = True
 
-    @property
-    def success(self) -> bool:
-        return self._success
+    @override
+    def __str__(self):
+        if not self._mapped: self._map()
+        return self.graph_builder.__str__(
+            format="application/ld+json",
+            auto_compact=True,
+            indent=4,
+            context=self.blueprint.context,
+        )
 
+    @override
+    def serialize(self, *args, rocrate_file_name = None, contextless=False, **kwargs):
+        assert self.rocrate_path, "rocrate_path must be defined in order to serialize"
 
-class Roc(ServiceBase):
-    """The main class for the roc 'ro-creator' service."""
+        destination = self.rocrate_path / (rocrate_file_name or "ro-crate-metadata.json")
+        if destination.exists() and not self.force:
+            # print(f"File {destination} already exists. Use --force or force=True to overwrite.") # TODO implement via logging
+            return
+        
+        if contextless:
 
-    def __init__(
-        self,
-        *,
-        root: str,
-        rocyml: str,
-        out: str,
-        force: bool = False,
-    ) -> None:
-        """Initialize the roc Service object
+            raise NotImplementedError
+            
+            # TODO implement contextless serialization (look into GraphBuilder.graph.__init__)
+            # return super().serialize(
+            #     *args,
+            #     destination=destination,
+            #     **kwargs
+            # )
 
-        :param root: the path to the ro-crate root folder to work on,
-            if relative it is relative to the current working directory
-        :type root: str
-        :param rocyml: the path to the roc yml file to be used,
-            if relative it is relative to the root
-        :type rocyml: str
-        :param out: the path to the output file to be used,
-            if relative it is relative to the root
-        :type out: str
-        :param force: overwrites the output file even if it exists
-        :type force: bool
-        """
-        self._result = RocResult()
-        # path resolving, exists, read-write checks
-        self._root: Path = Path(root)
-        if (not self._root.exists()) or (not self._root.is_dir()):
-            raise ValueError("root path does not exist or is not a folder")
+        else:
+            # TODO check for usage of out-of-context terms
 
-        self._rocyml: Path = self._root / rocyml
-        if (not self._rocyml.exists()) or (not self._rocyml.is_file()):
-            raise ValueError("roc yml file does not exist or is not a file")
-        if not os.access(self._rocyml, os.R_OK):
-            raise ValueError("roc yml file is not readable")
+            if not self._mapped: self._map()
+            
+            return super().serialize(
+                *args,
+                destination=destination,
+                format="application/ld+json",
+                auto_compact=True,
+                indent=4,
+                context=self.blueprint.context,
+                **kwargs
+            )
 
-        self._out: Path = self._root / out
-        if self._out.exists() and (not force):
-            raise ValueError("output file exists but is not a file")
-        if not self._out.exists():
-            self._out.parent.mkdir(parents=True, exist_ok=True)
-
-    @Trace.init(Trace)
-    def process(self) -> RocResult:
-        roccfg: dict[str, any] = read_roccfg(self._rocyml)
-        sg: RocStrategy
-        with RocStrategies().get_strategy(roccfg) as sg:
-            rocm: RocModel = sg.build_model(roccfg)
-            write_model(rocm, self._out)
-
-        self._result._success = True
-        return self._result
+    def process(self, *args, **kwargs):
+        self.serialize(*args, **kwargs)

@@ -1,10 +1,11 @@
 import sys
+import os
 from logging import getLogger
 from pathlib import Path
 
 from sema.commons.cli import Namespace, SemaArgsParser
 from sema.commons.glob import getMatchingGlobPaths
-from sema.ro.creator.rocreator import Roc
+from sema.ro.creator import ROCreator
 
 log = getLogger(__name__)
 
@@ -20,22 +21,6 @@ def get_arg_parser() -> SemaArgsParser:
     )
 
     parser.add_argument(
-        "-L",
-        "--list",
-        action="store_true",
-        required=False,
-        help="List all the available strategies. Prevents actual build.",
-    )
-
-    parser.add_argument(
-        "-m",
-        "--make",
-        metavar="strategy",  # meaning of the argument
-        action="store",
-        help="Generates a ro-*yml file for the given strategy.",
-    )
-
-    parser.add_argument(
         "-f",
         "--force",
         default=False,
@@ -47,12 +32,22 @@ def get_arg_parser() -> SemaArgsParser:
     )
 
     parser.add_argument(
+        "-e",
+        "--load-os-env",
+        default=False,
+        action="store_true",
+        help=(
+            "Load OS environment variables for use in !resolve."
+        ),
+    )
+
+    parser.add_argument(
         "root",
         action="store",
         nargs="?",
         help=(
             "Path of the rocrate to work on. "
-            "This where roc-*yml is found or (in case of -m) placed. "
+            "This where roc-*yml is found. "
             "This is where ro-crate-metadata.json is placed. "
             "Defaults to the current working directory."
         ),
@@ -64,15 +59,14 @@ def get_arg_parser() -> SemaArgsParser:
         nargs="?",
         help=(
             "Name of output-file to produce. "
-            "Defaults to ro-crate-metadata.json resp. "
-            "roc-me.yml (for the -m case). "
+            "Defaults to ro-crate-metadata.json."
             "Can be absolute or relative to the specified root."
         ),
     )
     return parser
 
 
-def _find_rocyml(root: str) -> tuple[str, str]:
+def _find_rocyml(root: str) -> tuple[str, str]: # TODO update signature
     """Find the roc yml file in the root folder"""
     root = Path(root)
     rocyml = Path("roc-me.yml")
@@ -97,19 +91,17 @@ def _find_rocyml(root: str) -> tuple[str, str]:
         root = root.parent
         rocyml = rocyml.relative_to(root)
 
-    # make into str paths again before return
-    return str(root), str(rocyml)
+    return root, rocyml
 
 
-def make_service(args: Namespace) -> Roc:
+def make_service(args: Namespace) -> ROCreator:
     """Make the service with the passed args"""
     root = args.root or "."  # default to current folder
-    out = args.out or ("roc-me.yml" if args.make else "ro-crate-metadata.json")
     root, rocyml = _find_rocyml(root)
-    return Roc(
-        root=root,
-        rocyml=rocyml,
-        out=out,
+    return ROCreator(
+        blueprint_path=root / rocyml,
+        blueprint_env=os.environ.copy() if args.load_os_env else {},
+        rocrate_path=root,
         force=args.force,
     )
 
@@ -117,34 +109,14 @@ def make_service(args: Namespace) -> Roc:
 def _main(*args_list) -> bool:
     """The main entry point to this module."""
     args = get_arg_parser().parse_args(args_list)
-    toreturn = False
     try:
-        if args.list:
-            # list all the available strategies
-            # prevent actual build
-            log.debug("listing all the available strategies")
-            ...
-            return
-        # else
-        if args.make:
-            # generate the yml file for this particular strategy
-            # root and out are used to determine the location
-            # of the yml file to produce
-            strategy_name: str = args.make
-            log.debug(
-                f"generating the yml file for the given {strategy_name=}"
-            )
-            ...
-            return
-        # else
         roc = make_service(args)
-        r = roc.process()
+        roc.process(rocrate_file_name=args.out)
         log.debug("processing done")
-        toreturn = r.success
+        return True
     except Exception as e:
         log.exception("sema.ro.creator processing failed", exc_info=e)
-    return toreturn
-
+        return False
 
 def main():
     success: bool = _main(*sys.argv[1:])

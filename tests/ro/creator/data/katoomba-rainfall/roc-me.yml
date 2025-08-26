@@ -1,0 +1,49 @@
+$:
+  glob_rnode: true # enable by default
+  glob_walk: true
+  # extends: ./emobon-observatory.yml | http://w3id.org/emobon/roc-observatory.yml | roc://emobon-observatory
+  # glob_ignore:
+  # profile: https://w3id.org/ro/crate/1.2
+
+./:
+  $type: Dataset
+  # $include: ...
+  # $exclude: ...
+  name: !resolve "Example dataset for RO-Crate specification; {SESSIONNAME}"
+  description: Official rainfall readings for Katoomba, NSW 2022, Australia
+  datePublished: "2022-12-01"
+  license: http://spdx.org/licenses/CC0-1.0
+
+# "*.csv:" # TODO check priority compared to data*.csv
+#   ...
+
+data.csv:
+  $type: Dataset # TODO when this line is removed type becomes rdfs:Resource while it should be the same as for data*.csv
+  name: Rainfall data for Katoomba, NSW Australia February 2022
+  license: https://creativecommons.org/licenses/by-nc-sa/3.0/au/
+
+data*.csv:
+  encodingFormat: application/parquet
+
+datan.csv:
+  encodingFormat: application/hdf
+
+logsheets:
+  $type: Dataset
+  # $exclude: "./logsheets/subfolder"
+
+https://ror.org/04dkp1p98:
+  $type: Organization
+  # $inverse:
+  #   publisher: "./"
+  # $relate_root: ["publisher"]
+  # $relate_to: 
+  #   publisher: [./, datan.csv]
+  name: Bureau of Meteorology
+  description: Australian Government Bureau of Meteorology
+  url: '"http://www.bom.gov.au/"^^xsd:string'
+
+https://creativecommons.org/licenses/by-nc-sa/3.0/au/:
+  $type: CreativeWork
+  name: CC BY-NC-SA 3.0 AU
+  description: Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Australia
