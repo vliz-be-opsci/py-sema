@@ -21,6 +21,7 @@ def test_urit_context():
         "record.name",
         "<http://ex.org/global.name>",
         "<http://ex.org/record.name>",
+        "<http://ex.org/global.name/record.name>",
     ]
     output: str = j2sb.build_syntax("uritexpand_context.j2", **vars)
     lines: list[str] = output.split("\n")
