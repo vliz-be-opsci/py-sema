@@ -1,3 +1,4 @@
+from logging import getLogger
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
@@ -5,11 +6,15 @@ from typing import Any
 
 from dateutil import parser
 from jinja2 import pass_context
+import jinja2
 from jinja2.runtime import Context
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
 from sema.commons.clean.clean import check_valid_uri
+
+
+log = getLogger(__name__)
 
 
 class Functions:
@@ -47,8 +52,11 @@ def xsd_value(
 
 
 def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
-    if isinstance(content, (list, dict, type(None))):
-        raise TypeError("conversion required before format call")
+    log.debug(f"formatting boolean from content {content!s} of type {type(content)}")
+    if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
+        # raise TypeError("conversion required before format call")
+        # new approach to soft failure is to return "" no output
+        return ""  # as no decent bool can represent these types
 
     # make rigid bool
     if not isinstance(content, bool):

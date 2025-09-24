@@ -60,21 +60,33 @@ def test_bool(case: tuple[str, str, str | None]) -> None:
     assertCase("boolean", case)
 
 
-def test_rigid_bool() -> None:
-    # None conversion required before formatting
-    with pytest.raises(TypeError):
-        xsd_fmt(None, "xsd:boolean")
-        raise Exception("None should not be accepted as bool value")
+@pytest.mark.parametrize(
+    "case",
+    [
+        ((None, '')),
+        (([], '')),
+        (({}, "")),
+    ],
+)
+def test_unrecognisable_bool(case: tuple[str, str, str | None]) -> None:
+    assertCase("boolean", case)
 
-    # [] conversion (empty or not) required before formatting
-    with pytest.raises(TypeError):
-        xsd_fmt([], "xsd:boolean")
-        raise Exception("[] should not be accepted as bool value")
 
-    # {} conversion (empty or not) required before formatting
-    with pytest.raises(TypeError):
-        xsd_fmt({}, "xsd:boolean")
-        raise Exception("{} should not be accepted as bool value")
+# def test_rigid_bool() -> None:
+#     # None conversion required before formatting
+#     with pytest.raises(TypeError):
+#         xsd_fmt(None, "xsd:boolean")
+#         raise Exception("None should not be accepted as bool value")
+
+#     # [] conversion (empty or not) required before formatting
+#     with pytest.raises(TypeError):
+#         xsd_fmt([], "xsd:boolean")
+#         raise Exception("[] should not be accepted as bool value")
+
+#     # {} conversion (empty or not) required before formatting
+#     with pytest.raises(TypeError):
+#         xsd_fmt({}, "xsd:boolean")
+#         raise Exception("{} should not be accepted as bool value")
 
 
 @pytest.mark.parametrize(

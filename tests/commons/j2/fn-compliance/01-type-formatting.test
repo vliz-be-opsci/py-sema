@@ -1,0 +1,97 @@
+# j2-subyt-extension-tests
+# type conversions -- to verify that input-output conversions work as expected 
+#  -- testing the actual output of the filter `| xsd (value, type, quote)`
+#  -- for various types 
+
+
+
+# == xsd:boolean formatting  =================================================
+# ----  from literal in template ---------------------------------------------
+
+= reset assignments
+?< -- literals in template
+  {{ "true" |xsd('boolean') }}
+?< -- explicitsingle quote
+  {{ "true" |xsd('BOOLEAN', "'") }}
+?< -- literal typed boolean
+  {{ true   |xsd('xsd:boolean') }}
+?< -- literal typed int
+  {{ 1      |xsd('boolean') }}
+$>
+  'true'^^xsd:boolean 
+#
+
+# verify double quote option
+= reset assignments
+?<
+  {{ "true"|xsd('boolean', '"') }}
+?<
+  {{ True  |xsd('boolean', '"') }}
+?<
+  {{ 1     |xsd('boolean', '"') }}
+$>
+  "true"^^xsd:boolean
+#
+
+# ---- from context variables  -----------------------------------------------
+# ...... boolean true values .................................................
+= use context:
+  {
+	"b_t" : true,
+	"i_t" : 10,
+	"s_t" : "anything",
+	"sl_t": "true"
+  }
+?<
+  {{ b_t  | xsd('boolean') }}
+?<
+  {{ i_t  | xsd('boolean') }}
+?<
+  {{ s_t  | xsd('boolean') }}
+?<
+  {{ sl_t | xsd('boolean') }}
+$>
+  'true'^^xsd:boolean
+#
+
+# ...... boolean false values ................................................
+=
+  {
+	"b_f" : false,
+	"i_f" : 0,
+	"s_f" : "",
+	"sl_f": "false" 
+}
+?<
+  {{ b_f | xsd('boolean') }}
+?<
+  {{ i_f | xsd('boolean') }}
+?<
+  {{ s_f | xsd('boolean') }}
+?<
+  {{ sl_f | xsd('boolean') }}
+$>
+  'false'^^xsd:boolean
+# 
+
+# ...... boolean unresolvable values .........................................
+=
+  {
+	"n"         : null,
+	"empty_list": [],
+	"empty_dict": {}
+  }
+?<
+  {{ null | xsd('boolean') }}
+?<
+  {{ [] | xsd('boolean') }}
+?<
+  {{ {} | xsd('boolean') }}
+?<
+  {{ n | xsd('boolean') }}
+?<
+  {{ empty_list | xsd('boolean') }}
+?<
+  {{ empty_dict | xsd('boolean') }}
+$>
+# should all have no output - soft indication of error
