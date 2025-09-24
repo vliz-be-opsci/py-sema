@@ -7,4 +7,6 @@ tests/__sync__/
 tests/output/
 pytest.log
 venv/
+object_graph_mapping.ttl
+tdd-*/
 *tdd_*.py

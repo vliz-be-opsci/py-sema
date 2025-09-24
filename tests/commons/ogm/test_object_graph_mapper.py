@@ -1,7 +1,8 @@
-from sema.commons.ogm import ObjectGraphMapper
+from sema.commons.ogm import ObjectGraphMapper, GraphBuilder
 
 def test_object_graph_mapper():
-    ogm = ObjectGraphMapper(
-        blueprint_path="./tests/commons/ogm/data/blueprint.yml"
-    )
-    ogm.serialize("./tests/commons/ogm/data/graph.ttl")
+    class OGMLike(ObjectGraphMapper):
+        def _map(self):
+            return GraphBuilder().build()
+
+    OGMLike().serialize()

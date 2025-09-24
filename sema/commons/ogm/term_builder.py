@@ -8,80 +8,97 @@ class TermBuilder:
         namespace: str = None,
         prefix: str = None,
         suffix: str = None,
+        nop: str = None,  # no operation
         graph: Graph = None
     ):
-        self._namespace, self._prefix, self._suffix = None, None, None
+        self._namespace = namespace
+        self._prefix = prefix
+        self._suffix = suffix
+        self._nop = nop
 
         if template:
-            assert not (namespace or (prefix is not None) or suffix), "{template} is mutually exclusive with {namespace, prefix, suffix}"
-            self._namespace, self._prefix, self._suffix = self._parse(template)
-            
-        if (namespace or (prefix is not None) or suffix):
-            assert not template, "{template} is mutually exclusive with {namespace, prefix, suffix}"
-            self._suffix = suffix
-            if namespace:
-                assert prefix is None, "namespace is mutually exclusive with prefix"
-                self._namespace = namespace
-            if prefix is not None:
-                assert not namespace, "prefix is mutually exclusive with namespace"
-                self._prefix = prefix
+            self._template = self._parse(template)
+            self._namespace = self._template["namespace"]
+            self._prefix = self._template["prefix"]
+            self._suffix = self._template["suffix"]
+            self._nop = self._template["nop"]
 
-        assert self._suffix, "suffix is undefined"
+        if self._namespace:  # namespace + suffix is a valid scenario
+            assert self._suffix
+            assert self._prefix is None
+            assert self._nop is None
+
+        if self._prefix is not None: # prefix + suffix is a valid scenario
+            assert self._namespace is None
+            assert self._suffix
+            assert self._nop is None
+
+        if self._nop: # nop is a valid scenario
+            assert self._namespace is None
+            assert self._prefix is None
+            assert self._suffix is None
 
         if graph is not None:
             self._graph = graph
         else:
             self._graph = Graph()
 
-        self._graph_namespaces = {
-            k: Namespace(v) for k, v in self._graph.namespaces()
-        }
-        self.term = self._build()
+        self._graph_namespaces = {k: v for k, v in self._graph.namespaces()}
+
+        self.term = None
 
     @staticmethod
-    def _parse(t):
-        if "://" in t:
-            return None, None, t
-        elif "\\" in t:
-            t = t.replace("\\", "")
-            return None, None, t
-        elif t.startswith("<") and t.endswith(">"):
-            t = t[1:-1]
-            return "@base", None, t
-        elif ":" in t:
-            segments = t.split(":")
+    def _parse(template: str):
+        # nop
+        if "://" in template:
+            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+        if "\\" in template:
+            template = template.replace("\\", "")
+            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+
+        # namespace (@base) + suffix
+        if template.startswith("<") and template.endswith(">"):
+            template = template[1:-1]
+            return {"namespace": "@base", "prefix": None, "suffix": template, "nop": None}
+
+        # prefix + suffix
+        if ":" in template:
+            segments = template.split(":")
             assert len(segments) == 2, "Template can only have one colon"
-            return None, segments[0], segments[1]
-        else:
-            return None, None, t
+            return {"namespace": None, "prefix": segments[0], "suffix": segments[1], "nop": None}
 
-    def _build(self):
-        # namespace
-        if self._namespace and (not self._namespace == "@base"):
-            return getattr(Namespace(self._namespace), self._suffix)
-
-        # literal (or url)
-        if self._prefix is None and (not self._namespace == "@base"):
-            if re.match(r"[\"\'].*[\"\']\^\^xsd:string", self._suffix):
-                return Literal(self._suffix[1:-13])
-            elif "://" in self._suffix:
-                return URIRef(self._suffix)
-            else:
-                return Literal(self._suffix)
-        
-        # uriref w/ base
-        if self._namespace == "@base":
-            if not self._graph.base:
-                raise AssertionError("Graph needs base attribute when using base namespace to expand term")
-            base = Namespace(self._graph.base)
-            return getattr(base, self._suffix)
-        
-        # uriref w/ lookup
-        assert self._prefix is not None, "_prefix must be defined in order to perform namespace lookup"
-        return getattr(Namespace(self._lookup(self._prefix)), self._suffix)
+        # nop fallback
+        return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
 
     def _lookup(self, prefix):
         try:
             return self._graph_namespaces[prefix]
-        except KeyError as e:
-            raise RuntimeError(f"prefix `{prefix}` is undefined in the graph") from e
+        except KeyError:
+            raise AssertionError(f"prefix `{prefix}` is undefined in the graph")
+
+    def _build(self):
+        # namespace (@base) + suffix
+        if self._namespace == "@base":
+            assert self._graph.base, "Graph needs base attribute when using base namespace to expand term"
+            return getattr(Namespace(self._graph.base), self._suffix)
+
+        # namespace + suffix
+        if self._namespace:
+            return getattr(Namespace(self._namespace), self._suffix)
+
+        # prefix + suffix
+        if self._prefix is not None:
+            return getattr(Namespace(self._lookup(self._prefix)), self._suffix)
+
+        # nop
+        if re.match(r"[\"\'].*[\"\']\^\^xsd:string", self._nop):
+            return Literal(self._nop[1:-13])
+        elif "://" in self._nop:
+            return URIRef(self._nop)
+        else:
+            return Literal(self._nop)
+
+    def build(self):
+        self.term = self._build()
+        assert self.term
+        return self.term

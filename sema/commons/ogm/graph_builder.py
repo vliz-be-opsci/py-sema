@@ -1,130 +1,69 @@
-from typing import Union, Iterable
-from uuid import uuid4
-from rdflib import Graph, Namespace, URIRef, BNode, Literal
-from .term_builder import TermBuilder
+import yaml
+from pathlib import Path
+from rdflib import Graph, Namespace
+from .graph_blueprint import GraphBlueprint
+from .graph_wrapper import GraphWrapper
 
 class GraphBuilder:
     def __init__(
             self,
-            base_namespace: str = "urn:nil:",
-            defined_namespaces: dict[str, str] = {},
-            *args,
-            **kwargs
+            namespaces: dict[str, str] = {},
+            blueprint: GraphBlueprint | dict | Path | str | None = None
         ):
+        base = namespaces.get("@base", "urn:nil:")
 
-        self.graph = Graph(
-            *args,
-            **kwargs,
-            base=base_namespace,  # pyrefly: ignore
-            bind_namespaces="none"  # pyrefly: ignore
-        )
-
-        redefined_namespaces: dict[str, str] = {
+        namespaces = {
             "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            **{k: v for k, v in namespaces.items() if k != "@base"}
         }
-        redefined_namespaces.update(defined_namespaces)
 
-        for prefix, namespace in redefined_namespaces.items():
+        self._blueprint: GraphBlueprint = self._parse_blueprint(blueprint)
+        self.graph: Graph | None = None
+        self._graph_wrapper: GraphWrapper = GraphWrapper(base=base)
+
+        for prefix, namespace in namespaces.items():
             assert namespace[-1] in ("#", "/", ":")
-            self.graph.bind(prefix, Namespace(namespace))
+            self._graph_wrapper.bind(prefix, Namespace(namespace))
     
-    def create_node(
-            self,
-            identifier: URIRef | str | None = None,
-            a: Union[URIRef, str, list[Union[URIRef, str]]] = None,
-            label: Union[str, list[str]] = None,
-            property: dict[Union[URIRef, str], Union[URIRef, Literal, str, list]] = None,
-            kind: bool = "blank",
-            typed: bool = True,
-        ) -> Union[URIRef, None]:
-        """
-        # TODO update docstring
-        identifier: URIRef, str, or None. If None, a UUID will be generated.
-        label: str, list of str, or None.
-        property: dict ...
-        a: URIRef, str, list of these, or None. "a" is shorthand for "type" in RDF terminology.
-        kind: If "blank", the identifier will be a BNode (blank node). If "iri", the identifier will be a URIRef.
-        typed: If True, a type declaration must be added to the node. Then, if a=None, the type declaration will be "rdfs:Resource".
-        """
-        if not (a or label or property) and not typed:
-            return None  # can't give you anything if you give me nothing
-
-        if not identifier:
-            if kind == "iri":
-                identifier = f":{uuid4()}"
-            else:
-                identifier = str(uuid4())
-
-        if kind == "iri":
-            identifier = TermBuilder(template=identifier, graph=self.graph).term
-        elif kind == "relative":
-            identifier = URIRef(identifier)
-        elif kind == "blank":
-            identifier = BNode(identifier)
-        else:
-            raise AssertionError
-
-        if not a and typed:
-            a = "rdfs:Resource"
-
-        self.update_node(identifier, a=a, label=label, property=property)
-        return identifier
-
-    def update_node(self, identifier, a=None, label=None, property=None):
-        subject = identifier
-
-        if a:
-            a = self._listify(a)
-            for _a in a:
-                self.graph.add((
-                    subject,
-                    TermBuilder("rdf:type", graph=self.graph).term,
-                    TermBuilder(_a, graph=self.graph).term
-                ))
-
-        if label:
-            label = self._listify(label)
-            for _label in label:
-                self.graph.add((
-                    subject,
-                    TermBuilder("rdfs:label", graph=self.graph).term,
-                    TermBuilder(_label, graph=self.graph).term
-                ))
-
-        if property:
-            for predicate, object in property.items():
-                if not object:
-                    continue
-
-                # make sure predicate (k) is expanded (TODO update comment)
-                predicate = TermBuilder(predicate, graph=self.graph).term
-
-                # make sure object (v) is expanded (TODO update comment)
-                Array = (list, tuple)
-                if not isinstance(object, Array):
-                    object = TermBuilder(object, graph=self.graph).term
-                    self.graph.add((subject, predicate, object))
-
-                # if v is an Array (list or tuple), make sure objects (i) within are expanded (TODO update comment)
-                if isinstance(object, Array):
-                    objects = object
-                    for object in objects:
-                        object = TermBuilder(object, graph=self.graph).term
-                        self.graph.add((identifier, predicate, object))
+    @staticmethod
+    def _split_blueprint(data: dict) -> tuple[dict, dict]:
+        head = data.get("$") or {}  # data["$"] may exist, but can still be None
+        body = {k: v for k, v in data.items() if k != "$"}
+        return head, body
 
     @staticmethod
-    def _listify(x) -> Union[list, Iterable]:
-        if isinstance(x, Iterable) and not isinstance(x, str):
-            return x
+    def _parse_blueprint(blueprint) -> GraphBlueprint:
+        if isinstance(blueprint, GraphBlueprint):
+            return blueprint
+        elif isinstance(blueprint, dict):
+            head, body = GraphBuilder._split_blueprint(blueprint)
+            return GraphBlueprint(body=body, **head)
+        elif isinstance(blueprint, Path):
+            with open(blueprint, "r", encoding="utf-8") as file:
+                data = yaml.safe_load(file)
+            head, body = GraphBuilder._split_blueprint(data)
+            return GraphBlueprint(body=body, **head)
+        elif isinstance(blueprint, str):
+            raise NotImplementedError # TODO implement blueprint_uri (str should contain "://")
         else:
-            return [x]
+            return GraphBlueprint()
 
-    def serialize(self, *args, **kwargs):
-        return self.graph.serialize(*args, **kwargs)
+    def _build(self) -> None:
+        for prefix, namespace in self._blueprint.prefix.items():
+            self._graph_wrapper.bind(prefix, namespace)
 
-    def __str__(self, *args, format="text/turtle", **kwargs):
-        return self.graph.serialize(*args, format=format, **kwargs)
+        for identifier, properties in self._blueprint.body.items():
+            self._graph_wrapper.create_iri_node(
+                identifier=identifier,
+                a=properties.get("$type"),
+                label=properties.get("$label"),
+                properties={k: v for k, v in properties.items() if not k.startswith("$")}
+            )
+        
+        self.graph = self._graph_wrapper.unwrap()
 
-    def bind(self, prefix: str, namespace: str):
-        self.graph.bind(prefix, Namespace(namespace))
+    def build(self) -> Graph:
+        self._build()
+        assert self.graph is not None
+        return self.graph

@@ -9,5 +9,5 @@ class GraphBlueprint:
         self.prefix = prefix or {}
         self.extends = extends
         if extends:
-            self.lineage = []
+            self.lineage = None
             raise NotImplementedError # TODO implement extends
