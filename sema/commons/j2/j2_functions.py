@@ -399,16 +399,22 @@ def map_build(
     return vmap
 
 
-def unite(*args: Any, *, separator: str = " ", n: int = 3, fb: str = "") -> str:
+def unite(*args: Any, **kwargs: Any) -> str:
     # unite multiple values into one string, separated by separator
     # but only if all values evaluate to a boolean True, and 
     # if at most n resulting string values are non-empty
     # when conditions are not met, return fallback value fb (default "")
     # Usage:
+    #   {{ unite( val1, val2, val3, ..., separator=" ", n=3, fb="") }}
+    # Motivation:
     # This is to guarantee that only complete sets of values are united in the template output
     # The practical use is for guaranteeing complete triples in turtle output
     # Note that values None, '', 0, [], {} evaluate to boolean False
     # while any non-empty string, even '0', 'False', 'No' evaluate to boolean True
+    separator: str = kwargs.get("separator", " ")
+    n: int = kwargs.get("n", 3)
+    fb: str = kwargs.get("fb", "")
+
     boolvals: list[bool] = [bool(a) for a in args ]
     if not all(boolvals) or sum(boolvals) > n:
         return fb
