@@ -1,0 +1,88 @@
+# j2-subyt-extension-tests
+# type conversions -- to verify that input-output conversions work as expected 
+#  -- testing the actual output of the filter `| xsd (value, type, quote)`
+#  -- for various types 
+# == xsd:int formatting  =================================================
+# ----  from literal in template ---------------------------------------------
+
+= reset assignments
+?< 
+  {{ 1           |xsd('integer') }}
+?< 
+  {{ 1           |xsd('Integer') }}
+?< 
+  {{ 1           |xsd('integer', "'") }}
+?< 
+  {{ 1.0   | int |xsd('xsd:integer') }}
+?< 
+  {{ "001" | int |xsd('integer') }}
+$>
+  '1'^^xsd:integer 
+#
+
+# verify double quote option
+= reset assignments
+?<
+  {{ 1          |xsd('integer', '"') }}
+$>
+  "1"^^xsd:integer
+#
+
+# verify negatives
+= reset assignments
+?<
+  {{ -111111     |xsd('integer') }}
+$>
+  '-111111'^^xsd:integer
+#
+
+# ---- from context variables  -----------------------------------------------
+# ...... acceptable int value variants .......................................
+= use context:
+  {
+  	"i"   : 11,
+	  "i_s" : "11"
+  }
+?<
+  {{ i    | xsd('integer') }}
+?<
+  {{ i_s  | xsd('integer') }}
+$>
+  '11'^^xsd:integer
+#
+
+
+# ...... inacceptable int values .............................................
+=
+  {
+	  "floating"  : 1.0,
+	  "lead0"     : "001",
+	  "decipt"    : "1.0",
+    "none"      : null, 
+    "empty_list": [],
+    "empty_dict": {},
+    "errmsg"    : "*** EXPECTED FAILURE MSG ***"
+  }
+?<
+  {{ errmsg }}
+?<
+  {{ 1.0        | xsd('integer', fb=errmsg) }}
+?<
+  {{ "001"      | xsd('integer', fb=errmsg) }}
+?<
+  {{ "1.0"      | xsd('integer', fb=errmsg) }}
+?<
+  {{ floating   | xsd('integer', fb=errmsg) }}
+?<
+  {{ lead0      | xsd('integer', fb=errmsg) }}
+?<
+  {{ decipt     | xsd('integer', fb=errmsg) }}
+?<
+  {{ none       | xsd('integer', fb=errmsg) }}
+?<
+  {{ empty_list | xsd('integer', fb=errmsg) }}
+?<
+  {{ empty_dict | xsd('integer', fb=errmsg) }}
+$>
+  *** EXPECTED FAILURE MSG ***
+#
