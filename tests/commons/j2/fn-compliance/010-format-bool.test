@@ -52,31 +52,22 @@ $>
 #
 
 # ...... boolean false values ................................................
-=
-  {
-  	"b_f" : false,
-	  "i_f" : 0,
-	  "s_f" : "",
-	  "sl_f": "false" 
-  }
+= all needed vars are in the BASE_CONTEXT
 ?<
-  {{ b_f | xsd('boolean') }}
+  {{ bool_f    | xsd('boolean') }}
 ?<
-  {{ i_f | xsd('boolean') }}
+  {{ int_0     | xsd('boolean') }}
 ?<
-  {{ s_f | xsd('boolean') }}
+  {{ txt_none  | xsd('boolean') }}
 ?<
-  {{ sl_f | xsd('boolean') }}
+  {{ txt_false | xsd('boolean') }}
 $>
   'false'^^xsd:boolean
 # 
 
 # ...... boolean unresolvable values .........................................
-=
+= most needed variables are in the BASE_CONTEXT, except:
   {
-	  "none"      : null,
-	  "empty_list": [],
-	  "empty_dict": {},
     "errmsg"    : "*** EXPECTED FAILURE MSG ***"
   }
 ?<
@@ -90,9 +81,9 @@ $>
 ?<
   {{ none       | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ empty_list | xsd('boolean', fb=errmsg) }}
+  {{ list_none  | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ empty_dict | xsd('boolean', fb=errmsg) }}
+  {{ dict_none  | xsd('boolean', fb=errmsg) }}
 $>
   *** EXPECTED FAILURE MSG ***
 #

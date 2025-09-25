@@ -40,27 +40,24 @@ $>
 # ...... acceptable int value variants .......................................
 = use context:
   {
-  	"i"   : 11,
-	  "i_s" : "11"
+  	"int_11"   : 11,
+	  "txt_11" : "11"
   }
 ?<
-  {{ i    | xsd('integer') }}
+  {{ int_11    | xsd('integer') }}
 ?<
-  {{ i_s  | xsd('integer') }}
+  {{ txt_11    | xsd('integer') }}
 $>
   '11'^^xsd:integer
 #
 
 
 # ...... inacceptable int values .............................................
-=
+= add these to the BASE_CONTEXT:
   {
-	  "floating"  : 1.0,
-	  "lead0"     : "001",
-	  "decipt"    : "1.0",
-    "none"      : null, 
-    "empty_list": [],
-    "empty_dict": {},
+	  "float_1"   : 1.0,
+	  "txt_001"   : "001",
+	  "txt_1dot0" : "1.0",
     "errmsg"    : "*** EXPECTED FAILURE MSG ***"
   }
 ?<
@@ -72,17 +69,17 @@ $>
 ?<
   {{ "1.0"      | xsd('integer', fb=errmsg) }}
 ?<
-  {{ floating   | xsd('integer', fb=errmsg) }}
+  {{ float_1    | xsd('integer', fb=errmsg) }}
 ?<
-  {{ lead0      | xsd('integer', fb=errmsg) }}
+  {{ txt_001    | xsd('integer', fb=errmsg) }}
 ?<
-  {{ decipt     | xsd('integer', fb=errmsg) }}
+  {{ txt_1dot0  | xsd('integer', fb=errmsg) }}
 ?<
   {{ none       | xsd('integer', fb=errmsg) }}
 ?<
-  {{ empty_list | xsd('integer', fb=errmsg) }}
+  {{ list_none  | xsd('integer', fb=errmsg) }}
 ?<
-  {{ empty_dict | xsd('integer', fb=errmsg) }}
+  {{ dict_none  | xsd('integer', fb=errmsg) }}
 $>
   *** EXPECTED FAILURE MSG ***
 #

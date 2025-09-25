@@ -5,6 +5,8 @@
 # these files are locally available in ./fn-compliance-vectors/*test
 # and are regularly synced with the upstream source at https://github.com/ ...
 import json
+import datetime
+import math
 from sema.commons.glob import getMatchingGlobPaths
 from conftest import log
 from abc import ABC, abstractmethod
@@ -15,6 +17,38 @@ from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
 MYBASE = Path(__file__).parent
 FNC_PATH: Path = MYBASE / "fn-compliance"
 TPL_PATH: Path = MYBASE / "templates"
+
+
+BASE_CONTEXT: dict = {
+    "txt_001": "001",
+    "txt_1_dot_0": "1.0",
+    "txt_esc": "TestIng \\\"'escaper",
+    "txt_none": "",
+    "txt_space": " ",
+    "txt_tab": "\t",
+    "txt_nl": "\n",
+    "txt_false": "false",
+    "txt_true": "true",
+
+    "bool_t": True,
+    "bool_f": False,
+
+    "int_0": 0,
+    "int_1": 1,
+    "int_m111111": -111111,
+
+    "float_0": 0.0,
+    "float_1": 1.0,
+    "float_m1": -1.0,
+    "float_1_5": 1.5,
+    "float_pi": math.pi,
+
+    "date_May5_25": datetime.date(2025, 5, 5),
+
+    "none": None,  # null, undefined, ...
+    "list_none": [],
+    "dict_none": {},
+}
 
 
 class ConformanceCheck:
@@ -36,7 +70,6 @@ class ConformanceCheck:
         current_section = CommentSection(self, "", 0)
         current_line = 0
         for line in self.from_file.read_text().splitlines():
-            line = line.strip()
             current_line += 1
             if not line:
                 continue
@@ -112,8 +145,12 @@ class Section(ABC):
                     f"Attempt to processing new line {line} at {line_no}"
                     "- Cannot add content line to section after new section "
                     f"was started: {self.describe()}")
-            self.content += ("" if self.lines == 0 else "\n") + line
-            self.lines += 1
+            # else
+            # trim content-lines AFTER the lead-char is checked
+            line = line.strip()
+            if len(line) > 0:  # do not add empty lines to content
+                self.content += ("" if self.lines == 0 else "\n") + line
+            self.lines += 1  # count all lines, even empty ones
             return self
         # else
         self._accepting_lines = False
@@ -141,9 +178,9 @@ class AssignSection(Section):
         try:
             log.debug(f"parsing json from {self.describe()}:\n--\n{self.content}\n--")
             if len(self.content.strip()) == 0:
-                return {}, True, aggregate
+                return dict(BASE_CONTEXT), True, aggregate
             parsed = json.loads(self.content)
-            return parsed, True, []
+            return dict(BASE_CONTEXT, **parsed), True, aggregate
         except Exception as e:
             return None, False, [(f"error parsing assignment content as json\n--\n{self.content}\n--\n{e}\n", self)]
 
