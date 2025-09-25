@@ -29,6 +29,8 @@ BASE_CONTEXT: dict = {
     "txt_nl": "\n",
     "txt_false": "false",
     "txt_true": "true",
+    "txt_May6_1970": "1970-05-06",
+    "txt_Sep25_2025_5pm": "2025-09-25T17:00:00",
 
     "bool_t": True,
     "bool_f": False,
@@ -43,7 +45,8 @@ BASE_CONTEXT: dict = {
     "float_1_5": 1.5,
     "float_pi": math.pi,
 
-    "date_May5_25": datetime.date(2025, 5, 5),
+    "dt_May6_1970": datetime.date(1970, 5, 6),
+    "dttm_Sep25_2025_5pm": datetime.datetime(2025, 9, 25, 17, 0, 0),
 
     "none": None,  # null, undefined, ...
     "list_none": [],

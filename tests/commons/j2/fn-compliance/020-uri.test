@@ -1,0 +1,11 @@
+# j2-subyt-extension-tests
+# uri filter - producing useable <> references
+# == uri <> formatting  ======================================================
+# ----  from literal in template ---------------------------------------------
+
+= reset assignments
+?< 
+  {{ "http://example.org/" |uri }}
+$>
+  <http://example.org/>
+#

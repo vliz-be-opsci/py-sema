@@ -2,7 +2,7 @@
 # type conversions -- to verify that input-output conversions work as expected 
 #  -- testing the actual output of the filter `| xsd (value, type, quote)`
 #  -- for various types 
-# == xsd:int formatting  =================================================
+# == xsd:integer formatting  =================================================
 # ----  from literal in template ---------------------------------------------
 
 = reset assignments
