@@ -28,6 +28,7 @@ class Functions:
             "map": map_build,
             # TODO: Check for duplication in filters and the meaning.
             "xsd": xsd_format,
+            "unite": unite,
         }
 
 
@@ -54,9 +55,7 @@ def xsd_value(
 def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
     log.debug(f"formatting boolean from content {content!s} of type {type(content)}")
     if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
-        # raise TypeError("conversion required before format call")
-        # new approach to soft failure is to return "" no output
-        return ""  # as no decent bool can represent these types
+        raise TypeError("conversion required before format call")
 
     # make rigid bool
     if not isinstance(content, bool):
@@ -293,7 +292,13 @@ XSD_FMT_TYPE_FN = {
 }
 
 
-def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
+def xsd_format(
+        content: Any,
+        type_name: str,
+        quote: str = "'",
+        *,
+        fb: str = None
+) -> str:
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
 
     suffix = None
@@ -314,7 +319,18 @@ def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
             "type_name '%s' not supported." % type_name
         )
 
-    return type_format_fn(content, quote, suffix)
+    val = fb
+    try:
+        val = type_format_fn(content, quote, suffix)
+    except Exception as e:
+        if fb is None:
+            raise e
+        log.warning(
+            f"formatting of content '{content}' "
+            f"with type '{type_name}' failed: {e}, "
+            f"using fallback value '{fb}'"
+        )
+    return val
 
 
 def uri_format(uri: str) -> str:
@@ -381,3 +397,25 @@ def map_build(
     if cached_as is not None:
         Functions._cache[cached_as] = vmap
     return vmap
+
+
+def unite(*args: Any, *, separator: str = " ", n: int = 3, fb: str = "") -> str:
+    # unite multiple values into one string, separated by separator
+    # but only if all values evaluate to a boolean True, and 
+    # if at most n resulting string values are non-empty
+    # when conditions are not met, return fallback value fb (default "")
+    # Usage:
+    # This is to guarantee that only complete sets of values are united in the template output
+    # The practical use is for guaranteeing complete triples in turtle output
+    # Note that values None, '', 0, [], {} evaluate to boolean False
+    # while any non-empty string, even '0', 'False', 'No' evaluate to boolean True
+    boolvals: list[bool] = [bool(a) for a in args ]
+    if not all(boolvals) or sum(boolvals) > n:
+        return fb
+    # else - make the string
+    strvals: list[str] = [str(a).strip() for a in args if a] 
+    if len(strvals) == 0 or len(strvals) > n:
+        return fb
+    return separator.join(strvals)
+
+     

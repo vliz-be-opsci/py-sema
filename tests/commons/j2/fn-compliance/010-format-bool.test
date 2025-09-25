@@ -57,11 +57,11 @@ $>
 # ...... boolean false values ................................................
 =
   {
-	"b_f" : false,
-	"i_f" : 0,
-	"s_f" : "",
-	"sl_f": "false" 
-}
+  	"b_f" : false,
+	  "i_f" : 0,
+	  "s_f" : "",
+	  "sl_f": "false" 
+  }
 ?<
   {{ b_f | xsd('boolean') }}
 ?<
@@ -77,21 +77,25 @@ $>
 # ...... boolean unresolvable values .........................................
 =
   {
-	"n"         : null,
-	"empty_list": [],
-	"empty_dict": {}
+	  "none"      : null,
+	  "empty_list": [],
+	  "empty_dict": {},
+    "errmsg"    : "*** EXPECTED FAILURE MSG ***"
   }
 ?<
-  {{ null | xsd('boolean') }}
+  {{ errmsg }}
 ?<
-  {{ [] | xsd('boolean') }}
+  {{ null       | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ {} | xsd('boolean') }}
+  {{ []         | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ n | xsd('boolean') }}
+  {{ {}         | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ empty_list | xsd('boolean') }}
+  {{ none       | xsd('boolean', fb=errmsg) }}
 ?<
-  {{ empty_dict | xsd('boolean') }}
+  {{ empty_list | xsd('boolean', fb=errmsg) }}
+?<
+  {{ empty_dict | xsd('boolean', fb=errmsg) }}
 $>
-# should all have no output - soft indication of error
+  *** EXPECTED FAILURE MSG ***
+#
