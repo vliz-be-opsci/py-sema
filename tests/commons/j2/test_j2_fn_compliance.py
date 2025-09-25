@@ -224,7 +224,7 @@ class ResultSection(Section):
         # if all match, return context, True, and a fresh empty aggregate
         # else return context, False, and an aggregate with error-messages refering to faulty lines
         if len(aggregate) == 0:
-            return context, False, ["no input sections to validate.", self]
+            return context, False, [("no input sections to validate.", self)]
         # else
         errors: list[tuple[str, Section]] = []
         for inp_text, inp_section in aggregate:
