@@ -2,9 +2,6 @@
 # type conversions -- to verify that input-output conversions work as expected 
 #  -- testing the actual output of the filter `| xsd (value, type, quote)`
 #  -- for various types 
-
-
-
 # == xsd:boolean formatting  =================================================
 # ----  from literal in template ---------------------------------------------
 
@@ -37,10 +34,10 @@ $>
 # ...... boolean true values .................................................
 = use context:
   {
-	"b_t" : true,
-	"i_t" : 10,
-	"s_t" : "anything",
-	"sl_t": "true"
+    "b_t" : true,
+    "i_t" : 10,
+    "s_t" : "anything",
+    "sl_t": "true"
   }
 ?<
   {{ b_t  | xsd('boolean') }}
