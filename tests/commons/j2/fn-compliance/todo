@@ -1,0 +1,13 @@
+015 gYear         ln 176
+    gYearMonth    ln 191
+016 anyuri        ln 205
+017 string        ln 226
+018 auto date     ln 280
+    auto num      ln 311
+    auto any      ln 335
+
+
+020 uri also []   ln 274
+
+032 map           ln 407
+033 unite         ln 444 ...

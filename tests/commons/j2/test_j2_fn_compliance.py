@@ -46,6 +46,7 @@ BASE_CONTEXT: dict = {
     "float_pi": math.pi,
 
     "dt_May6_1970": datetime.date(1970, 5, 6),
+    "dt_Sep25_2025": datetime.date(2025, 9, 25),
     "dttm_Sep25_2025_5pm": datetime.datetime(2025, 9, 25, 17, 0, 0),
 
     "none": None,  # null, undefined, ...
