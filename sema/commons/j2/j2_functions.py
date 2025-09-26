@@ -309,13 +309,14 @@ def xsd_format(
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
 
     suffix = None
+    type_name = type_name.lower()
     if type_name.startswith("@"):
         suffix = type_name
         # assuming string content for further quoting rules
         type_name = "xsd:string"
 
     # first try
-    type_format_fn = XSD_FMT_TYPE_FN.get(type_name.lower(), None)
+    type_format_fn = XSD_FMT_TYPE_FN.get(type_name, None)
     if not type_name.startswith("auto"):
         if not type_name.startswith("xsd:"):
             type_name = "xsd:" + type_name

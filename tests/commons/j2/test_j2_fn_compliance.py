@@ -20,6 +20,7 @@ TPL_PATH: Path = MYBASE / "templates"
 
 
 BASE_CONTEXT: dict = {
+    "txt_1": "1",
     "txt_001": "001",
     "txt_1_dot_0": "1.0",
     "txt_esc": "TestIng \\\"'escaper",
