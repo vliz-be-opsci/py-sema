@@ -36,6 +36,7 @@ and contains 'single' and "double" quotes
 and a backslash \\.""",
     "txt_false": "false",
     "txt_true": "true",
+    "txt_any": "anything",
     "txt_May6_1970": "1970-05-06",
     "txt_Sep25_2025_5pm": "2025-09-25T17:00:00",            # time, anywhere
     "txt_Sep25_2025_5pm_loc": "2025-09-25T17:00:00+02:00",  # time in UTC+2
@@ -45,6 +46,7 @@ and a backslash \\.""",
 
     "int_0": 0,
     "int_1": 1,
+    "int_11": 11,
     "int_m111111": -111111,
 
     "float_0": 0.0,

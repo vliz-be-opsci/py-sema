@@ -32,21 +32,17 @@ $>
 
 # ---- from context variables  -----------------------------------------------
 # ...... boolean true values .................................................
-= use context:
-  {
-    "b_t" : true,
-    "i_t" : 10,
-    "s_t" : "anything",
-    "sl_t": "true"
-  }
+= use BASE_CONTEXT
 ?<
-  {{ b_t  | xsd('boolean') }}
+  {{ bool_t   | xsd('boolean') }}
 ?<
-  {{ i_t  | xsd('boolean') }}
+  {{ int_1    | xsd('boolean') }}
 ?<
-  {{ s_t  | xsd('boolean') }}
+  {{ int_11   | xsd('boolean') }}
 ?<
-  {{ sl_t | xsd('boolean') }}
+  {{ txt_any  | xsd('boolean') }}
+?<
+  {{ txt_true | xsd('boolean') }}
 $>
   'true'^^xsd:boolean
 #
