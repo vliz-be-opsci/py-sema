@@ -53,9 +53,11 @@ def xsd_value(
 
 
 def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
-    log.debug(f"formatting boolean from content {content!s} of type {type(content)}")
     if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
-        raise TypeError("conversion required before format call")
+        raise TypeError(
+            f"unsuported input type {type(content)} for boolean formatting - "
+            "conversion required before format call"
+        )
 
     # make rigid bool
     if not isinstance(content, bool):
@@ -152,6 +154,11 @@ def xsd_format_uri(content: str, quote: str, *_: Any) -> str:
 
 
 def xsd_format_string(content: str, quote: str, suffix: str) -> str:
+    if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
+        raise TypeError(
+            f"unsuported input type {type(content)} for boolean formatting - "
+            "conversion required before format call"
+        )
     # apply escape sequences: \ to \\ and quote to \quote
     escqt = f"\\{quote}"
     content = str(content).replace("\\", "\\\\").replace(quote, escqt)
@@ -280,11 +287,11 @@ XSD_FMT_TYPE_FN = {
     "xsd:anyuri": xsd_format_uri,
     "xsd:string": xsd_format_string,
     "xsd:gyear": xsd_format_gyear,
-    "year": xsd_format_gyear,
-    "yyyy": xsd_format_gyear,
+    "xsd:year": xsd_format_gyear,
+    "xsd:yyyy": xsd_format_gyear,
     "xsd:gyearmonth": xsd_format_gyearmonth,
-    "year-month": xsd_format_gyearmonth,
-    "yyyy-mm": xsd_format_gyearmonth,
+    "xsd:year-month": xsd_format_gyearmonth,
+    "xsd:yyyy-mm": xsd_format_gyearmonth,
     "auto-date": xsd_auto_format_date,
     "auto-number": xsd_auto_format_number,
     "auto-any": xsd_auto_format_any,

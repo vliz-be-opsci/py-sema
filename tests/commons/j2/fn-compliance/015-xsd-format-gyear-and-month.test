@@ -10,9 +10,9 @@
 ? 
   {{ 2025                | xsd('xsd:gYear') }}
 ? 
-  {{ dt_Sep25_2025       | xsd('GYEAR') }} 
+  {{ dt_Sep25_2025       | xsd('YEAR') }} 
 ? 
-  {{ dttm_Sep25_2025_5pm | xsd('gyear') }} 
+  {{ dttm_Sep25_2025_5pm | xsd('yyyy') }} 
 $ 
   '2025'^^xsd:gYear
 #
@@ -43,11 +43,11 @@ $ --
 ? -- literal tests
   {{ "2025-09"           | xsd('gyearmonth') }}
 ? 
-  {{ dt_Sep25_2025       | xsd('GYEARMonth') }} 
+  {{ dt_Sep25_2025       | xsd('xsd:GYEARMonth') }} 
 ? 
-  {{ dttm_Sep25_2025_5pm | xsd('gyearmonth') }} 
+  {{ dttm_Sep25_2025_5pm | xsd('yyyy-mm') }} 
 ? 
-  {{ txt_Sep25_2025_5pm  | xsd('gyearmonth') }} 
+  {{ txt_Sep25_2025_5pm  | xsd('year-month') }} 
 $ 
   '2025-09'^^xsd:gYearMonth
 #

@@ -4,8 +4,12 @@
 # ----  from literal in template ---------------------------------------------
 
 = reset assignments
-?< 
+? 
   {{ "http://example.org/" |uri }}
-$>
+$
   <http://example.org/>
+? 
+  {{ "http://example.org/[x]" |uri }}
+$
+  <http://example.org/%5Bx%5D>
 #

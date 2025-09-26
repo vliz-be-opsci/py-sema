@@ -26,17 +26,21 @@ $>
 # ...... acceptable date value variants ......................................
 = -- json does not allow to define typed dates, have to rely on BASE_CONTEXT
 ?<
-  {{ dttm_Sep25_2025_5pm  | xsd('datetime') }}
+  {{ dttm_Sep25_2025_5pm      | xsd('datetime') }}
 $>
   '2025-09-25T17:00:00'^^xsd:dateTime
+?<
+  {{ txt_Sep25_2025_5pm_loc   | xsd('datetime') }}
+?<
+  {{ dttm_Sep25_2025_5pm_loc  | xsd('datetime') }}
+$>
+  '2025-09-25T17:00:00+02:00'^^xsd:dateTime
 #
 
 
 # ...... inacceptable date values .............................................
 = add these to the BASE_CONTEXT:
   {
-    "txt_any"   : "anything",
-    "txt_nodat" : "3/14/15",
     "errmsg"    : "*** EXPECTED FAILURE MSG ***"
   }
 ?<
@@ -46,13 +50,9 @@ $>
 ?<
   {{ "3/14/15"           | xsd('datetime', fb=errmsg) }}
 ?<
-  {{ txt_any             | xsd('datetime', fb=errmsg) }}
-?<
-  {{ txt_nodat           | xsd('datetime', fb=errmsg) }}
+  {{ dt_May6_1970        | xsd('datetime', fb=errmsg) }}
 ?<
   {{ none                | xsd('datetime', fb=errmsg) }}
-?<
-  {{ dt_May6_1970        | xsd('datetime', fb=errmsg) }}
 ?<
   {{ list_none           | xsd('datetime', fb=errmsg) }}
 ?<

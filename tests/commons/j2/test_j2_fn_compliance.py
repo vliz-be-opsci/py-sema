@@ -25,12 +25,20 @@ BASE_CONTEXT: dict = {
     "txt_esc": "TestIng \\\"'escaper",
     "txt_none": "",
     "txt_space": " ",
+    "txt_dquote": "\"",
+    "txt_squote": "'",
+    "txt_bslash": "\\",
     "txt_tab": "\t",
     "txt_nl": "\n",
+    "txt_long": """This is a long text
+that spans multiple lines
+and contains 'single' and "double" quotes
+and a backslash \\.""",
     "txt_false": "false",
     "txt_true": "true",
     "txt_May6_1970": "1970-05-06",
-    "txt_Sep25_2025_5pm": "2025-09-25T17:00:00",
+    "txt_Sep25_2025_5pm": "2025-09-25T17:00:00",            # time, anywhere
+    "txt_Sep25_2025_5pm_loc": "2025-09-25T17:00:00+02:00",  # time in UTC+2
 
     "bool_t": True,
     "bool_f": False,
@@ -48,10 +56,18 @@ BASE_CONTEXT: dict = {
     "dt_May6_1970": datetime.date(1970, 5, 6),
     "dt_Sep25_2025": datetime.date(2025, 9, 25),
     "dttm_Sep25_2025_5pm": datetime.datetime(2025, 9, 25, 17, 0, 0),
+    "dttm_Sep25_2025_5pm_loc": datetime.datetime(
+        2025, 9, 25, 17, 0, 0,
+        tzinfo=datetime.timezone(datetime.timedelta(hours=2))
+    ),
 
     "none": None,  # null, undefined, ...
+
     "list_none": [],
+
     "dict_none": {},
+    "dict_me": {"name": "Doe", "given": "John", "age": 52, "alive": True, "score": 1.5, "born": datetime.date(1970, 5, 6)},
+    "dict_you": {"name": "Roe", "given": "Jane", "score": 1.7, "born": datetime.date(1975, 8, 15)},
 }
 
 
@@ -87,7 +103,7 @@ class ConformanceCheck:
         # for each section in self.sections, call its evaluate with the current context and aggregate
         # if that returns False, log the error messages, and stop processing this vector
         # else update context and aggregate with the returned values, and continue with the next section
-        context: dict = {}
+        context: dict = dict(BASE_CONTEXT)
         aggregate: list[tuple[str, Section]] = []
         for section in self.sections:
             context, ok, result = section.evaluate(context, aggregate)
