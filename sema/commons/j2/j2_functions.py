@@ -256,6 +256,9 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
     # 5. type date
     if isinstance(content, date):
         return xsd_format_date(content, quote)
+    # -- special case for empty and whitespace-only strings
+    if isinstance(content, str) and len(content.strip()) == 0:
+        return xsd_format_string(content, quote, None)
     # 6. string parseable to exact bool true or false (ignoring case)
     if str(content).strip().lower() in ["true", "false"]:
         return xsd_format_boolean(content, quote)
@@ -419,17 +422,15 @@ def unite(*args: Any, **kwargs: Any) -> str:
     # The practical use is for guaranteeing complete triples in turtle output
     # Note that values None, '', 0, [], {} evaluate to boolean False
     # while any non-empty string, even '0', 'False', 'No' evaluate to boolean True
-    separator: str = kwargs.get("separator", " ")
+    sep: str = kwargs.get("sep", " ")
     n: int = kwargs.get("n", 3)
     fb: str = kwargs.get("fb", "")
 
-    boolvals: list[bool] = [bool(a) for a in args ]
-    if not all(boolvals) or sum(boolvals) > n:
+    boolvals: list[bool] = [bool(a) for a in args]
+    if not all(boolvals):
         return fb
-    # else - make the string
-    strvals: list[str] = [str(a).strip() for a in args if a] 
+    # else - make the string from the strings only
+    strvals: list[str] = [a for a in args if isinstance(a, str)]
     if len(strvals) == 0 or len(strvals) > n:
         return fb
-    return separator.join(strvals)
-
-     
+    return sep.join(strvals)

@@ -153,12 +153,31 @@ $
 #
 # note -- year precision cannot be detected as 'integer' takes over
 # 
-? 
+? -- finally just use string 
   {{ "anything" | xsd('auto')   }}
 ? 
   {{ txt_any    | xsd('auto')   }}
 $
   'anything'^^xsd:string
+? -- even if empty
+  {{ ""         | xsd('auto')   }}
+? 
+  {{ txt_none   | xsd('auto')   }}
+$
+  ''^^xsd:string
+? -- even if whitespacy
+  {{ " "         | xsd('auto')   }}
+? 
+  {{ txt_space   | xsd('auto')   }}
+$
+  ' '^^xsd:string
+? -- even if whitespacy
+  {{ "\n"         | xsd('auto')   }}
+? 
+  {{ txt_nl       | xsd('auto')   }}
+$
+  '''
+  '''^^xsd:string
 #
 
 # ...... inacceptable string values .............................................
@@ -172,6 +191,10 @@ $
   {{ errmsg_date }}
   {{ errmsg_num }}
   {{ errmsg_any }}
+?< -- txt_none only fails auto-date and auto-number
+  {{ txt_none            | xsd('auto-date',   fb=errmsg_date) }}
+  {{ txt_none            | xsd('auto-number', fb=errmsg_num)  }}
+  {{ none                | xsd('auto-any',    fb=errmsg_any)  }}
 ?< -- txt_any only fails auto-date and auto-number
   {{ txt_any             | xsd('auto-date',   fb=errmsg_date) }}
   {{ txt_any             | xsd('auto-number', fb=errmsg_num)  }}
