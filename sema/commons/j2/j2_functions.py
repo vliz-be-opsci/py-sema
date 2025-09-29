@@ -421,7 +421,7 @@ def map_build(
 
 def unite(*args: Any, **kwargs: Any) -> str:
     # unite multiple values into one string, separated by separator
-    # but only if all values evaluate to a boolean True, and 
+    # but only if all values evaluate to a boolean True, and
     # if at most n resulting string values are non-empty
     # when conditions are not met, return fallback value fb (default "")
     # Usage:
