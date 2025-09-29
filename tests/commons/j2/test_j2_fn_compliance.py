@@ -7,6 +7,7 @@
 import json
 import datetime
 import math
+import string
 from sema.commons.glob import getMatchingGlobPaths
 from conftest import log
 from abc import ABC, abstractmethod
@@ -69,6 +70,15 @@ and a backslash \\.""",
     "list_none": [],
 
     "dict_none": {},
+    "dict_map": [
+        {"char": c, "num": n}
+        for c, n in zip(string.ascii_lowercase, range(1, 27))
+    ],
+    "dict_mapables": [
+        {"id": "ais1",  "col_char": "a"},
+        {"id": "nis14", "col_char": "n"},
+        {"id": "yis25", "col_char": "y"}
+    ],
     "dict_john": {"name": "Doe", "given": "John", "age": 52, "alive": True, "score": 1.5, "born": datetime.date(1970, 5, 6)},
     "dict_jane": {"name": "Roe", "given": "Jane", "score": 1.7, "born": datetime.date(1975, 8, 15)},
 }
