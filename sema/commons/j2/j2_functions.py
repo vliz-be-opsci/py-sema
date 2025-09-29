@@ -81,13 +81,21 @@ def xsd_format_integer(content: Any, quote: str, *_: Any) -> str:
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
-    # make rigid double
+def _xsd_format_realnum(xsd_type_name: str, content: Any, quote: str, *_: Any) -> str:
+    # make rigid real number
     if not isinstance(content, float):
-        asdbl = float(str(content))
-        content = asdbl
+        asreal = float(str(content))
+        content = asreal
     # serialize to string again
-    return xsd_value(str(content), quote, "xsd:double")
+    return xsd_value(str(content), quote, xsd_type_name)
+
+
+def xsd_format_float(content: Any, quote: str, *_: Any) -> str:
+    return _xsd_format_realnum("xsd:float", content, quote, _)
+
+
+def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
+    return _xsd_format_realnum("xsd:double", content, quote, _)
 
 
 def xsd_format_date(content: Any, quote: str, *_: Any) -> str:
@@ -284,6 +292,7 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
 XSD_FMT_TYPE_FN = {
     "xsd:boolean": xsd_format_boolean,
     "xsd:integer": xsd_format_integer,
+    "xsd:float": xsd_format_float,
     "xsd:double": xsd_format_double,
     "xsd:date": xsd_format_date,
     "xsd:datetime": xsd_format_datetime,
