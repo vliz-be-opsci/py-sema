@@ -115,6 +115,7 @@ content-line := [^#=?$] .*
 * check first char for section-start
 * trim content-lines to ignore leadin-trailing whitespace
 * simply ignore empty lines
+* as a counterpart, remove empty lines produced in template results as well
 * note that comment-lines at least complete any previous section, so they require more attention than just ignoring them
 * keep track of original file locations and line-numbers to provide useful error-reports about what portions are not "conforming"
 

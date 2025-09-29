@@ -96,3 +96,34 @@ $
   {{ unite( 'a', 'b', 'c', 'd')  }}
 $
 #
+
+
+# ---- in normal operation handling sparse / unequal records -----------------
+= -- use the BASE_CONTEXT
+?
+  {% for person in [dict_john, dict_jane] %}
+    {{ uritexpand("https://example.org/id/person{/name,given}", person) | uri }}
+      {{ unite( 'ex:name',  person.name  | xsd('string' , fb=''))}};
+      {{ unite( 'ex:given', person.given | xsd('string' , fb=''))}};
+      {{ unite( 'ex:age',   person.age   | xsd('integer', fb=''))}};
+      {{ unite( 'ex:alive', person.alive | xsd('boolean', fb=''))}};
+      {{ unite( 'ex:score', person.score | xsd('double' , fb=''))}};
+      {{ unite( 'ex:born',  person.born  | xsd('date'   , fb=''))}}.
+  {% endfor %}
+$
+  <https://example.org/id/person/Doe/John>
+    ex:name 'Doe'^^xsd:string;
+    ex:given 'John'^^xsd:string;
+    ex:age '52'^^xsd:integer;
+    ex:alive 'true'^^xsd:boolean;
+    ex:score '1.5'^^xsd:double;
+    ex:born '1970-05-06'^^xsd:date.
+    
+  <https://example.org/id/person/Roe/Jane>
+    ex:name 'Roe'^^xsd:string;
+    ex:given 'Jane'^^xsd:string;
+    ;
+    ;
+    ex:score '1.7'^^xsd:double;
+    ex:born '1975-08-15'^^xsd:date.
+# 

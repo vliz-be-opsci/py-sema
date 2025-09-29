@@ -69,8 +69,8 @@ and a backslash \\.""",
     "list_none": [],
 
     "dict_none": {},
-    "dict_me": {"name": "Doe", "given": "John", "age": 52, "alive": True, "score": 1.5, "born": datetime.date(1970, 5, 6)},
-    "dict_you": {"name": "Roe", "given": "Jane", "score": 1.7, "born": datetime.date(1975, 8, 15)},
+    "dict_john": {"name": "Doe", "given": "John", "age": 52, "alive": True, "score": 1.5, "born": datetime.date(1970, 5, 6)},
+    "dict_jane": {"name": "Roe", "given": "Jane", "score": 1.7, "born": datetime.date(1975, 8, 15)},
 }
 
 
@@ -214,6 +214,15 @@ def evaluate_template(template_str: str, context: dict) -> str:
     return j2sb.expand_syntax(template_str, **context)
 
 
+def clean_empty_lines(rendered: str) -> str:
+    lines = rendered.splitlines()
+    cleaned_lines = [
+        stripped for line in lines
+        if (stripped := line.strip()) != ''
+    ]
+    return '\n'.join(cleaned_lines)
+
+
 class TemplateSection(Section):
     LEAD = "?"
 
@@ -225,6 +234,7 @@ class TemplateSection(Section):
             return context, True, aggregate
         try:
             rendered: str = evaluate_template(self.content, context)
+            rendered = clean_empty_lines(rendered)
             aggregate.append((rendered, self))
             log.debug(
                 f"rendered from {self.describe()} with content\n--\n"
