@@ -341,4 +341,25 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 ### `uritexpand(template[, context ])` function 
 ### `regexreplace(pattern, replace, content)` function
 ### `map(mapping_data, fromname, toname)` constructor and `map.apply(record, fromname, toname)` function
+
 ### `unite(expression1, expression2[, expressionN]*[,n=3][,sep=' '][,fb=''])` 
+
+The `unite(...)` function is designed to "guard and garantee" all parts of an expression are there before joining them in the rendered output.
+
+In its basic form it takes string arguments and joins them together (using the `sep` characters, which defaults to " " \[space\]), but only does so if all are none-blank (i.e. non-empty after strip) and if their total number does not exceed `n` (defaults to 3). In case those tests fail the `fb` (fallback value, defaulting to `''`) is rendered in stead.
+
+In its extended form, additional non-string arguments can be passed as well. These are ignored in the rendering of the output but are evaluated to boolean (True/False) values that allow for additional conditions: only in the case where all of them evaluate to `True` the joined output will be the result. One `False` leading to the `fb` being rendered in stead.
+
+The intended use of this is to avoid extensive `{% if .. endif %}` statements in the templates to check for conditions in the data being used in the template.
+
+Typical usage is testing for properties in order to avoid dangling-for-empty-parts in statements of either:
+
+- «?p ?o;» completions of triples, when a predicate is added in anticipation of a possibly missing object.
+```
+   {{ unite( 'pfx:when', optional_value  | xsd('dateTime') )}}; 
+```
+
+- «prefix:remainder» combinations, when a prefix and colon are left dangling if no actual remainder is there.
+```
+   {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) )}}; 
+```
