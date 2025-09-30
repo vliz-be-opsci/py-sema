@@ -5,12 +5,11 @@
 # ---- when it works ---------------------------------------------------------
 = reset assignments
 ? -- basic typical case with value
-  {{ 
-    unite(
-      'ex:text', 
-      txt_any | xsd('string', fb='')  
-    ) 
-  }}
+  {{ unite('ex:text', txt_any | xsd('string', fb='')) }};
+? -- the if-wrapping alternative still works too of course
+  {% if txt_any != undefined %}
+    ex:text {{ txt_any | xsd('string') }};
+  {% endif %}
 ? -- basic case with additional tests beyond n=3
   {{ 
     unite(
@@ -19,9 +18,9 @@
       True,
       True
     ) 
-  }}
+  }};
 $
-  ex:text 'anything'^^xsd:string
+  ex:text 'anything'^^xsd:string;
 # -- even if empty-or-falsy values are actually there as valid content
 ? -- as with empty string
   {{ 
@@ -29,40 +28,40 @@ $
       'ex:empty', 
       txt_none | xsd('auto', fb='')  
     ) 
-  }}
+  }};
 $
-  ex:empty ''^^xsd:string
+  ex:empty ''^^xsd:string;
 ? -- as with false bool
   {{ 
     unite(
       'ex:false', 
       bool_f | xsd('auto', fb='')  
     ) 
-  }}
+  }};
 $
-  ex:false 'false'^^xsd:boolean
+  ex:false 'false'^^xsd:boolean;
 ? -- as with zero int
   {{ 
     unite(
       'ex:zero', 
       int_0 | xsd('auto', fb='')  
     ) 
-  }}
+  }};
 $
-  ex:zero '0'^^xsd:integer
+  ex:zero '0'^^xsd:integer;
 #
 
 # ---- how to customise n, sep, fb -------------------------------------------
 = 
 ? -- custom n and seperator 
-  {{ 
+  ={{ 
     unite( 
       'a', 'b', 'c', 'd', 
       n=4, sep='-'
     )
-  }}
+  }}=
 $
-  a-b-c-d
+  =a-b-c-d=
 #
 
 = 
@@ -80,21 +79,22 @@ $
 # ---- when the unite prevents incomplete statements -------------------------
 =
 ? -- cases where no output will result
-  {{ unite( 'ex:text', '') }}
+  {{ unite( 'ex:text', '') }};
 ? 
-  {{ unite( 'ex:text', False) }}
+  {{ unite( 'ex:text', False) }};
 ? 
-  {{ unite( 'ex:text', none) }}
+  {{ unite( 'ex:text', none) }};
 ? -- the basic use casse of missing content 
   {{ 
     unite( 
       'ex:text',
       none | xsd('auto', fb='')
     ) 
-   }}
+   }};
 ?  -- too much content
-  {{ unite( 'a', 'b', 'c', 'd')  }}
-$
+  {{ unite( 'a', 'b', 'c', 'd')  }};
+$ -- there should be no output (other than that trailing ;-semicolon)
+  ;
 #
 
 
@@ -127,3 +127,50 @@ $
     ex:score '1.7'^^xsd:double;
     ex:born '1975-08-15'^^xsd:date.
 # 
+
+
+# ---- or used in dealing with data-driven predicates too --------------------
+= -- set a non-empty string to get output
+{
+  "txt":"something" 
+}
+?
+  {{ 
+    unite(
+      'ex:' ~ txt,                    
+      txt_none | xsd('auto', fb=''), 
+      (txt != '')                   
+    )
+  }};
+?
+  {{ 
+    unite(
+      unite('ex', txt, sep=':'),
+      txt_none | xsd('auto', fb='')
+    )
+  }};
+$
+  ex:something ''^^xsd:string;
+#
+= -- use same templates but now set value to empty-string
+{
+  "txt":"" 
+}
+?
+  {{ 
+    unite(
+      'ex:' ~ txt,                 
+      txt_none | xsd('auto', fb=''),
+      (txt != '')                 
+    )
+  }};
+?
+  {{ 
+    unite(
+      unite('ex', txt, sep=':'),
+      txt_none | xsd('auto', fb='')
+    )
+  }};
+$ -- there should be no output (other than that trailing ;-semicolon)
+  ;
+#
