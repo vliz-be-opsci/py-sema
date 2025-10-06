@@ -245,37 +245,28 @@ Any other input case, like:
 
 * None, undefined, null, or template-implementation equivalents,
 * lists,
-* dictionaries,
-* other object instances 
+* dictionaries.
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
+Note that 'other object instances' are accepted in this case and will be simply 'stringified' according to whatever their coded native string representation is.
 
-TODO -- continue below this line
+Note about escaping: In turtle both `'` (single) and `"` (double) quotes are allowed to surround strings. This leads to those characters themselves to require backslash-`\`-escaping to be accepted in between them.  Additionally this means a single `\` itself needs to be represented as `\\`.
 
-Note about escaping: ...
-
-Note about multiline-strings: ...
+Note about multiline-strings: Multiline string values (i.e. containing `\n` newlines) require a triplet-variant of the quote to be used. Making the string-start-end markers actually being `'''` or `"""`.
 
 #### typename = `xsd:@language-code`
 
-Applies `^^xsd:boolean` formatting to the provided input.
+Applies `@language-code` formatting to the provided input.
 
-Leading to either `'true'^^xsd:boolean` or `'false'^^xsd:boolean`
+Leading to output of the form `'my text'@en`, `'mijn tekst'@nl`, and `'mon texte'@fr`
 
-This requires the input to be one of the following:
-* a native boolean
-* a native string, in which case all of `''`, `'0'`, `'off'`, `'false'`, `'no'` (ignoring case) are considered `False` and all other non-empty strings resolve to `True`
-* a native numeric value (integer or floating-point), in which case `0` and `0.0` are considered `False` and all other values are `True`
+For this case the same requirements known from the `xsd:string` case mentioned above for 
+* the restrictions to valid inputs, as well as
+* the notes around expected valid output formatting.
 
-Any other input case, like: 
 
-* None, undefined, null, or template-implementation equivalents,
-* lists,
-* dictionaries,
-* other object instances 
-
-is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
+TODO -- continue below -- 
 
 #### typename = `auto-date`
 
