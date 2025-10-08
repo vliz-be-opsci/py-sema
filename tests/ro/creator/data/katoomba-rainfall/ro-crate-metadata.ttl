@@ -1,0 +1,43 @@
+@base <urn:rocreator:> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+
+<./> a schema:Dataset ;
+    schema:datePublished "2022-12-01" ;
+    schema:description "Official rainfall readings for Katoomba, NSW 2022, Australia" ;
+    schema:hasPart "data.csv",
+        "data0.csv",
+        "data1.csv",
+        "datan.csv" ;
+    schema:license <http://spdx.org/licenses/CC0-1.0> ;
+    schema:name "Example dataset for RO-Crate specification; ApiConsole" .
+
+<data.csv> a schema:MediaObject ;
+    schema:encodingFormat "text/csv" ;
+    schema:license <https://creativecommons.org/licenses/by-nc-sa/3.0/au/> ;
+    schema:name "Rainfall data for Katoomba, NSW Australia February 2022" .
+
+<data0.csv> a schema:MediaObject ;
+    schema:encodingFormat "application/parquet" .
+
+<data1.csv> a schema:MediaObject ;
+    schema:encodingFormat "application/parquet" .
+
+<datan.csv> a schema:MediaObject ;
+    schema:encodingFormat "application/hdf" .
+
+<https://ror.org/04dkp1p98> a schema:Organization ;
+    schema:description "Australian Government Bureau of Meteorology" ;
+    schema:name "Bureau of Meteorology" ;
+    schema:url "http://www.bom.gov.au/" .
+
+<ro-crate-metadata.json> a schema:CreativeWork ;
+    dc:conformsTo <https://w3id.org/ro/crate/1.2> ;
+    schema:about "./" .
+
+<spreadsheets> a schema:Dataset .
+
+<https://creativecommons.org/licenses/by-nc-sa/3.0/au/> a schema:CreativeWork ;
+    schema:description "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Australia" ;
+    schema:name "CC BY-NC-SA 3.0 AU" .
+
