@@ -50,6 +50,9 @@ class GraphBuilder:
             return GraphBlueprint()
 
     def _build(self) -> None:
+        if self._blueprint.context:
+            self._graph_wrapper.set_jsonld_context(self._blueprint.context)
+
         for prefix, namespace in self._blueprint.prefix.items():
             self._graph_wrapper.bind(prefix, namespace)
 

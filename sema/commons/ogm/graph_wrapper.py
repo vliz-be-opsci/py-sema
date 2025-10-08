@@ -1,11 +1,16 @@
 from rdflib import Graph, URIRef, BNode, Literal
+from rdflib.plugins.parsers.jsonld import Context
 from uuid import uuid4
 from .term_builder import TermBuilder
 
 class GraphWrapper:
-    def __init__(self, base=None):
-        self.graph = Graph(base=base, bind_namespaces="none")
+    def __init__(self, graph=None, base=None):
+        self.graph: Graph = graph or Graph(base=base, bind_namespaces="none")
         self._listify = lambda x: x if isinstance(x, list) else [x]
+
+    def set_jsonld_context(self, context) -> None:
+        self.graph._jsonld_context = Context(context)
+        self.graph._jsonld_context_repr = context  # Context.to_dict() doesn't preserve original representation
 
     def bind(self, prefix, namespace) -> None:
         self.graph.bind(prefix, namespace)
@@ -85,7 +90,10 @@ class GraphWrapper:
     def create_iri_node(self, *args, **kwargs) -> URIRef:
         return self.create_node(kind="iri", *args, **kwargs)
 
-    def create_relative_node(self, *args, **kwargs) -> URIRef:
+    def create_relative_node(self, *args, **kwargs) -> URIRef:  # TODO where is this method used?
+        """
+        relative to the document uri (i.e. not relative to the base uri)
+        """
         return self.create_node(kind="relative", *args, **kwargs)
     
     def create_blank_node(self, *args, **kwargs) -> BNode:

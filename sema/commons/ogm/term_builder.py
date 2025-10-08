@@ -9,7 +9,7 @@ class TermBuilder:
         prefix: str = None,
         suffix: str = None,
         nop: str = None,  # no operation
-        graph: Graph = None
+        graph: Graph = None,
     ):
         self._namespace = namespace
         self._prefix = prefix
@@ -41,9 +41,9 @@ class TermBuilder:
         if graph is not None:
             self._graph = graph
         else:
-            self._graph = Graph()
+            self._graph = Graph() # TODO why not set bind_namespaces="none"?
 
-        self._graph_namespaces = {k: v for k, v in self._graph.namespaces()}
+        self._graph_namespaces = {k: v for k, v in self._graph.namespaces()} # TODO dict(self._graph.namespaces())?
 
         self.term = None
 
@@ -93,10 +93,13 @@ class TermBuilder:
         # nop
         if re.match(r"[\"\'].*[\"\']\^\^xsd:string", self._nop):
             return Literal(self._nop[1:-13])
-        elif "://" in self._nop:
+        if "://" in self._nop:
             return URIRef(self._nop)
-        else:
-            return Literal(self._nop)
+        if hasattr(self._graph, "_jsonld_context"):
+            term = self._graph._jsonld_context.terms.get(self._nop, None)
+            if term: return URIRef(getattr(term, 'id'))
+
+        return Literal(self._nop)
 
     def build(self):
         self.term = self._build()
