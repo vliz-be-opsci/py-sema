@@ -2,21 +2,20 @@
     "@context": "https://w3id.org/ro/crate/1.2/context",
     "@graph": [
         {
-            "@id": "data0.csv",
-            "@type": "File",
-            "encodingFormat": "application/parquet"
-        },
-        {
-            "@id": "https://ror.org/04dkp1p98",
-            "@type": "Organization",
-            "description": "Australian Government Bureau of Meteorology",
-            "name": "Bureau of Meteorology",
-            "url": "http://www.bom.gov.au/"
-        },
-        {
-            "@id": "data1.csv",
-            "@type": "File",
-            "encodingFormat": "application/parquet"
+            "@id": "./",
+            "@type": "Dataset",
+            "datePublished": "2022-12-01",
+            "description": "Official rainfall readings for Katoomba, NSW 2022, Australia",
+            "hasPart": [
+                "datan.csv",
+                "data0.csv",
+                "data1.csv",
+                "data.csv"
+            ],
+            "license": {
+                "@id": "http://spdx.org/licenses/CC0-1.0"
+            },
+            "name": "Example dataset for RO-Crate specification; ApiConsole"
         },
         {
             "@id": "data.csv",
@@ -28,24 +27,14 @@
             "name": "Rainfall data for Katoomba, NSW Australia February 2022"
         },
         {
-            "@id": "spreadsheets",
-            "@type": "Dataset"
+            "@id": "data0.csv",
+            "@type": "File",
+            "encodingFormat": "application/parquet"
         },
         {
-            "@id": "./",
-            "@type": "Dataset",
-            "datePublished": "2022-12-01",
-            "description": "Official rainfall readings for Katoomba, NSW 2022, Australia",
-            "hasPart": [
-                "datan.csv",
-                "data1.csv",
-                "data0.csv",
-                "data.csv"
-            ],
-            "license": {
-                "@id": "http://spdx.org/licenses/CC0-1.0"
-            },
-            "name": "Example dataset for RO-Crate specification; ApiConsole"
+            "@id": "data1.csv",
+            "@type": "File",
+            "encodingFormat": "application/parquet"
         },
         {
             "@id": "datan.csv",
@@ -59,12 +48,23 @@
             "name": "CC BY-NC-SA 3.0 AU"
         },
         {
+            "@id": "https://ror.org/04dkp1p98",
+            "@type": "Organization",
+            "description": "Australian Government Bureau of Meteorology",
+            "name": "Bureau of Meteorology",
+            "url": "http://www.bom.gov.au/"
+        },
+        {
             "@id": "ro-crate-metadata.json",
             "@type": "CreativeWork",
             "about": "./",
             "conformsTo": {
                 "@id": "https://w3id.org/ro/crate/1.2"
             }
+        },
+        {
+            "@id": "spreadsheets",
+            "@type": "Dataset"
         }
     ]
 }
