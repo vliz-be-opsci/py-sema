@@ -352,7 +352,8 @@ class ResultSection(Section):
                     (
                         f"unexpected result of {inp_section.describe()}\n"
                         f"--\n{inp_text}\n"
-                        f"--\ndoes not match expected\n--\n{self.content}\n--\n",
+                        f"--\ndoes not match expected\n--\n{self.content}\n"
+                        "--\n",
                         self,
                     )
                 )

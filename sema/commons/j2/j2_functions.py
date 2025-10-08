@@ -424,10 +424,12 @@ def unite(*args: Any, **kwargs: Any) -> str:
     # Usage:
     #   {{ unite( val1, val2, val3, ..., separator=" ", n=3, fb="") }}
     # Motivation:
-    # This is to guarantee that only complete sets of values are united in the template output
+    # This is to guarantee that only complete sets of values are united in
+    # the template output.
     # The practical use is for guaranteeing complete triples in turtle output
     # Note that values None, '', 0, [], {} evaluate to boolean False
-    # while any non-empty string, even '0', 'False', 'No' evaluate to boolean True
+    # while any non-empty string, even '0', 'False', 'No'
+    # all evaluate to boolean True.
     sep: str = kwargs.get("sep", " ")
     n: int = kwargs.get("n", 3)
     fb: str = kwargs.get("fb", "")
