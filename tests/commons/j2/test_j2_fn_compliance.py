@@ -257,6 +257,8 @@ class AssignSection(Section):
         # if no content, return empty context, True, and unchanged aggregate
         # in case of errors, return context, False,
         # and an aggregate with error-messages
+        # Note: the intent of the assign-section is to reset from BASE_CONTEXT
+        # and thus ignore any earlier context
         try:
             log.debug(
                 f"parsing json from {self.describe()}:\n--\n{self.content}\n--"

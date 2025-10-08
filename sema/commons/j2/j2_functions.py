@@ -2,6 +2,7 @@ import re
 from collections.abc import Iterable
 from datetime import date, datetime
 from logging import getLogger
+from math import isfinite
 from typing import Any
 
 import jinja2
@@ -54,7 +55,7 @@ def xsd_value(
 def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
     if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
         raise TypeError(
-            f"unsuported input type {type(content)} for boolean formatting - "
+            f"unsupported input type {type(content)} for boolean formatting - "
             "conversion required before format call"
         )
 
@@ -87,6 +88,12 @@ def _xsd_format_realnum(
     if not isinstance(content, float):
         asreal = float(str(content))
         content = asreal
+    # reject non-finite values
+    if not isfinite(content):
+        raise ValueError(f"{xsd_type_name} cannot represent non-finite values")
+    # normalize -0.0 -> 0.0
+    if content == 0.0:
+        content = 0.0
     # serialize to string again
     return xsd_value(str(content), quote, xsd_type_name)
 
@@ -165,7 +172,7 @@ def xsd_format_uri(content: str, quote: str, *_: Any) -> str:
 def xsd_format_string(content: str, quote: str, suffix: str) -> str:
     if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
         raise TypeError(
-            f"unsuported input type {type(content)} for boolean formatting - "
+            f"unsupported input type {type(content)} for boolean formatting - "
             "conversion required before format call"
         )
     # apply escape sequences: \ to \\ and quote to \quote

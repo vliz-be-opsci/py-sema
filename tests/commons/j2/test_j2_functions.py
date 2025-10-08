@@ -439,4 +439,3 @@ def test_mapbuild() -> None:
         assert record["to-field"] == map_expects[origin], (
             "map not applied correctly",
         )
-

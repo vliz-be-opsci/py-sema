@@ -9,7 +9,7 @@ Its purpose is to be
 
 ## Parts of the test-compliance format
 
-These independant conformance testing files are composed of mulitple parts that all fit four types.
+These independant conformance testing files are composed of multiple parts that all fit four types.
 
 Each of these start with a dedicated start-line that is recognisable by their leading character:
   * `#` for comments
@@ -49,13 +49,13 @@ The content of the template-section is to be seen as a template that can be expa
 
 Errors during this evaluation should lead to a failure and break off further processing of the compliance test.
 
-The expanded result of this evaluation is to be accumulated in a growing list of template-results that all can be checked simultanously.
+The expanded result of this evaluation is to be accumulated in a growing list of template-results that all can be checked simultaneously.
 
 The evaluation will not bear any side-effects on the available context-variables.
 
 ### The content of `$`-result-section
 
-The content of the result-section is literally capturing the expected output of any template-section that preceeds it.
+The content of the result-section literally captures the expected output of any template-section that precedes it.
 
 The prime effect of "executing" this section is that any earlier accumulated template-results up to that moment are compared to its content, thus actually implementing the conformance-validation.  Invalid results should lead to a test-failure and an extensive logging of which template filename and linenumber.
 
@@ -179,7 +179,8 @@ compliance-line := ignorable-whitespace? (empty-line | section-start-line | cont
 
 NEWLINE := '\n'
 
-ignorable-whitespace := (' ', '\t', ...)+ 
+# content lines are compared after trimming leading/trailing whitespace
+ignorable-whitespace := (' ' | '\t')+
 
 empty-line := ''
 
@@ -190,7 +191,7 @@ assignment-start-line := '=' remainder
 template-start-line := '?' remainder
 result-start-line := '$' remainder
 
-remainder := .* #works as the label / title of the section / but is ignored, not part of the 'content'
+remainder := .* #this remainder works as the label / title of the section / but is ignored, not part of the 'content'
 
 content-line := [^#=?$] .*
 ```

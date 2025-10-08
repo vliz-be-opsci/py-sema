@@ -2,7 +2,7 @@
 # uritexpand(template [,context]) function - applying uri-templates RFC 6570
 #  - template needs to be a rfc6570 compliant uritemplates
 #  - the context (dict) is optional 
-#      * if provided it feeds directly the context to expand the uriteamplate
+#      * if provided it feeds directly the context to expand the uritemplate
 #      * if not provided we fallback to the surrounding template-context
 # == uritexpand application  =================================================
 # ----  from literal in template ---------------------------------------------
@@ -23,7 +23,7 @@ $ --
   }}
 = -- with specific argument
   {"frag": "some"}
-? -- template can implicitely fallback to using the context
+? -- template can implicitly fallback to using the context
   {{ uritexpand(
       "https://host.dom/item{#frag}"
     ) | uri

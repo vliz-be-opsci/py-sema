@@ -18,7 +18,7 @@ $
 $
   '2025-09-25T17:00:00+02:00'^^xsd:dateTime
 #
-? -- detect date presicion
+? -- detect date precision
   {{ "1970-05-06"         | xsd('auto-date') }}
 ?
   {{ txt_May6_1970        | xsd('auto-date') }}
@@ -27,14 +27,14 @@ $
 $
   '1970-05-06'^^xsd:date
 #
-? -- detect year-mont presicion
+? -- detect year-month precision
   {{ "2025-09"             | xsd('Auto-Date') }}
 $
   '2025-09'^^xsd:gYearMonth
 #
-? -- detect year presicion
+? -- detect year precision
   {{ "2025"             | xsd('Auto-Date') }}
-? -- detect year presicion
+? -- detect year precision
   {{ 2025               | xsd('auto-date') }}
 $
   '2025'^^xsd:gYear
@@ -137,7 +137,7 @@ $
 $
   '2025-09-25T17:00:00+02:00'^^xsd:dateTime
 #
-? -- detect date presicion
+? -- detect date precision
   {{ "1970-05-06"         | xsd('auto-any') }}
 ?
   {{ txt_May6_1970        | xsd('auto-any') }}
@@ -146,7 +146,7 @@ $
 $
   '1970-05-06'^^xsd:date
 #
-? -- detect year-mont presicion
+? -- detect year-mont precision
   {{ "2025-09"             | xsd('Auto-Any') }}
 $
   '2025-09'^^xsd:gYearMonth
@@ -180,7 +180,7 @@ $
   '''^^xsd:string
 #
 
-# ...... inacceptable string values .............................................
+# ...... unacceptable string values .............................................
 = add these to the BASE_CONTEXT:
   {
     "errmsg_date"   : "*** EXPECTED FAILURE AUTO_DATE MSG ***",

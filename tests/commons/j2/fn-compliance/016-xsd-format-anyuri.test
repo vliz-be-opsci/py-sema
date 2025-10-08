@@ -19,7 +19,7 @@ $
   'https://example.org/for/%5Btesting%5D'^^xsd:anyURI
 # --
 
-# ...... inacceptable uri values .............................................
+# ...... unacceptable uri values .............................................
 = add these to the BASE_CONTEXT:
   {
     "errmsg"  : "*** EXPECTED FAILURE MSG ***"
