@@ -1,18 +1,17 @@
-from logging import getLogger
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
+from logging import getLogger
 from typing import Any
 
+import jinja2
 from dateutil import parser
 from jinja2 import pass_context
-import jinja2
 from jinja2.runtime import Context
 from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
 from sema.commons.clean.clean import check_valid_uri
-
 
 log = getLogger(__name__)
 
@@ -81,7 +80,9 @@ def xsd_format_integer(content: Any, quote: str, *_: Any) -> str:
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def _xsd_format_realnum(xsd_type_name: str, content: Any, quote: str, *_: Any) -> str:
+def _xsd_format_realnum(
+    xsd_type_name: str, content: Any, quote: str, *_: Any
+) -> str:
     # make rigid real number
     if not isinstance(content, float):
         asreal = float(str(content))
@@ -312,11 +313,7 @@ XSD_FMT_TYPE_FN = {
 
 
 def xsd_format(
-        content: Any,
-        type_name: str,
-        quote: str = "'",
-        *,
-        fb: str = None
+    content: Any, type_name: str, quote: str = "'", *, fb: str = None
 ) -> str:
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
 
