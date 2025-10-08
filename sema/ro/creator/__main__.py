@@ -102,6 +102,7 @@ def make_service(args: Namespace) -> ROCreator:
         blueprint_path=root / rocyml,
         blueprint_env=os.environ.copy() if args.load_os_env else {},
         rocrate_path=root,
+        rocrate_metadata_name=args.out,
         force=args.force,
     )
 
@@ -111,7 +112,7 @@ def _main(*args_list) -> bool:
     args = get_arg_parser().parse_args(args_list)
     try:
         roc = make_service(args)
-        roc.process(rocrate_file_name=args.out)
+        roc.process()
         log.debug("processing done")
         return True
     except Exception as e:

@@ -1,11 +1,16 @@
 $:
-  glob_rnode: true # enable by default
-  glob_walk: true
+  # glob_rnode: true # enable by default
+  # glob_walk: true
   # extends: ./emobon-observatory.yml | http://w3id.org/emobon/roc-observatory.yml | roc://emobon-observatory
   # glob_ignore:
   # profile: https://w3id.org/ro/crate/1.2
 
-./:
+<ro-crate-metadata.json>:
+  $type: CreativeWork
+  conformsTo: https://w3id.org/ro/crate/1.2
+  about: <./>
+
+<./>:
   $type: Dataset
   # $include: ...
   # $exclude: ...
@@ -14,28 +19,29 @@ $:
   datePublished: "2022-12-01"
   license: http://spdx.org/licenses/CC0-1.0
 
+<data.csv>:
+  $type: File # TODO when this line is removed type becomes rdfs:Resource while it should be the same as for data*.csv
+  name: Rainfall data for Katoomba, NSW Australia February 2022
+  encodingFormat: text/csv
+  license: https://creativecommons.org/licenses/by-nc-sa/3.0/au/
+
 # "*.csv:" # TODO check priority compared to data*.csv
 #   ...
 
-data.csv:
-  $type: Dataset # TODO when this line is removed type becomes rdfs:Resource while it should be the same as for data*.csv
-  name: Rainfall data for Katoomba, NSW Australia February 2022
-  license: https://creativecommons.org/licenses/by-nc-sa/3.0/au/
-
-data*.csv:
+<data*.csv>:
   encodingFormat: application/parquet
 
-datan.csv:
+<datan.csv>:
   encodingFormat: application/hdf
 
-logsheets:
+<spreadsheets>:
   $type: Dataset
-  # $exclude: "./logsheets/subfolder"
+  # $exclude: "./spreadsheets/subfolder"
 
 https://ror.org/04dkp1p98:
   $type: Organization
   # $inverse:
-  #   publisher: "./"
+  #   publisher: "<./>"
   # $relate_root: ["publisher"]
   # $relate_to: 
   #   publisher: [./, datan.csv]
