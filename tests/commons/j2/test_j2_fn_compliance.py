@@ -232,8 +232,8 @@ class Section(ABC):
 
     @abstractmethod
     def evaluate(
-        self, context: dict, aggregate: list[str]
-    ) -> tuple[dict, bool, list[str]]:
+        self, context: dict, aggregate: list[tuple[str, "Section"]]
+    ) -> tuple[dict, bool, list[tuple[str, "Section"]]]:
         pass
 
     def lead(self) -> str:
