@@ -91,8 +91,6 @@ and a backslash \\.""",
     "dict_jane": {
         "name": "Roe",
         "given": "Jane",
-        "age": 48,
-        "alive": True,
         "score": 1.7,
         "born": datetime.date(1975, 8, 15),
     },
