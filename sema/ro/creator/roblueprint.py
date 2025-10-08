@@ -5,31 +5,32 @@ from sema.commons.glob import getMatchingGlobPaths
 class ROBlueprint(GraphBlueprint):
     def __init__(
             self,
-            *args,
             body: dict = None,
+            context=None,
+            prefix=None,
+            version="latest",
             nested_datasets=False,
             glob_root=None,
-            glob_rnode=False,
+            glob_rnode=True,
             glob_walk=False,
             glob_ignore: list[str] | str = [],
-            version="latest",
-            context=None,
-            **kwargs
+            *args,
+            **kwargs,
         ):
-        super().__init__(*args, **kwargs)
-
-        context_uris = {
-            "latest": "https://w3id.org/ro/crate/1.2/context",
-            "1.2": "https://w3id.org/ro/crate/1.2/context",
-        }
-
-        self.version = version
-        if not context:
-            self.context = context_uris[version]
-        else:
-            self.context = context
+        super().__init__(
+            body=body,
+            context=context or {
+                "latest": "https://w3id.org/ro/crate/1.2/context",
+                "1.2": "https://w3id.org/ro/crate/1.2/context",
+            }[version],
+            prefix=prefix or {
+                "schema": "http://schema.org/",
+                "dc": "http://purl.org/dc/terms/",
+            },
+            *args,
+            **kwargs
+        )
         
-        self.body = body or {}
         self.nested_datasets = nested_datasets
         self.implicit_body = {k: v for k, v in self.body.items() if "*" in k}
         self.explicit_body = {k: v for k, v in self.body.items() if not ("*" in k)}
@@ -37,6 +38,8 @@ class ROBlueprint(GraphBlueprint):
         self.glob_ignore = glob_ignore
         if glob_walk: self.implicit_body["**/*"] = {}
         if glob_walk or glob_rnode: self._expand_glob()
+
+        assert not self.nested_datasets, "nested datasets are not yet supported" # TODO support nested datasets
     
     def _expand_glob(self):
         assert self.glob_root, "glob_root must be set to expand glob patterns"

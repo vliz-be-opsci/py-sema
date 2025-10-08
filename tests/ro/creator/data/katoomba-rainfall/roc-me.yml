@@ -5,12 +5,12 @@ $:
   # glob_ignore:
   # profile: https://w3id.org/ro/crate/1.2
 
-<ro-crate-metadata.json>:
+ro-crate-metadata.json:
   $type: CreativeWork
   conformsTo: https://w3id.org/ro/crate/1.2
-  about: <./>
+  about: ./
 
-<./>:
+./:
   $type: Dataset
   # $include: ...
   # $exclude: ...
@@ -19,7 +19,7 @@ $:
   datePublished: "2022-12-01"
   license: http://spdx.org/licenses/CC0-1.0
 
-<data.csv>:
+data.csv:
   $type: File # TODO when this line is removed type becomes rdfs:Resource while it should be the same as for data*.csv
   name: Rainfall data for Katoomba, NSW Australia February 2022
   encodingFormat: text/csv
@@ -28,20 +28,20 @@ $:
 # "*.csv:" # TODO check priority compared to data*.csv
 #   ...
 
-<data*.csv>:
+data*.csv:
   encodingFormat: application/parquet
 
-<datan.csv>:
+datan.csv:
   encodingFormat: application/hdf
 
-<spreadsheets>:
+spreadsheets:
   $type: Dataset
   # $exclude: "./spreadsheets/subfolder"
 
 https://ror.org/04dkp1p98:
   $type: Organization
   # $inverse:
-  #   publisher: "<./>"
+  #   publisher: "./"
   # $relate_root: ["publisher"]
   # $relate_to: 
   #   publisher: [./, datan.csv]

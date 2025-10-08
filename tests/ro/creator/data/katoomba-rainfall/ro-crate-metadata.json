@@ -2,8 +2,45 @@
     "@context": "https://w3id.org/ro/crate/1.2/context",
     "@graph": [
         {
+            "@id": "./",
+            "@type": "Dataset",
+            "datePublished": "2022-12-01",
+            "description": "Official rainfall readings for Katoomba, NSW 2022, Australia",
+            "hasPart": [
+                "datan.csv",
+                "data1.csv",
+                "data0.csv",
+                "data.csv"
+            ],
+            "license": {
+                "@id": "http://spdx.org/licenses/CC0-1.0"
+            },
+            "name": "Example dataset for RO-Crate specification; ApiConsole"
+        },
+        {
+            "@id": "data0.csv",
+            "@type": "File",
+            "encodingFormat": "application/parquet"
+        },
+        {
             "@id": "data1.csv",
-            "@type": "File"
+            "@type": "File",
+            "encodingFormat": "application/parquet"
+        },
+        {
+            "@id": "spreadsheets",
+            "@type": "Dataset"
+        },
+        {
+            "@id": "datan.csv",
+            "@type": "File",
+            "encodingFormat": "application/hdf"
+        },
+        {
+            "@id": "https://creativecommons.org/licenses/by-nc-sa/3.0/au/",
+            "@type": "CreativeWork",
+            "description": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Australia",
+            "name": "CC BY-NC-SA 3.0 AU"
         },
         {
             "@id": "https://ror.org/04dkp1p98",
@@ -13,61 +50,21 @@
             "url": "http://www.bom.gov.au/"
         },
         {
-            "@id": "data0.csv",
-            "@type": "File"
-        },
-        {
-            "@id": "./",
-            "@type": "Dataset",
-            "datePublished": "2022-12-01",
-            "description": "Official rainfall readings for Katoomba, NSW 2022, Australia",
-            "hasPart": [
-                "datan.csv",
-                "data1.csv",
-                "data0.csv",
-                "implicit_file",
-                "roc-me.yml"
-            ],
-            "license": {
-                "@id": "http://spdx.org/licenses/CC0-1.0"
-            },
-            "name": "Example dataset for RO-Crate specification; Console"
-        },
-        {
             "@id": "ro-crate-metadata.json",
             "@type": "CreativeWork",
-            "about": "./"
-        },
-        {
-            "@id": "datan.csv",
-            "@type": "File",
-            "encodingFormat": "application/hdf"
-        },
-        {
-            "@id": "implicit_file",
-            "@type": "File"
+            "about": "./",
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/crate/1.2"
+            }
         },
         {
             "@id": "data.csv",
-            "@type": "Dataset",
+            "@type": "File",
+            "encodingFormat": "text/csv",
             "license": {
                 "@id": "https://creativecommons.org/licenses/by-nc-sa/3.0/au/"
             },
             "name": "Rainfall data for Katoomba, NSW Australia February 2022"
-        },
-        {
-            "@id": "https://creativecommons.org/licenses/by-nc-sa/3.0/au/",
-            "@type": "CreativeWork",
-            "description": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Australia",
-            "name": "CC BY-NC-SA 3.0 AU"
-        },
-        {
-            "@id": "roc-me.yml",
-            "@type": "File"
-        },
-        {
-            "@id": "logsheets",
-            "@type": "Dataset"
         }
     ]
 }
