@@ -19,7 +19,7 @@ from sema.commons.glob import getMatchingGlobPaths
 from sema.commons.j2.syntax_builder import J2RDFSyntaxBuilder
 
 MYBASE = Path(__file__).parent
-FNC_PATH: Path = MYBASE / "fn-compliance"
+FNC_PATH: Path = MYBASE / "subyt-compliance"
 TPL_PATH: Path = MYBASE / "templates"
 
 
