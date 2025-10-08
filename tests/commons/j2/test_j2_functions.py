@@ -440,5 +440,3 @@ def test_mapbuild() -> None:
             "map not applied correctly",
         )
 
-
-# TODO unite function tests
