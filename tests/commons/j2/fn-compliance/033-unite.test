@@ -92,7 +92,7 @@ $
     ) 
    }};
 ?  -- too much content
-  {{ unite( 'a', 'b', 'c', 'd')  }};
+  {{ unite( 'a', 'b', 'c', 'd') }};
 $ -- there should be no output (other than that trailing ;-semicolon)
   ;
 #

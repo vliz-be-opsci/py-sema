@@ -23,79 +23,79 @@ $> expected value output
   {
     "txt":  "TestIng \\\"'escaper" 
   } 
-?< 
-{{ txt |lower}}
-$> 
-testing \"'escaper
+? 
+  {{ txt |lower}}
+$ 
+  testing \"'escaper
 #
 
 
 =
-?< 
-{{ uritexpand("/{param}/url",{"param":'value'}) }}
-$>
-/value/url
+? 
+  {{ uritexpand("{/param}/url",{"param":'value'}) }}
+$
+  /value/url
 #
 
 
-?>
-{{ "true"|xsd('boolean') }}
-$<
-'true'^^xsd:boolean
+?
+  {{ "true"|xsd('boolean') }}
+$
+  'true'^^xsd:boolean
 #
 
-?<
-{{ "false"|xsd('boolean') }}
-$>
-'false'^^xsd:boolean
+?
+  {{ "false"|xsd('boolean') }}
+$
+  'false'^^xsd:boolean
 #
 
-?<
-{{ "800903"|xsd('integer') }}
-$>
-'800903'^^xsd:integer
+?
+  {{ "800903"|xsd('integer') }}
+$
+  '800903'^^xsd:integer
 #
 
-?<
-{{ "1.234"|xsd('double') }}
-$>
-'1.234'^^xsd:double
+?
+  {{ "1.234"|xsd('double') }}
+$
+  '1.234'^^xsd:double
 #
 
-?<
-{{ "1980-09-03"|xsd('date') }}
-$>
-'1980-09-03'^^xsd:date
+?
+  {{ "1980-09-03"|xsd('date') }}
+$
+  '1980-09-03'^^xsd:date
 #
 
-?<
-{{ "1980-09-03"|xsd('datetime') }}
-$>
-'1980-09-03T00:00:00'^^xsd:dateTime
+?
+  {{ "1980-09-03"|xsd('datetime') }}
+$
+  '1980-09-03T00:00:00'^^xsd:dateTime
 #
 
-?<
-{{ "http://vliz.be?weirdchars=[]<>"|xsd('anyURI') }}
-$>
-'http://vliz.be?weirdchars=%5B%5D%3C%3E'^^xsd:anyURI
+?
+  {{ "http://vliz.be?weirdchars=[]<>"|xsd('anyURI') }}
+$
+  'http://vliz.be?weirdchars=%5B%5D%3C%3E'^^xsd:anyURI
 #
 
-?<
-{{ "1980"|xsd('gYear') }}
-$>
-'1980'^^xsd:gYear
+?
+  {{ "1980"|xsd('gYear') }}
+$
+  '1980'^^xsd:gYear
 #
 
-?<
-{{ "1980-03"|xsd('gYearMonth') }}
-$>
-'1980-03'^^xsd:gYearMonth
+?
+  {{ "1980-03"|xsd('gYearMonth') }}
+$
+  '1980-03'^^xsd:gYearMonth
 #
 
 
-?<
-{{ "http://www.example.com"|uri }}
-$>
-<http://www.example.com>
+?
+  {{ "http://www.example.com"|uri }}
+$
+  <http://www.example.com>
 #
 
