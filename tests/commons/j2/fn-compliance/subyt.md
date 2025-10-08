@@ -4,9 +4,10 @@
 
 Many mechanisms exist to perform semantic-uplifting, i.e. the common depiction of any automated means for the production of RDF triples.
 
-Generally these techniques are distributed in contiuus space with many dimensions and extreme boundaries:
+Generally these techniques are distributed across a continuum, in a solution space with many dimensions and extreme boundaries.
+This means they are:
 * custom made to handle one case, versus generic an reusable;
-* aimed for a developer audience, versus serving domain / object-model experts;
+* aimed for a developer audience, versus more intended to serve domain or object-model experts;
 * tied to a specific programming language, or open to independent implementations; and
 * requiring different levels of "RDF" awareness.
 
@@ -14,14 +15,14 @@ In this space su-by-t targets to take a very pragmatical position:
 * returning to proven web-template approaches for producing text/html and text/xml formats;
 * adding simple extensions to support text/turtle;
 * opportunistically fall back to existing cross-language implementations;
-* allowing developers with a basis web-templating approach to integrate this in automated systems; and 
+* allowing developers with a basis web-templating approach to integrate this in automated systems; and
 * separating the actual template-writing to be done by domain experts with basis understanding of RDF, specifically in text/turtle.
 
 This document describes the set of filters and functions these templating engines should implement to support text/turtle generation.
 
 ## About conformance testing
 
-In order for these various template-engines to provide and validate conformant implementations of these subyt-template extensions a formal language-neutral test-compliance-format has been designed. 
+In order for these various template-engines to provide and validate conformant implementations of these subyt-template extensions a formal language-neutral test-compliance-format has been designed.
 
 Our tests are of course following this format. They can be found in the various `*.test` files in this package.
 
@@ -31,7 +32,7 @@ The format itself is described in a separate [test conformance format](./test-co
 
 ### `| xsd(typename[, quote="'"][,fb=None])` formatting filter
 
-This filter produces n3-compliant syntax for literal values to have an explicit datatype-indicator. 
+This filter produces n3-compliant syntax for literal values to have an explicit datatype-indicator.
 In the process it checks the compatibility of the input, and ensures adequate formatting before output.
 
 Depending on the chosen typename other "input-compatibility" rules apply
@@ -52,13 +53,13 @@ This requires the input to be one of the following:
 * a native string, in which case all of `''`, `'0'`, `'off'`, `'false'`, `'no'` (ignoring case) are considered `False` and all other non-empty strings resolve to `True`
 * a native numeric value (integer or floating-point), in which case `0` and `0.0` are considered `False` and all other values are `True`
 
-Any other input case, like: 
+Any other input case, like:
 
 * None, undefined, null, or template-implementation equivalents
-* dates, datetime values, 
+* dates, datetime values,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -72,16 +73,16 @@ This requires the input to be one of the following:
 * a native integer numeric value
 * a native string for which the interpretation as integer works out and its round-trip to string format exactly matches the input.  This excludes surrounding whitespace or leading zeroes. The template should explicitely deal with those cases.
 
-Any other input case, like: 
+Any other input case, like:
 
 * boolean values,
 * numeric floating-point values,
 * strings that do not follow the round-trip rule,
 * None, undefined, null, or template-implementation equivalents,
-* dates, datetime values, 
+* dates, datetime values,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -97,16 +98,16 @@ This requires the input to be one of the following:
 * a native numeric floating-point value
 * a native string, for which the interpretation as a floating-point value works out.
 
-Any other input case, like: 
+Any other input case, like:
 
 * boolean values,
 * numeric integer values,
 * strings that do not parse as floating point values,
 * None, undefined, null, or template-implementation equivalents,
-* dates, datetime values, 
+* dates, datetime values,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -114,13 +115,13 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 
 Applies `^^xsd:date` formatting to the provided input.
 
-Leading to output of the form `'YYYY-MM-DD'^^xsd:date` 
+Leading to output of the form `'YYYY-MM-DD'^^xsd:date`
 
 This requires the input to be one of the following:
 * a native date
 * a native string, that strictly can be parsed as a iso8601 date "YYYY-MM-DD"
 
-Any other input case, like: 
+Any other input case, like:
 
 * boolean, and numeric values,
 * strings that are not strictly in the desired format,
@@ -128,7 +129,7 @@ Any other input case, like:
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -136,13 +137,13 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 
 Applies `^^xsd:dateTime` formatting to the provided input.
 
-Leading to output of the form `'YYYY-MM-DDThh:mm:ss[+tz:mm]'^^xsd:dateTime` 
+Leading to output of the form `'YYYY-MM-DDThh:mm:ss[+tz:mm]'^^xsd:dateTime`
 
 This requires the input to be one of the following:
 * a native datetime value (which may or may not carry timezone information)
 * a native string, that can be correctly parsed as a iso8601 datetime value (again with optional timezone part)
 
-Any other input case, like: 
+Any other input case, like:
 
 * boolean, and numeric values,
 * strings that are not strictly in the desired format,
@@ -150,7 +151,7 @@ Any other input case, like:
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -162,7 +163,7 @@ Applies `^^xsd:gYear` formatting to the provided input.
 
 Note: additional type-names include (case-ignoring) `yyyy` and `year`
 
-Leading to output of the form `'-?0YYY'^^xsd:gYear` 
+Leading to output of the form `'-?0YYY'^^xsd:gYear`
 
 See https://www.w3.org/TR/xmlschema11-2/#gYear
 
@@ -171,16 +172,16 @@ This requires the input to be one of the following:
 * a native string, matching above integer numeric value
 * a date value,
 
-Any other input case, like: 
+Any other input case, like:
 
-* boolean, 
+* boolean,
 * numeric floating-point values,
 * strings that are not matching an integer value,
 * datetime values,
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -190,7 +191,7 @@ Applies `^^xsd:gYearMonth` formatting to the provided input.
 
 Note: additional type-names include (case-ignoring) `yyyy-mm` and `year-month`
 
-Leading to output of the form `'-?0YYY-MM'^^xsd:gYearMonth` 
+Leading to output of the form `'-?0YYY-MM'^^xsd:gYearMonth`
 
 See https://www.w3.org/TR/xmlschema11-2/#gYearMonth
 
@@ -198,7 +199,7 @@ This requires the input to be one of the following:
 * a native string, that matches the actual yyyy-mm format
 * a date value
 
-Any other input case, like: 
+Any other input case, like:
 
 * boolean, and numeric values,
 * strings that are not matching the pattern
@@ -206,7 +207,7 @@ Any other input case, like:
 * None, undefined, null, or template-implementationn equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -214,21 +215,21 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 
 Applies `^^xsd:anyURI` formatting to the provided input.
 
-Leading to output of the form `'uri-conform-string'^^xsd:anyURI` 
+Leading to output of the form `'uri-conform-string'^^xsd:anyURI`
 
 This requires the input to be one of the following:
 * a native string that is conforming to a valid uri format, if needed by inserting some %HEX-encoding parts
 
 The applied %HEX-encoding will be part of the output.
 
-Any other input case, like: 
+Any other input case, like:
 
-* non-conforming uri strings, 
+* non-conforming uri strings,
 * boolean, numeric, date, datetime values,
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -241,7 +242,7 @@ Leading to output of the form `'value-text'^^xsd:string`
 This requires the input to be one of the following:
 * any native scalar format with straightforward textual representation,
 
-Any other input case, like: 
+Any other input case, like:
 
 * None, undefined, null, or template-implementation equivalents,
 * lists,
@@ -261,7 +262,7 @@ Applies `@language-code` formatting to the provided input.
 
 Leading to output of the form `'my text'@en`, `'mijn tekst'@nl`, and `'mon texte'@fr`
 
-For this case the same requirements known from the `xsd:string` case mentioned above for 
+For this case the same requirements known from the `xsd:string` case mentioned above for
 * the restrictions to valid inputs, as well as
 * the notes around expected valid output formatting.
 
@@ -279,13 +280,13 @@ This requires the input to be one of the following:
 * an int that can be used as year
 * a string that can be parsed into one of the supported date formats, i.e. iso8601 with or without time and timezone fragments, or matching either YYYY-MM, or a integer to be used as year
 
-Any other input case, like: 
+Any other input case, like:
 
 * Strings that do not fit an understandable date format
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -300,13 +301,13 @@ This requires the input to be one of the following:
 * a native numeric format, be it integer or floating-point
 * a native string that can be parsed in one of those
 
-Any other input case, like: 
+Any other input case, like:
 
-* Strings that do fit an understandable numeric format
+* Strings that do not fit an understandable numeric format
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
-* other object instances 
+* other object instances
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
@@ -331,7 +332,7 @@ This support most of the inputs you could imagine:
 * a string value
 * any object type that has a string representation
 
-Any other input case, like: 
+Any other input case, like:
 
 * None, undefined, null, or template-implementation equivalents,
 * lists,
@@ -346,13 +347,13 @@ The `| uri` filter works very similar to the `| xsd('anyURI')` in the sense that
 The main difference though is that this will not add the `"uri-here"^^xsd:anyURI` formatting, but instead ensuring the `<uri-here>` format of adding angle-brackets for references in turtle.
 
 
-### `uritexpand(template[, context ])` function 
+### `uritexpand(template[, context ])` function
 
 The `uritexpand()` function allows to expand [RFC 6570 uritemplates](https://datatracker.ietf.org/doc/html/rfc6570) by applying available values from the context passed.
 
 Arguments:
 * `template` a string holding an RFC 6570 uritemplate with `{variable}` regions to be expanded
-* `context` is an optional record (dictionary) that provides in its fields the values to expand the uritemplate 
+* `context` is an optional record (dictionary) that provides in its fields the values to expand the uritemplate
 
 Note if the context record is not provided, the available global template-context is used.
 
@@ -364,7 +365,7 @@ A typical application of this function is to combine it with the `| uri` filter.
 The `regexreplace()` function allows to match and replace parts of a string.
 
 Arguments:
-   * `pattern` a string that holds the [regular-expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet) used to search for matching parts that need to be replaced
+* `pattern` a string that holds the [regular-expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet) used to search for matching parts that need to be replaced
 * `replace` a string holding the literal content that is to replace the matched parts
 * `content` a string holding the input to perform the match-and-replace upon
 
@@ -381,21 +382,21 @@ Arguments:
 
 The caching is there to allow reusing an earlier instance of the created ValueMapper during processing, without the need to rebuild it in full.
 This a performance enhancing measure only, it should not effect the outcome: starting from the same mapping_data should always lead to same mapping-results.
-It is eniterely up to the implmentation how it deals with maintaining this cache, and any possible invalidation rules it might apply.
+It is entirely up to the implementation how it deals with maintaining this cache, and any possible invalidation rules it might apply.
 
 The provided `ValueMapper` object is expected to have a single method `apply(record, origin_name, target_name[, fallback])`
 
- Arguments:
- * `record` an object (typically dictionary) that holds various fields, of which one holding a value that needs the mapping. This instance must support setting a new value for the mapping result too.
- * `origin_name` a string name of the field inside the record that holds the value to be mapped
- * `target_name` a string name of the field inside the record that will be updated (even created) to hold the mapping-result
- * `fallback` (optional) the value to use as result into the target_name field case the value in the origin_name field is not known as a key inside the `ValueMapper`
+Arguments:
+* `record` an object (typically dictionary) that holds various fields, of which one holding a value that needs the mapping. This instance must support setting a new value for the mapping result too.
+* `origin_name` a string name of the field inside the record that holds the value to be mapped
+* `target_name` a string name of the field inside the record that will be updated (even created) to hold the mapping-result
+* `fallback` (optional) the value to use as result into the target_name field case the value in the origin_name field is not known as a key inside the `ValueMapper`
 
 
 
-### `unite(expression1, expression2[, expressionN]*[,n=3][,sep=' '][,fb=''])` 
+### `unite(expression1, expression2[, expressionN]*[,n=3][,sep=' '][,fb=''])`
 
-The `unite(...)` function is designed to "guard and garantee" all parts of an expression are there before joining them in the rendered output.
+The `unite(...)` function is designed to "guard and guarantee" all parts of an expression are there before joining them in the rendered output.
 
 In its basic form it takes string arguments and joins them together (using the `sep` characters, which defaults to " " \[space\]), but only does so if all are none-blank (i.e. non-empty after strip) and if their total number does not exceed `n` (defaults to 3). In case those tests fail the `fb` (fallback value, defaulting to `''`) is rendered in stead.
 
@@ -407,12 +408,12 @@ Typical usage is testing for properties in order to avoid dangling-for-empty-par
 
 - «?p ?o;» completions of triples, when a predicate is added in anticipation of a possibly missing object.
 ```
-   {{ unite( 'pfx:when', optional_value  | xsd('dateTime') )}}; 
+   {{ unite( 'pfx:when', optional_value  | xsd('dateTime') )}};
 ```
 
 - «prefix:remainder» combinations, when a prefix and colon are left dangling if no actual remainder is there.
 ```
-   {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) }}; 
+   {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) }};
 ```
 
 Arguments:
@@ -422,4 +423,3 @@ Named Arguments:
 * `n=3` the maximum number of strings that will be joined, defaults to 3
 * `sep=' '` the separator to apply in the join, default to ' '
 * `fb=''` the output to be generated in stead of the string-join (when one of the bools evaluates to false, or the number of strings exceeds `n`)
-
