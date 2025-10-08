@@ -412,7 +412,7 @@ Typical usage is testing for properties in order to avoid dangling-for-empty-par
 
 - «prefix:remainder» combinations, when a prefix and colon are left dangling if no actual remainder is there.
 ```
-   {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) )}}; 
+   {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) }}; 
 ```
 
 Arguments:
