@@ -265,22 +265,23 @@ For this case the same requirements known from the `xsd:string` case mentioned a
 * the restrictions to valid inputs, as well as
 * the notes around expected valid output formatting.
 
-
-TODO -- continue below -- 
-
 #### typename = `auto-date`
 
-Applies `^^xsd:boolean` formatting to the provided input.
-
-Leading to either `'true'^^xsd:boolean` or `'false'^^xsd:boolean`
+Inspects the input and applies the best (most precise) possible date-type to format it.
+So, one of the following will be added (in order of preference / most restrictive first):
+* `^^xsd:dateTime`
+* `^^xsd:date`
+* `^^xsd:yearMonth`
+* `^^xsd:year`
 
 This requires the input to be one of the following:
-* a native boolean
-* a native string, in which case all of `''`, `'0'`, `'off'`, `'false'`, `'no'` (ignoring case) are considered `False` and all other non-empty strings resolve to `True`
-* a native numeric value (integer or floating-point), in which case `0` and `0.0` are considered `False` and all other values are `True`
+* a dateTime or date object
+* an int that can be used as year
+* a string that can be parsed into one of the supported date formats, i.e. iso8601 with or without time and timezone fragments, or matching either YYYY-MM, or a integer to be used as year
 
 Any other input case, like: 
 
+* Strings that do not fit an understandable date format
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
@@ -290,17 +291,18 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 
 #### typename = `auto-number`
 
-Applies `^^xsd:boolean` formatting to the provided input.
-
-Leading to either `'true'^^xsd:boolean` or `'false'^^xsd:boolean`
+Inspects the input and applies the best (most precise) possible available type to format it.
+So, one of the following will be added (in order of preference / most restrictive first):
+* `^^xsd:integer`
+* `^^xsd:double`
 
 This requires the input to be one of the following:
-* a native boolean
-* a native string, in which case all of `''`, `'0'`, `'off'`, `'false'`, `'no'` (ignoring case) are considered `False` and all other non-empty strings resolve to `True`
-* a native numeric value (integer or floating-point), in which case `0` and `0.0` are considered `False` and all other values are `True`
+* a native numeric format, be it integer or floating-point
+* a native string that can be parsed in one of those
 
 Any other input case, like: 
 
+* Strings that do fit an understandable numeric format
 * None, undefined, null, or template-implementation equivalents,
 * lists,
 * dictionaries,
@@ -310,28 +312,86 @@ is incompatible and will lead to an error (or produce the `fb` value in lenient 
 
 #### typename = `auto-any`
 
-Applies `^^xsd:boolean` formatting to the provided input.
+Inspects the input and applies the best (most precise) possible available type to format it.
+So, one of the following will be added (in order of preference / most restrictive first):
+* `^^xsd:integer`
+* `^^xsd:boolean`
+* `^^xsd:double`
+* `^^xsd:dateTime`
+* `^^xsd:date`
+* `^^xsd:yearMonth`
+* `^^xsd:string`
 
-Leading to either `'true'^^xsd:boolean` or `'false'^^xsd:boolean`
+Note: `^^xsd:year` will not be produced as any input that fits this type would have already be considered as an `^^xsd:integer` already.
 
-This requires the input to be one of the following:
+This support most of the inputs you could imagine:
 * a native boolean
-* a native string, in which case all of `''`, `'0'`, `'off'`, `'false'`, `'no'` (ignoring case) are considered `False` and all other non-empty strings resolve to `True`
-* a native numeric value (integer or floating-point), in which case `0` and `0.0` are considered `False` and all other values are `True`
+* a native numeric value
+* a native date or datetime value
+* a string value
+* any object type that has a string representation
 
 Any other input case, like: 
 
 * None, undefined, null, or template-implementation equivalents,
 * lists,
-* dictionaries,
-* other object instances 
+* dictionaries.
 
 is incompatible and will lead to an error (or produce the `fb` value in lenient mode)
 
 ### `| uri` filter
+
+The `| uri` filter works very similar to the `| xsd('anyURI')` in the sense that it will check an safeguard correct URI formatting (and proper %hex-encoding) to the input.
+
+The main difference though is that this will not add the `"uri-here"^^xsd:anyURI` formatting, but instead ensuring the `<uri-here>` format of adding angle-brackets for references in turtle.
+
+
 ### `uritexpand(template[, context ])` function 
+
+The `uritexpand()` function allows to expand [RFC 6570 uritemplates](https://datatracker.ietf.org/doc/html/rfc6570) by applying available values from the context passed.
+
+Arguments:
+* `template` a string holding an RFC 6570 uritemplate with `{variable}` regions to be expanded
+* `context` is an optional record (dictionary) that provides in its fields the values to expand the uritemplate 
+
+Note if the context record is not provided, the available global template-context is used.
+
+A typical application of this function is to combine it with the `| uri` filter.
+
+
 ### `regexreplace(pattern, replace, content)` function
-### `map(mapping_data, fromname, toname)` constructor and `map.apply(record, fromname, toname)` function
+
+The `regexreplace()` function allows to match and replace parts of a string.
+
+Arguments:
+   * `pattern` a string that holds the [regular-expression](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet) used to search for matching parts that need to be replaced
+* `replace` a string holding the literal content that is to replace the matched parts
+* `content` a string holding the input to perform the match-and-replace upon
+
+
+### `map(mapping_data, fromname, toname[, cachekey])` constructor and `map.apply(record, fromname, toname)` function
+
+The `map()` function produces a reusable (and cacheable) object, dubbed a `ValueMapper`, that can in turn be used to map field-values in records.
+
+Arguments:
+* `mapping_data` a list of records (typically dictionaries) expected to provide the keys and values to be used in the mapping
+* `fromname` string name of a field in the mapping-data records. The values of this field are to be used as lookup keys for the actual mapping
+* `toname` string name of another field in the mapping-data records. The values of this field are to be applied as the resulting value in the actual mapping
+* `cachekey` (optional) string identifier for the generated mapping object
+
+The caching is there to allow reusing an earlier instance of the created ValueMapper during processing, without the need to rebuild it in full.
+This a performance enhancing measure only, it should not effect the outcome: starting from the same mapping_data should always lead to same mapping-results.
+It is eniterely up to the implmentation how it deals with maintaining this cache, and any possible invalidation rules it might apply.
+
+The provided `ValueMapper` object is expected to have a single method `apply(record, origin_name, target_name[, fallback])`
+
+ Arguments:
+ * `record` an object (typically dictionary) that holds various fields, of which one holding a value that needs the mapping. This instance must support setting a new value for the mapping result too.
+ * `origin_name` a string name of the field inside the record that holds the value to be mapped
+ * `target_name` a string name of the field inside the record that will be updated (even created) to hold the mapping-result
+ * `fallback` (optional) the value to use as result into the target_name field case the value in the origin_name field is not known as a key inside the `ValueMapper`
+
+
 
 ### `unite(expression1, expression2[, expressionN]*[,n=3][,sep=' '][,fb=''])` 
 
@@ -354,3 +414,12 @@ Typical usage is testing for properties in order to avoid dangling-for-empty-par
 ```
    {{ unite( unite('pfx', optional_remainder, sep= ':'), 'value'@en) )}}; 
 ```
+
+Arguments:
+* `expression1 .. expressionN` comprise the actual content to be joined (if strings) and checked (as booleans). Next to these additional named arguments can be passed.
+
+Named Arguments:
+* `n=3` the maximum number of strings that will be joined, defaults to 3
+* `sep=' '` the separator to apply in the join, default to ' '
+* `fb=''` the output to be generated in stead of the string-join (when one of the bools evaluates to false, or the number of strings exceeds `n`)
+
