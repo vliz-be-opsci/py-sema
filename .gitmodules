@@ -1,3 +1,3 @@
 [submodule "tests/commons/j2/subyt-compliance"]
-    path = tests/commons/j2/subyt-compliance
-    url = git@github.com:vliz-be-opsci/subyt-template-extension-specification.git
+	path = tests/commons/j2/subyt-compliance
+	url = git@github.com:vliz-be-opsci/subyt-template-extension-specification.git
