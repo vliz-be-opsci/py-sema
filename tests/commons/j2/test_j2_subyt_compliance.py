@@ -4,8 +4,9 @@
 # This test suite checks that we are compliant with that specification.
 # It does so through running over a number of shared test-vectors noted in
 # a custom textual format.
-# These files are locally available in ./fn-compliance-vectors/*test
-# and are regularly synced with the upstream source at https://github.com/ ...
+# These files are locally available in ./subyt-compliance/*test
+# and are automatically synced through git submodules with the upstream source
+# at https://github.com/vliz-be-opsci/subyt-template-extension-specification
 import datetime
 import json
 import math
@@ -385,17 +386,17 @@ Section.registerImplementation(ResultSection)
 
 def test_compliance_checks() -> None:
     assert FNC_PATH.exists() and FNC_PATH.is_dir(), (
-        "the fn-compliance folder should be available at " f"{FNC_PATH !s}"
+        "the subyt-compliance folder should be available at " f"{FNC_PATH !s}"
     )
     cc_files = getMatchingGlobPaths(
         FNC_PATH, ["**/*.test"], onlyFiles=True, makeRelative=False
     )
     assert len(cc_files) > 0, (
-        f"the fn-compliance folder at {FNC_PATH !s} "
+        f"the subyt-compliance folder at {FNC_PATH !s} "
         f"should contain some compliance-files"
     )
     log.debug(
-        f"the fn-compliance folder at {FNC_PATH !s} "
+        f"the subyt-compliance folder at {FNC_PATH !s} "
         f"contains {len(cc_files)} compliance-files"
     )
 
