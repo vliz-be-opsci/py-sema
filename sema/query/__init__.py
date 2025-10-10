@@ -1,4 +1,4 @@
-""" query
+"""query
 
 .. module:: query
     :synopsis: Extracting table data from knowwledge-graphs

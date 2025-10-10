@@ -1,4 +1,4 @@
-""" test_main_cli
+"""test_main_cli
 tests concerning the cli call functioning
 """
 
