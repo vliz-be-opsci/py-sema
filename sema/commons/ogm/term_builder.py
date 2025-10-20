@@ -50,6 +50,8 @@ class TermBuilder:
     @staticmethod
     def _parse(template: str):
         # nop
+        if template.endswith("^^xsd:string"):
+            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
         if "://" in template:
             return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
         if "\\" in template:
