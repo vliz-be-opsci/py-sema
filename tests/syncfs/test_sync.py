@@ -1,4 +1,4 @@
-""" test_sync
+"""test_sync
 tests concerning the actual core sync expectations
 """
 

@@ -1,4 +1,4 @@
-""" test_sync_fs_triples
+"""test_sync_fs_triples
 tests concerning the service wrapper for sembench "SyncFsTriples"
 """
 

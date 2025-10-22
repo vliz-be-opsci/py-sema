@@ -1,8 +1,11 @@
 import re
 from collections.abc import Iterable
 from datetime import date, datetime
+from logging import getLogger
+from math import isfinite
 from typing import Any
 
+import jinja2
 from dateutil import parser
 from jinja2 import pass_context
 from jinja2.runtime import Context
@@ -10,6 +13,8 @@ from uritemplate import URITemplate
 
 from sema.commons.clean import clean_uri_str
 from sema.commons.clean.clean import check_valid_uri
+
+log = getLogger(__name__)
 
 
 class Functions:
@@ -23,6 +28,7 @@ class Functions:
             "map": map_build,
             # TODO: Check for duplication in filters and the meaning.
             "xsd": xsd_format,
+            "unite": unite,
         }
 
 
@@ -47,8 +53,11 @@ def xsd_value(
 
 
 def xsd_format_boolean(content: Any, quote: str, *_: Any) -> str:
-    if isinstance(content, (list, dict, type(None))):
-        raise TypeError("conversion required before format call")
+    if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
+        raise TypeError(
+            f"unsupported input type {type(content)} for boolean formatting - "
+            "conversion required before format call"
+        )
 
     # make rigid bool
     if not isinstance(content, bool):
@@ -72,13 +81,29 @@ def xsd_format_integer(content: Any, quote: str, *_: Any) -> str:
     return xsd_value(str(content), quote, "xsd:integer")
 
 
-def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
-    # make rigid double
+def _xsd_format_realnum(
+    xsd_type_name: str, content: Any, quote: str, *_: Any
+) -> str:
+    # make rigid real number
     if not isinstance(content, float):
-        asdbl = float(str(content))
-        content = asdbl
+        asreal = float(str(content))
+        content = asreal
+    # reject non-finite values
+    if not isfinite(content):
+        raise ValueError(f"{xsd_type_name} cannot represent non-finite values")
+    # normalize -0.0 -> 0.0
+    if content == 0.0:
+        content = 0.0
     # serialize to string again
-    return xsd_value(str(content), quote, "xsd:double")
+    return xsd_value(str(content), quote, xsd_type_name)
+
+
+def xsd_format_float(content: Any, quote: str, *_: Any) -> str:
+    return _xsd_format_realnum("xsd:float", content, quote, _)
+
+
+def xsd_format_double(content: Any, quote: str, *_: Any) -> str:
+    return _xsd_format_realnum("xsd:double", content, quote, _)
 
 
 def xsd_format_date(content: Any, quote: str, *_: Any) -> str:
@@ -145,6 +170,11 @@ def xsd_format_uri(content: str, quote: str, *_: Any) -> str:
 
 
 def xsd_format_string(content: str, quote: str, suffix: str) -> str:
+    if isinstance(content, (list, dict, type(None), jinja2.runtime.Undefined)):
+        raise TypeError(
+            f"unsupported input type {type(content)} for boolean formatting - "
+            "conversion required before format call"
+        )
     # apply escape sequences: \ to \\ and quote to \quote
     escqt = f"\\{quote}"
     content = str(content).replace("\\", "\\\\").replace(quote, escqt)
@@ -242,6 +272,9 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
     # 5. type date
     if isinstance(content, date):
         return xsd_format_date(content, quote)
+    # -- special case for empty and whitespace-only strings
+    if isinstance(content, str) and len(content.strip()) == 0:
+        return xsd_format_string(content, quote, None)
     # 6. string parseable to exact bool true or false (ignoring case)
     if str(content).strip().lower() in ["true", "false"]:
         return xsd_format_boolean(content, quote)
@@ -267,17 +300,18 @@ def xsd_auto_format_any(content: Any, quote: str, *_: Any) -> str:
 XSD_FMT_TYPE_FN = {
     "xsd:boolean": xsd_format_boolean,
     "xsd:integer": xsd_format_integer,
+    "xsd:float": xsd_format_float,
     "xsd:double": xsd_format_double,
     "xsd:date": xsd_format_date,
     "xsd:datetime": xsd_format_datetime,
     "xsd:anyuri": xsd_format_uri,
     "xsd:string": xsd_format_string,
     "xsd:gyear": xsd_format_gyear,
-    "year": xsd_format_gyear,
-    "yyyy": xsd_format_gyear,
+    "xsd:year": xsd_format_gyear,
+    "xsd:yyyy": xsd_format_gyear,
     "xsd:gyearmonth": xsd_format_gyearmonth,
-    "year-month": xsd_format_gyearmonth,
-    "yyyy-mm": xsd_format_gyearmonth,
+    "xsd:year-month": xsd_format_gyearmonth,
+    "xsd:yyyy-mm": xsd_format_gyearmonth,
     "auto-date": xsd_auto_format_date,
     "auto-number": xsd_auto_format_number,
     "auto-any": xsd_auto_format_any,
@@ -285,17 +319,20 @@ XSD_FMT_TYPE_FN = {
 }
 
 
-def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
+def xsd_format(
+    content: Any, type_name: str, quote: str = "'", *, fb: str = None
+) -> str:
     assert quote in "'\"", "ttl format only accepts ' or \" as valid quotes."
 
     suffix = None
+    type_name = type_name.lower()
     if type_name.startswith("@"):
         suffix = type_name
         # assuming string content for further quoting rules
         type_name = "xsd:string"
 
     # first try
-    type_format_fn = XSD_FMT_TYPE_FN.get(type_name.lower(), None)
+    type_format_fn = XSD_FMT_TYPE_FN.get(type_name, None)
     if not type_name.startswith("auto"):
         if not type_name.startswith("xsd:"):
             type_name = "xsd:" + type_name
@@ -306,7 +343,18 @@ def xsd_format(content: Any, type_name: str, quote: str = "'") -> str:
             "type_name '%s' not supported." % type_name
         )
 
-    return type_format_fn(content, quote, suffix)
+    val = fb
+    try:
+        val = type_format_fn(content, quote, suffix)
+    except Exception as e:
+        if fb is None:
+            raise e
+        log.warning(
+            f"formatting of content '{content}' "
+            f"with type '{type_name}' failed: {e}, "
+            f"using fallback value '{fb}'"
+        )
+    return val
 
 
 def uri_format(uri: str) -> str:
@@ -373,3 +421,31 @@ def map_build(
     if cached_as is not None:
         Functions._cache[cached_as] = vmap
     return vmap
+
+
+def unite(*args: Any, **kwargs: Any) -> str:
+    # unite multiple values into one string, separated by separator
+    # but only if all values evaluate to a boolean True, and
+    # if at most n resulting string values are non-empty
+    # when conditions are not met, return fallback value fb (default "")
+    # Usage:
+    #   {{ unite( val1, val2, val3, ..., separator=" ", n=3, fb="") }}
+    # Motivation:
+    # This is to guarantee that only complete sets of values are united in
+    # the template output.
+    # The practical use is for guaranteeing complete triples in turtle output
+    # Note that values None, '', 0, [], {} evaluate to boolean False
+    # while any non-empty string, even '0', 'False', 'No'
+    # all evaluate to boolean True.
+    sep: str = kwargs.get("sep", " ")
+    n: int = kwargs.get("n", 3)
+    fb: str = kwargs.get("fb", "")
+
+    boolvals: list[bool] = [bool(a) for a in args]
+    if not all(boolvals):
+        return fb
+    # else - make the string from the strings only
+    strvals: list[str] = [a for a in args if isinstance(a, str)]
+    if len(strvals) == 0 or len(strvals) > n:
+        return fb
+    return sep.join(strvals)
