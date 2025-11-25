@@ -39,6 +39,7 @@ class SinkFactory:
                 )
             return StdOutSink()
         # else:
+        identifier = identifier.replace("[", "{").replace("]", "}")  # convert [variable] to {variable}
         if len(variables(identifier)) == 0:  # identifier is not a pattern
             if allow_repeated_sink_paths:
                 log.warning(
