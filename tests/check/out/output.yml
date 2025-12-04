@@ -1,0 +1,10 @@
+- error: null
+  message: Test passed
+  success: true
+  type_test: example
+  url: http://example.com
+- error: Some error
+  message: Test failed
+  success: false
+  type_test: example
+  url: http://example.com/2
