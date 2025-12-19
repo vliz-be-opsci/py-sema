@@ -90,6 +90,8 @@ def get_arg_parser() -> SemaArgsParser:
         ),
     )
 
+    # TODO if subcommands are introduced, there should also be a subcommand to copy the embedded templates
+
     return parser
 
 
