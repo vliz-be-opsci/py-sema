@@ -49,7 +49,7 @@ jobs:
 
       - id: run-tests
         if: ${{steps.pytest_test.outcome == 'success'}}
-        uses: JotaFan/pycoverage@v1.1.0
+        uses: JotaFan/pycoverage@v1.1.1
         with:
           cov-omit-list: tests/*, *__init__*, *__version__*, *__main__*, *exceptions*
           cov-threshold-single: 68
