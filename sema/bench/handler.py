@@ -59,14 +59,21 @@ class QueryHandler(TaskHandler):
 
 class ShaclHandler(TaskHandler):
     def handle(self, task):
+        # TODO wrap this direct call in a process class
+        # one that can be called elsewhere
+        # and adds more features (like including graphdb)
         conforms, _, _ = validate(
-            data_graph=os.path.join(
+            data_graph=os.path.join(  # TODO avoid os.path and use pathlib
                 task.input_data_location, task.args["data_graph"]
             ),
             shacl_graph=os.path.join(
                 task.sembench_data_location, task.args["shacl_graph"]
             ),
+            # TODO: expand options to
+            #  - "graphdb" (to valildate graphdb),
+            #  - "url" (to get online content and use its mimetype)
             data_graph_format="ttl",
+            # TODO: expand options to include "url"
             shacl_graph_format="ttl",
             inference="rdfs",
             debug=True,
@@ -77,6 +84,7 @@ class ShaclHandler(TaskHandler):
             "with "
             f"shape graph \"{task.args['shacl_graph']}\""
         )
+        # TODO this return is never used - so should be removed
         return conforms
 
 
