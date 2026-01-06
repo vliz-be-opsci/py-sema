@@ -63,6 +63,7 @@ sema-conneg = "sema.commons.web.conneg_cli:main"
 sema-get = "sema.discovery.__main__:main"
 sema-harvest = "sema.harvest.__main__:main"
 sema-query = "sema.query.__main__:main"
+sema-query-templates = "sema.query.copytpl:main_cli_install_templates"
 sema-subyt = "sema.subyt.__main__:main"
 sema-syncfs = "sema.syncfs.__main__:main"
 
