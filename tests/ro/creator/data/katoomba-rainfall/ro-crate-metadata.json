@@ -7,10 +7,10 @@
             "datePublished": "2022-12-01",
             "description": "Official rainfall readings for Katoomba, NSW 2022, Australia",
             "hasPart": [
-                "datan.csv",
+                "data.csv",
                 "data0.csv",
                 "data1.csv",
-                "data.csv"
+                "datan.csv"
             ],
             "license": {
                 "@id": "http://spdx.org/licenses/CC0-1.0"

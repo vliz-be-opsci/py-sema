@@ -64,3 +64,5 @@ class ROBlueprint(GraphBlueprint):
                 self.body[identifier].update(property)
             else:
                 self.body[identifier] = property
+        
+        self.body = dict(sorted(self.body.items()))  # sort keys to make output deterministic
