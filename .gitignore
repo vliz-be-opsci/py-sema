@@ -7,6 +7,8 @@ tests/__sync__/
 tests/output/
 pytest.log
 venv/
+.venv/
 object_graph_mapping.ttl
+tests/ro/creator/data/katoomba-rainfall/ro-crate-metadata.json
 tdd-*/
 *tdd_*.py
