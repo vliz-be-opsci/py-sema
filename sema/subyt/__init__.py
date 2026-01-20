@@ -1,4 +1,4 @@
-""" subyt
+"""subyt
 
 .. submodule:: subyt
     :synopsis: python implementation for Semantic Uplifting by Templates.

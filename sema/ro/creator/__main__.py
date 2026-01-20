@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 from logging import getLogger
 from pathlib import Path
 
@@ -36,9 +36,7 @@ def get_arg_parser() -> SemaArgsParser:
         "--load-os-env",
         default=False,
         action="store_true",
-        help=(
-            "Load OS environment variables for use in !resolve."
-        ),
+        help=("Load OS environment variables for use in !resolve."),
     )
 
     parser.add_argument(
@@ -66,7 +64,7 @@ def get_arg_parser() -> SemaArgsParser:
     return parser
 
 
-def _find_rocyml(root: str) -> tuple[str, str]: # TODO update signature
+def _find_rocyml(root: str) -> tuple[str, str]:  # TODO update signature
     """Find the roc yml file in the root folder"""
     root = Path(root)
     rocyml = Path("roc-me.yml")
@@ -118,6 +116,7 @@ def _main(*args_list) -> bool:
     except Exception as e:
         log.exception("sema.ro.creator processing failed", exc_info=e)
         return False
+
 
 def main():
     success: bool = _main(*sys.argv[1:])

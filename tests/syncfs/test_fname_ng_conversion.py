@@ -1,4 +1,4 @@
-""" test_fname_ng_conversion
+"""test_fname_ng_conversion
 tests our expectations on translating filenames to named_graphs and back
 """
 

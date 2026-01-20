@@ -1,21 +1,24 @@
-import yaml
 from pathlib import Path
+
+import yaml
 from rdflib import Graph, Namespace
+
 from .graph_blueprint import GraphBlueprint
 from .graph_wrapper import GraphWrapper
 
+
 class GraphBuilder:
     def __init__(
-            self,
-            namespaces: dict[str, str] = {},
-            blueprint: GraphBlueprint | dict | Path | str | None = None
-        ):
+        self,
+        namespaces: dict[str, str] = {},
+        blueprint: GraphBlueprint | dict | Path | str | None = None,
+    ):
         base = namespaces.get("@base", "urn:nil:")
 
         namespaces = {
             "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
             "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-            **{k: v for k, v in namespaces.items() if k != "@base"}
+            **{k: v for k, v in namespaces.items() if k != "@base"},
         }
 
         self._blueprint: GraphBlueprint = self._parse_blueprint(blueprint)
@@ -25,10 +28,12 @@ class GraphBuilder:
         for prefix, namespace in namespaces.items():
             assert namespace[-1] in ("#", "/", ":")
             self._graph_wrapper.bind(prefix, Namespace(namespace))
-    
+
     @staticmethod
     def _split_blueprint(data: dict) -> tuple[dict, dict]:
-        head = data.get("$") or {}  # data["$"] may exist, but can still be None
+        head = (
+            data.get("$") or {}
+        )  # data["$"] may exist, but can still be None
         body = {k: v for k, v in data.items() if k != "$"}
         return head, body
 
@@ -45,7 +50,7 @@ class GraphBuilder:
             head, body = GraphBuilder._split_blueprint(data)
             return GraphBlueprint(body=body, **head)
         elif isinstance(blueprint, str):
-            raise NotImplementedError # TODO implement blueprint_uri (str should contain "://")
+            raise NotImplementedError  # TODO implement blueprint_uri (str should contain "://") # noqa: E501
         else:
             return GraphBlueprint()
 
@@ -61,9 +66,13 @@ class GraphBuilder:
                 identifier=identifier,
                 a=properties.get("$type"),
                 label=properties.get("$label"),
-                properties={k: v for k, v in properties.items() if not k.startswith("$")}
+                properties={
+                    k: v
+                    for k, v in properties.items()
+                    if not k.startswith("$")
+                },
             )
-        
+
         self.graph = self._graph_wrapper.unwrap()
 
     def build(self) -> Graph:

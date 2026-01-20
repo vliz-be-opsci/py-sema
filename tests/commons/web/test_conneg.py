@@ -256,10 +256,12 @@ def test_conneg_eval(url, expected):
             else:
                 assert (
                     filename is not None
-                ), f"Missing filename for {url},{exp_mime},{exp_profile} {exp_suffix=}"
+                ), f"Missing filename for {url},{exp_mime},{exp_profile} "
+                f"{exp_suffix=}"
                 assert filename.endswith(
                     exp_suffix
-                ), f"{filename=} for {url},{exp_mime},{exp_profile} not ending with {exp_suffix=}"
+                ), f"{filename=} for {url},{exp_mime},{exp_profile} not ending"
+                f" with {exp_suffix=}"
 
             if exp_mime in {"text/turtle", "application/ld+json"}:
                 try:

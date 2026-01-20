@@ -1,5 +1,7 @@
 import re
-from rdflib import Graph, Namespace, Literal, URIRef
+
+from rdflib import Graph, Literal, Namespace, URIRef
+
 
 class TermBuilder:
     def __init__(
@@ -28,12 +30,12 @@ class TermBuilder:
             assert self._prefix is None
             assert self._nop is None
 
-        if self._prefix is not None: # prefix + suffix is a valid scenario
+        if self._prefix is not None:  # prefix + suffix is a valid scenario
             assert self._namespace is None
             assert self._suffix
             assert self._nop is None
 
-        if self._nop: # nop is a valid scenario
+        if self._nop:  # nop is a valid scenario
             assert self._namespace is None
             assert self._prefix is None
             assert self._suffix is None
@@ -41,9 +43,11 @@ class TermBuilder:
         if graph is not None:
             self._graph = graph
         else:
-            self._graph = Graph() # TODO why not set bind_namespaces="none"?
+            self._graph = Graph()  # TODO why not set bind_namespaces="none"?
 
-        self._graph_namespaces = {k: v for k, v in self._graph.namespaces()} # TODO dict(self._graph.namespaces())?
+        self._graph_namespaces = {
+            k: v for k, v in self._graph.namespaces()
+        }  # TODO dict(self._graph.namespaces())?
 
         self.term = None
 
@@ -51,37 +55,72 @@ class TermBuilder:
     def _parse(template: str):
         # nop
         if template.endswith("^^xsd:string"):
-            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+            return {
+                "namespace": None,
+                "prefix": None,
+                "suffix": None,
+                "nop": template,
+            }
         if "://" in template:
-            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+            return {
+                "namespace": None,
+                "prefix": None,
+                "suffix": None,
+                "nop": template,
+            }
         if "\\" in template:
             template = template.replace("\\", "")
-            return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+            return {
+                "namespace": None,
+                "prefix": None,
+                "suffix": None,
+                "nop": template,
+            }
 
         # namespace (@base) + suffix
         if template.startswith("<") and template.endswith(">"):
             template = template[1:-1]
-            return {"namespace": "@base", "prefix": None, "suffix": template, "nop": None}
+            return {
+                "namespace": "@base",
+                "prefix": None,
+                "suffix": template,
+                "nop": None,
+            }
 
         # prefix + suffix
         if ":" in template:
             segments = template.split(":")
             assert len(segments) == 2, "Template can only have one colon"
-            return {"namespace": None, "prefix": segments[0], "suffix": segments[1], "nop": None}
+            return {
+                "namespace": None,
+                "prefix": segments[0],
+                "suffix": segments[1],
+                "nop": None,
+            }
 
         # nop fallback
-        return {"namespace": None, "prefix": None, "suffix": None, "nop": template}
+        return {
+            "namespace": None,
+            "prefix": None,
+            "suffix": None,
+            "nop": template,
+        }
 
     def _lookup(self, prefix):
         try:
             return self._graph_namespaces[prefix]
         except KeyError:
-            raise AssertionError(f"prefix `{prefix}` is undefined in the graph")
+            raise AssertionError(
+                f"prefix `{prefix}` is undefined in the graph"
+            )
 
     def _build(self):
         # namespace (@base) + suffix
         if self._namespace == "@base":
-            assert self._graph.base, "Graph needs base attribute when using base namespace to expand term"
+            assert (
+                self._graph.base
+            ), "Graph needs base attribute when using base namespace to expand"
+            " term"
             return getattr(Namespace(self._graph.base), self._suffix)
 
         # namespace + suffix
@@ -99,7 +138,8 @@ class TermBuilder:
             return URIRef(self._nop)
         if hasattr(self._graph, "_jsonld_context"):
             term = self._graph._jsonld_context.terms.get(self._nop, None)
-            if term: return URIRef(getattr(term, 'id'))
+            if term:
+                return URIRef(getattr(term, "id"))
 
         return Literal(self._nop)
 

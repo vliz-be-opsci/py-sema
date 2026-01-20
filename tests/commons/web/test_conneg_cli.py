@@ -112,7 +112,9 @@ def test_cli(capfd):
                 }
                 assert fattrs["url"] == url
                 # find the matching csv output
-                v = variants_by_key.pop((fattrs["mime_type"], fattrs["profile"]))
+                v = variants_by_key.pop(
+                    (fattrs["mime_type"], fattrs["profile"])
+                )
                 assert v is not None
                 assert v["url"] == url
                 assert v["inRequested"] == "False"  # since we requested none
