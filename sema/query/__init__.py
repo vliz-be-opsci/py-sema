@@ -8,15 +8,24 @@
 """
 
 import logging
-from pathlib import Path
 
 from sema.commons.j2 import J2RDFSyntaxBuilder as DefaultSparqlBuilder
 
+from .copytpl import (
+    DEFAULT_TEMPLATES_FOLDER,
+    copy_embedded_templates_to,
+    template_path,
+)
 from .query import GraphSource, QueryResult
 
 log = logging.getLogger(__name__)
-DEFAULT_TEMPLATES_FOLDER = (
-    Path(__file__).parent.absolute() / "sparql_templates"
-)
+install_templates = copy_embedded_templates_to
 
-__all__ = ["DefaultSparqlBuilder", "GraphSource", "QueryResult"]
+__all__ = [
+    "DefaultSparqlBuilder",
+    "GraphSource",
+    "QueryResult",
+    "template_path",
+    "install_templates",
+    "DEFAULT_TEMPLATES_FOLDER",
+]
