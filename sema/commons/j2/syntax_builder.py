@@ -78,9 +78,26 @@ class J2RDFSyntaxBuilder(RDFSyntaxBuilder):
         :param _template_name: of the template
         :param **variables: named context parameters to apply to the template
         """
-        log.debug(
-            f"building sparql query '{_template_name}' "
-            f"with variables={variables}"
-        )
+        # log.debug(
+        #     f"building rdf-template '{_template_name}' "
+        #     f"with variables={variables}"
+        # )
         qry = self._get_rdfsyntax_template(_template_name).render(variables)
+        return qry
+
+    def expand_syntax(
+        self,
+        syntax: str,
+        /,
+        **variables,
+    ) -> str:  # type: ignore
+        """
+        Fills a given template
+
+        :param syntax: the template
+        :param **variables: named context parameters to apply to the template
+        """
+        # log.debug(f"expanding template with variables={variables}")
+        template = self._templates_env.from_string(syntax)
+        qry = template.render(variables)
         return qry

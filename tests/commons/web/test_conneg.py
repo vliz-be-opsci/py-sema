@@ -67,24 +67,27 @@ def expected_marine_info_variants(type_id: str):
 @pytest.mark.parametrize(
     "url, expected",
     (
-        (
-            "https://marineinfo.org/id/person/38476",
-            expected_marine_info_variants("person-38476"),
-        ),
-        (
-            "https://marineinfo.org/id/collection/619",
-            expected_marine_info_variants("collection-619"),
-        ),
-        (
-            "https://marineinfo.org/id/institute/36",
-            expected_marine_info_variants("institute-36"),
-        ),
-        (
-            "https://marineinfo.org/id/project/5315",
-            expected_marine_info_variants("project-5315"),
-        ),
-        # inclusion of test blocked by ttl formatting issue in marineinfo
-        # - see https://vliz.atlassian.net/browse/IMIS-1805
+        # 2024-08-08 -- marineinfo.org is showing conneg issues
+        # - see https://vliz.atlassian.net/browse/IMIS-1586
+        # - see https://vliz.atlassian.net/browse/IMIS-1587
+        # - see https://vliz.atlassian.net/browse/IMIS-1862
+        # when fixed these test cases can be added again
+        # (
+        #     "https://marineinfo.org/id/person/38476",
+        #     expected_marine_info_variants("person-38476"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/collection/619",
+        #     expected_marine_info_variants("collection-619"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/institute/36",
+        #     expected_marine_info_variants("institute-36"),
+        # ),
+        # (
+        #     "https://marineinfo.org/id/project/5315",
+        #     expected_marine_info_variants("project-5315"),
+        # ),
         # (
         #     "https://marineinfo.org/id/publication/307837",
         #     expected_marine_info_variants("publication-307837"),
@@ -107,12 +110,12 @@ def expected_marine_info_variants(type_id: str):
         #         ),
         #         (
         #             "text/xml",
-        #             "https://marineinfo.org/ns/profile#eml-2.1.1",
+        #             "https://marineinfo.org/ns/profile#eml2.1.1",
         #             "-dataset-90-eml2.1.1.xml",
         #         ),
         #         (
         #             "text/xml",
-        #             "https://marineinfo.org/ns/profile#eml-2.2.0",
+        #             "https://marineinfo.org/ns/profile#eml2.2.0",
         #             "-dataset-90-eml2.2.0.xml",
         #         ),
         #     },
@@ -216,7 +219,10 @@ def test_conneg_eval(url, expected):
         result: FoundVariants = ce.process()
         log.debug(f"RESULT: {bool(result)=} {len(result)=} {str(result)=}")
 
-        assert result, f"For {url} :: Expected a positive result, got {result}"
+        assert bool(result), (
+            f"For {url} :: Expected an affirmative (true) result, "
+            f"got {bool(result)}"
+        )
 
         assert len(result) > 0, (
             f"For {url} :: Expected at least one variant, "

@@ -32,3 +32,9 @@ def test_resolve_loader() -> None:
     err_text = "value: !resolve '{a}.{c}'"
     out = yaml.load(err_text, Loader=resolving_loader)
     assert out["value"] == "{a}.{c}"
+
+    # 5. with escape syntax {{ }} we can delay resolution to later
+    yml_text = "value: !resolve '{a}.{{c}}'"
+    resolving_loader = LoaderBuilder().to_resolve(context).build()
+    out = yaml.load(yml_text, Loader=resolving_loader)
+    assert out["value"] == "1.{c}"

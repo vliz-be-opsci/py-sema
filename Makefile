@@ -21,19 +21,22 @@ clean:  ## removes all possible derived built results from other executions of t
 	@rm -f *.sqlite
 	@rm -rf .cache
 
-startup: ## prepares environment for using poetry (a core dependency for this project)
+subyt-update: ## prepares environment for using git submodules
+	@git submodule update --init --recursive
+
+startup: ## prepares environment for using py-poetry
 	@pip install --upgrade pip
 	@which poetry >/dev/null || pip install poetry
 
 install:  ## install this package in the current environment
 	@poetry install
 
-init: startup install  ## initial prepare of the environment for local execution of the package
+init: startup subyt-update install  ## initial prepare of the environment for local execution of the package
 
-init-dev: startup  ## initial prepare of the environment for further development in the package
+init-dev: startup subyt-update  ## initial prepare of the environment for further development in the package
 	@poetry install --with 'tests' --with 'dev' --with 'docs'
 
-init-docs: startup  ## initial prepare of the environment for local execution and reading the docs
+init-docs: startup subyt-update  ## initial prepare of the environment for local execution and reading the docs
 	@poetry install --with 'docs'
 
 

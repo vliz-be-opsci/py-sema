@@ -7,3 +7,6 @@
 {{ record.name }}=record.name
 {{ uritexpand("http://ex.org{/name}") | uri }}=<http://ex.org/global.name>
 {{ uritexpand("http://ex.org{/name}", record) | uri }}=<http://ex.org/record.name>
+{% set gnm = name -%}
+{% set rnm = record.name -%}
+{{ uritexpand("http://ex.org{/gnm,rnm}") | uri }}=<http://ex.org/global.name/record.name>
