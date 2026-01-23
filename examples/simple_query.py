@@ -90,10 +90,14 @@ For programmatic usage, you can use GraphSource.build():
 from sema.query import GraphSource
 
 # Build a graph source (auto-detects type from input)
+# GraphSource.build() takes variable arguments (*sources)
 source = GraphSource.build("path/to/data.ttl")
 
 # Or from a SPARQL endpoint
 source = GraphSource.build("http://endpoint-url")
+
+# You can also pass multiple sources
+source = GraphSource.build("file1.ttl", "file2.ttl")
 
 # Then execute queries using the source
 result = source.query("SELECT * WHERE { ?s ?p ?o } LIMIT 10")

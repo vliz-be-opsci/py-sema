@@ -44,6 +44,7 @@ Example SHACL shape (save as shapes.ttl):
 
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 ex:PersonShape
     a sh:NodeShape ;
