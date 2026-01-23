@@ -1,0 +1,11 @@
+snooze-till-graph-age-minutes: 0
+prefix:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  ex: http://www.example.org/
+assert:
+  - subjects:
+      literal:
+        - http://127.0.0.1:8080/DOC2.ttl
+    paths:
+      - "ex:label"
+    # DOC 2 will be present in the graph, non others

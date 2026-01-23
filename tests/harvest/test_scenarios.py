@@ -478,3 +478,45 @@ def test_scenario_five(
         travharv.target_store.drop_graph_for_config(
             "dereference_test5_sparql.yml"
         )
+
+@pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
+def test_scenario_six(
+    httpd_server_base: str,
+    store_info_sets,
+):
+    assert httpd_server_base
+    for store in store_info_sets:
+        log.debug(f"testing scenario one for {store}")
+        config = CONFIGS / "dereference_test6_sparql.yml"
+        travharv = Harvest(
+            config,
+            store,
+        )
+        length_store = len_store(travharv.target_store)
+        travharv.process()
+        # assertions here
+
+        # get all the travharv:downloadedresources from the store
+        results = graphs_in_execution_report(travharv.target_store)
+
+        # docs that should be present at all times are
+        # DOC1
+        docs = ["DOC2"]
+        for doc in docs:
+            assert any(doc in result["contentUrl"] for result in results)
+
+        expected_len_triples = sum(
+            int(result["triples"]) for result in results
+        )
+        log.debug(f"{expected_len_triples=}")
+        log.debug(f"{store=}")
+        
+        netto_triples = netto_triples_for_store_info_set(
+            store,
+            travharv.target_store,
+            "dereference_test6_sparql.yml",
+        )
+
+        log.debug(f"{netto_triples=}")
+        assert netto_triples + length_store >= expected_len_triples
+        
