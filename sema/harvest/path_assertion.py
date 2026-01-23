@@ -184,15 +184,29 @@ class SubjPropPathAssertion:
             self.path_for_depth,
             self.NSM,
         ):
-            if self.depth != self.max_depth:
                 log.debug("Subjects for property path assertion found")
+                
+                # Literal Guard:
+                # Check if the object at the end of this path is a Literal before attempting
+                # to harvest it. Literals cannot be dereferenced as URIs, so we skip harvesting
+                # for literal endpoints while marking the path assertion as successful.
+                #
+                # This allows URI-valued predicates to continue multi-document traversal while
+                # preventing crashes on literal-valued predicates (e.g., rdfs:label, ex:part).
+                objects = self.rdf_store_access.select_subjects_for_ppath(
+                    self.subject,
+                    self.path_for_depth,
+                    self.NSM,
+                )
+                
+                if objects and isinstance(objects[0], rdflib.Literal):
+                    log.debug(f"Path ends with Literal value: {objects[0]} - skipping harvest but marking assertion successful")
+                    self.succesful_assertion_depth = self.depth
+                    return
+                
                 self._harvest()
                 self.succesful_assertion_depth = self.depth
                 return
-            log.debug("Path assertion successful")
-            self.succesful_assertion_depth = self.depth
-            self._increase_depth()
-            return
 
     def _harvest_uri(self, uri):
         """
