@@ -110,7 +110,7 @@ def len_store(store: RDFStoreAccess):
     return len(triples)
 
 
-@pytest.mark.usefixtures("httpd_server_base")
+@pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_one(
     httpd_server_base: str,
     store_info_sets,
@@ -158,7 +158,6 @@ def test_scenario_one(
         travharv.target_store.drop_graph_for_config(
             "dereference_test1_sparql.yml"
         )
-        del travharv
 
 
 @pytest.fixture
@@ -221,7 +220,7 @@ def test_scenario_two(
 """
 
 
-@pytest.mark.usefixtures("httpd_server_base")
+@pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_three(
     httpd_server_base: str,
     store_info_sets,
@@ -255,7 +254,7 @@ def test_scenario_three(
         # scenarios that could happen are
         # DOC1, DOC2, DOC4
         # DOC1, DOC5, DOC6
-        # DOC1, DOC3
+        # DOC1, DPC3
         # DOC1, DOC8
         # DOC1, DOC7
 
@@ -304,10 +303,9 @@ def test_scenario_three(
         travharv.target_store.drop_graph_for_config(
             "dereference_test3_sparql.yml"
         )
-        del travharv
 
 
-@pytest.mark.usefixtures("httpd_server_base")
+@pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_four(
     httpd_server_base: str,
     store_info_sets,
@@ -347,13 +345,18 @@ def test_scenario_four(
             assert any(doc in result["contentUrl"] for result in results)
 
         # scenarios that could happen are
-        # DOC1, DOC2 - if path traversal reaches DOC2
-        # DOC1, DOC3, DOC4 - if path traversal reaches DOC3 and DOC4
-        # DOC1, DOC8 - if path traversal reaches DOC8 which has no ex:thing to follow
+        # DOC1, DOC2, DOC4
+        # DOC1, DOC5, DOC6
+        # DOC1, DPC3
+        # DOC1, DOC8
+        # DOC1, DOC7
+
         possible_docs = [
-            ["DOC1", "DOC2"],
-            ["DOC1", "DOC3", "DOC4"],
+            ["DOC1", "DOC2", "DOC4"],
+            ["DOC1", "DOC5", "DOC6"],
+            ["DOC1", "DOC3"],
             ["DOC1", "DOC8"],
+            ["DOC1", "DOC7"],
         ]
 
         # check if any of the possible docs are the same as the results
@@ -394,10 +397,9 @@ def test_scenario_four(
         travharv.target_store.drop_graph_for_config(
             "dereference_test4_sparql.yml"
         )
-        del travharv
 
 
-@pytest.mark.usefixtures("httpd_server_base")
+@pytest.mark.usefixtures("httpd_server_base", "store_info_sets")
 def test_scenario_five(
     httpd_server_base: str,
     store_info_sets,
@@ -424,17 +426,18 @@ def test_scenario_five(
             assert any(doc in result["contentUrl"] for result in results)
 
         # scenarios that could happen are
-        # DOC1, DOC2, DOC3 - if ex:resource traverses to DOC3
-        # DOC1, DOC2, DOC4 - if ex:resource traverses to DOC2 and SPARQL finds DOC4 via ex:id
-        # DOC1, DOC4, DOC5 - if ex:resource traverses to DOC5 and SPARQL finds both DOC4 and DOC6
-        # DOC1, DOC7 - if ex:resource traverses to DOC7 (which has no ex:subset to follow)
-        # DOC1, DOC8 - if ex:resource traverses to DOC8 (which has no ex:subset to follow)
+        # DOC1, DOC2, DOC4
+        # DOC1, DOC5, DOC6
+        # DOC1, DPC3
+        # DOC1, DOC8
+        # DOC1, DOC7
+
         possible_docs = [
-            ["DOC1", "DOC2", "DOC3"],
             ["DOC1", "DOC2", "DOC4"],
-            ["DOC1", "DOC4", "DOC5"],
-            ["DOC1", "DOC7"],
+            ["DOC1", "DOC5", "DOC6"],
+            ["DOC1", "DOC3"],
             ["DOC1", "DOC8"],
+            ["DOC1", "DOC7"],
         ]
 
         # check if any of the possible docs are the same as the results
@@ -475,4 +478,3 @@ def test_scenario_five(
         travharv.target_store.drop_graph_for_config(
             "dereference_test5_sparql.yml"
         )
-        del travharv
