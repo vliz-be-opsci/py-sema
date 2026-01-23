@@ -369,9 +369,9 @@ rocrate validate ro-crate-metadata.json
 
 ## Related Modules
 
-- [RO Blueprint](./roblueprint.py) - RO-Crate blueprint definitions
-- [RO Builder](./robuilder.py) - RO-Crate construction logic
-- [RO Creator](./rocreator.py) - Main creation implementation
+- [RO Blueprint](./creator/roblueprint.py) - RO-Crate blueprint definitions
+- [RO Builder](./creator/robuilder.py) - RO-Crate construction logic
+- [RO Creator](./creator/rocreator.py) - Main creation implementation
 
 ## See Also
 
