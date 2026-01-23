@@ -1,0 +1,18 @@
+@prefix ns1: <http://example.org/travharv/ns/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:travharv:c13874b0-b287-440d-a68d-525172c2f6a1> a prov:Entity,
+        sh:ValidationReport ;
+    ns1:fromContext "harvest_config.yaml"^^xsd:string ;
+    prov:generatedAtTime "2026-01-23T09:58:25.650787+00:00"^^xsd:dateTime ;
+    sh:result <urn:travharv:assertionresult-aa6c5dd4-2aaa-4ab5-ba1a-6525f24807c2> .
+
+<urn:travharv:assertionresult-aa6c5dd4-2aaa-4ab5-ba1a-6525f24807c2> a prov:Entity,
+        sh:ValidationResult ;
+    prov:generatedAtTime "2026-01-23T09:58:25.818975+00:00"^^xsd:dateTime ;
+    sh:focusNode "http://example.org/person/alice"^^xsd:anyURI ;
+    sh:resultMessage "Assertion failed, last path: "^^xsd:string ;
+    sh:resultPath ""^^xsd:string .
+

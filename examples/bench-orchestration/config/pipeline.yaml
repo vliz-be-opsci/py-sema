@@ -1,0 +1,28 @@
+services:
+  - name: harvest
+    command: sema-harvest
+    args:
+      - --config
+      - harvest_config.yaml
+      - --dump
+      - ../data/harvested.ttl
+
+  - name: validate
+    type: pyshacl
+    input: ../data/harvested.ttl
+    shapes: ../shapes/data_shape.ttl
+    output: ../reports/harvest_validation.ttl
+    depends_on: harvest
+
+  - name: query
+    command: sema-query
+    args:
+      - --source
+      - ../data/harvested.ttl
+      - --template_folder
+      - ../templates
+      - --template_name
+      - analysis.sparql
+      - --output_location
+      - ../results/analysis.csv
+    depends_on: validate

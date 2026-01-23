@@ -1,0 +1,23 @@
+snooze-till-graph-age-minutes: 1000000
+prefix:
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  dbo: http://dbpedia.org/ontology/
+  dbr: http://dbpedia.org/resource/
+assert:
+  - subjects:
+      literal:
+        - http://dbpedia.org/resource/Python_(programming_language)
+    paths:
+      - "rdf:type"
+      - "rdfs:label"
+  - subjects:
+      SPARQL: >
+        SELECT ?s
+        WHERE {
+          ?s a dbo:ProgrammingLanguage ;
+             rdfs:label "Python (programming language)"@en .
+        }
+    paths:
+      - "rdf:type"
+      - "rdfs:label"

@@ -1,0 +1,13 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?person ?name ?email ?city ?age
+WHERE {
+  ?person rdf:type foaf:Person .
+  ?person foaf:name ?name .
+  OPTIONAL { ?person foaf:mbox ?email }
+  OPTIONAL { ?person schema:address ?city }
+  OPTIONAL { ?person foaf:age ?age }
+}
+ORDER BY ?name
