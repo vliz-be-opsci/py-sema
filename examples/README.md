@@ -102,6 +102,19 @@ Learn how to:
 python examples/rocrate_example.py
 ```
 
+#### 9. RO-Crate Assets (`examples/ro/`)
+
+Learn how to:
+- Run RO-Crate creation on ready-made sample crates
+- Use explicit entries vs glob-driven crates
+- Resolve environment variables in `roc-me.yml`
+
+**Run:**
+```bash
+python -m sema.ro.creator ./examples/ro/basic --force
+python -m sema.ro.creator ./examples/ro/globbed --force --load-os-env
+```
+
 ## Prerequisites
 
 Before running the examples, ensure you have:
@@ -136,6 +149,7 @@ Before running the examples, ensure you have:
 ### Orchestration & Packaging
 - `bench_orchestration.py` - Orchestrate multiple services
 - `rocrate_example.py` - Package research objects
+- `examples/ro/` - RO-Crate assets and blueprints
 
 ## CLI Tools Quick Reference
 
