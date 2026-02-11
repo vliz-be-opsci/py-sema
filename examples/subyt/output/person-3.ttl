@@ -1,0 +1,12 @@
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix ex: <http://example.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/person/3>
+    a foaf:Person ;
+    foaf:name "Carol Lee" ;
+    foaf:mbox <mailto:carol@example.org> ;
+    schema:memberOf <http://example.org/org/ALPHA> ;
+    ex:role "Engineer" ;
+    ex:age 28^^xsd:integer .

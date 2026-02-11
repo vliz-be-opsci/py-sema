@@ -78,6 +78,18 @@ Learn how to:
 python examples/subyt_templating.py
 ```
 
+#### 5b. Template-Based Generation Docs and Files (`examples/subyt/`)
+
+Learn how to:
+- Generate RDF from CSV and JSON with sema-subyt
+- Use per-record output patterns
+- Run in no-it mode for multi-set templates
+
+**Read:**
+```bash
+type examples\subyt\README.md
+```
+
 #### 6. Filesystem Synchronization (`syncfs_example.py`)
 
 Learn how to:
@@ -148,6 +160,7 @@ Before running the examples, ensure you have:
 
 ### Data Input & Generation
 - `subyt_templating.py` - Convert structured data to RDF
+- `examples/subyt/` - CLI-focused sema.subyt examples and files
 - `discovery_example.py` - Discover and retrieve RDF from URIs
 
 ### Data Processing

@@ -1,0 +1,4 @@
+id,name,email,org_id,role,age
+1,Alice Smith,alice@example.org,ALPHA,Researcher,30
+2,Bob Jones,bob@example.org,BETA,Technician,25
+3,Carol Lee,carol@example.org,ALPHA,Engineer,28

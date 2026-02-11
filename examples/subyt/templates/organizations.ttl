@@ -1,0 +1,8 @@
+@prefix schema: <http://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+{% for org in sets.organizations %}
+<{{ base_uri }}org/{{ org.id }}>
+    a schema:Organization ;
+    foaf:name "{{ org.name }}" .
+{% endfor %}
