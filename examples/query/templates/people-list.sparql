@@ -1,0 +1,17 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name ?email ?org ?role
+WHERE {
+  ?person a foaf:{{ type | default("Person") }} ;
+          foaf:name ?name ;
+          ex:role ?role ;
+          schema:memberOf ?org .
+  OPTIONAL { ?person schema:email ?email }
+  {% if role %}
+  FILTER(lcase(str(?role)) = lcase("{{ role }}"))
+  {% endif %}
+}
+ORDER BY ?name
+{{ "LIMIT " ~ limit if limit else "" }}

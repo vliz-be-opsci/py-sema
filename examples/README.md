@@ -18,6 +18,18 @@ Learn how to:
 python examples/simple_query.py
 ```
 
+#### 1b. SPARQL Query Docs and CLI Examples (`examples/query/`)
+
+Learn how to:
+- Use the sema-query CLI with embedded templates
+- Run queries against SPARQL endpoints and local dumps
+- Pass template variables on the command line
+
+**Read:**
+```bash
+type examples\query\README.md
+```
+
 #### 2. Task Orchestration (`bench_orchestration.py`)
 
 Learn how to:
@@ -140,6 +152,7 @@ Before running the examples, ensure you have:
 
 ### Data Processing
 - `simple_query.py` - Query RDF data with SPARQL
+- `examples/query/` - CLI-focused sema.query examples
 - `validation_example.py` - Validate RDF with SHACL
 
 ### Data Management
