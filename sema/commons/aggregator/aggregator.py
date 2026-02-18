@@ -26,9 +26,16 @@ class Aggregator:
         self.graph = Graph()
 
     def process(self) -> None:
+        open(
+            self.output_path, "w"
+        ).close()  # required for RecursionError check
         for glb, fmt in self.globs.items():
             for p in self.input_path.rglob(glb):
                 if p.is_file():
+                    if p == self.output_path:
+                        raise RecursionError(
+                            "output file is in the input directory"
+                        )
                     try:
                         self.graph.parse(p, format=fmt)
                     except Exception as e:

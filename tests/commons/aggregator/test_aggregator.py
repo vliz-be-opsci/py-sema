@@ -6,9 +6,12 @@ from sema.commons.aggregator import Aggregator
 
 def test_aggregator():
     Aggregator(
-        input_path="./tests/commons/aggregator/data",
+        input_path="./tests/commons/aggregator/input-data",
+        output_path="./tests/commons/aggregator/output-data/graph.ttl",
         globs="**/*.ttl: ttl, **/*.json: json-ld",
     ).process()
-    g0 = Graph().parse("./tests/commons/aggregator/data/graph_expected.ttl")
-    g1 = Graph().parse("./tests/commons/aggregator/data/graph.ttl")
+    g0 = Graph().parse(
+        "./tests/commons/aggregator/output-data/graph_expected.ttl"
+    )
+    g1 = Graph().parse("./tests/commons/aggregator/output-data/graph.ttl")
     assert to_isomorphic(g0) == to_isomorphic(g1)
