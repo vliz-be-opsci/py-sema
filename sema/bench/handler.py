@@ -23,6 +23,7 @@ from logging import getLogger
 
 from pyshacl import validate
 
+from sema.commons.aggregator import Aggregator
 from sema.harvest import Harvest
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
@@ -99,3 +100,8 @@ class RMLHandler(TaskHandler):
     def handle(self, task):
         # TODO: implement
         raise NotImplementedError
+
+
+class AggregateHandler(TaskHandler):
+    def handle(self, task):
+        Aggregator(**task.args).process()

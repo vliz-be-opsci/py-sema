@@ -1,4 +1,5 @@
 from sema.bench.handler import (
+    AggregateHandler,
     HarvestHandler,
     ShaclHandler,
     SubytHandler,
@@ -12,6 +13,7 @@ class TaskDispatcher:
         "shacl": ShaclHandler,
         "sync-fs-triples": SyncFsTriplesHandler,
         "harvest": HarvestHandler,
+        "aggregate": AggregateHandler,
     }
 
     def dispatch(self, task):

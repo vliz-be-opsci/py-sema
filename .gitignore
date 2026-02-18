@@ -10,5 +10,7 @@ venv/
 .venv/
 object_graph_mapping.ttl
 tests/ro/creator/data/katoomba-rainfall/ro-crate-metadata.json
-tdd-*/
-*tdd_*.py
+tests/commons/aggregator/data/graph.ttl
+
+# test-driven development
+*tdd*
