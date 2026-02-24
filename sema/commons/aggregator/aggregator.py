@@ -29,11 +29,12 @@ class Aggregator:
         for glb, fmt in self.globs.items():
             for p in self.input_path.rglob(glb):
                 if p.is_file():
-                    if p == self.output_path:
+                    if p.resolve() == self.output_path.resolve():
                         continue
                     try:
                         self.graph.parse(p, format=fmt)
                     except Exception as e:
                         logger.error(f"failed to parse {p}: {e}")
 
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
         self.graph.serialize(self.output_path, format=self.output_format)
