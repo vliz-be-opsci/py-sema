@@ -1,0 +1,12 @@
+{
+  "@graph": [
+    {
+      "@id": "http://example.org/#venom",
+      "@type": "http://xmlns.com/foaf/0.1/Person",
+      "http://www.perceive.net/schemas/relationship/enemyOf": {
+        "@id": "http://example.org/#spiderman"
+      },
+      "http://xmlns.com/foaf/0.1/name": "Venom"
+    }
+  ]
+}
