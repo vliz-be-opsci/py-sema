@@ -1,0 +1,49 @@
+$:
+  version: "1.2"
+  glob_walk: true
+  glob_ignore:
+    - "**/ro-crate-metadata.json"
+    - "**/roc-me.yml"
+    - "**/docs/drafts/*"
+
+ro-crate-metadata.json:
+  $type: CreativeWork
+  conformsTo: https://w3id.org/ro/crate/1.2
+  about: ./
+
+./:
+  $type: Dataset
+  name: !resolve "{PROJECT_NAME}"
+  description: "Example of glob-driven RO-Crate metadata."
+  datePublished: "2025-10-12"
+  license: https://creativecommons.org/licenses/by/4.0/
+  doi: !resolve "{PROJECT_DOI}"
+  author:
+    - "#lead"
+
+#lead:
+  $type: Person
+  name: !resolve "{AUTHOR_NAME}"
+  email: !resolve "{AUTHOR_EMAIL}"
+
+data/*.csv:
+  encodingFormat: text/csv
+
+data/**/*.parquet:
+  encodingFormat: application/parquet
+
+scripts/*.py:
+  $type:
+    - File
+    - SoftwareSourceCode
+  programmingLanguage: Python
+
+workflows/*.cwl:
+  $type:
+    - File
+    - ComputationalWorkflow
+  programmingLanguage: https://w3id.org/workflowhub/workflow-ro-crate#cwl
+
+docs:
+  $type: Dataset
+  name: "Documentation"

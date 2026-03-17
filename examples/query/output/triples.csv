@@ -1,0 +1,6 @@
+o,p,s
+http://example.org/org/alpha,http://schema.org/memberOf,http://example.org/carol
+http://xmlns.com/foaf/0.1/Person,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,http://example.org/bob
+http://xmlns.com/foaf/0.1/Person,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,http://example.org/carol
+Carol,http://xmlns.com/foaf/0.1/name,http://example.org/carol
+http://xmlns.com/foaf/0.1/Person,http://www.w3.org/1999/02/22-rdf-syntax-ns#type,http://example.org/alice

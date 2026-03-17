@@ -1,0 +1,13 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX ex: <http://example.org/>
+
+SELECT ?org ?orgName (COUNT(?person) AS ?members)
+WHERE {
+  ?person a foaf:Person ;
+          schema:memberOf ?org .
+  ?org a schema:Organization ;
+       foaf:name ?orgName .
+}
+GROUP BY ?org ?orgName
+ORDER BY DESC(?members)

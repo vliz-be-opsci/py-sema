@@ -1,0 +1,17 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX schema: <http://schema.org/>
+PREFIX ex: <http://example.org/>
+
+SELECT ?person ?name ?orgName ?orgId
+WHERE {
+  ?person a foaf:Person ;
+          foaf:name ?name ;
+          schema:memberOf ?org .
+  ?org a schema:Organization ;
+       foaf:name ?orgName ;
+       schema:identifier ?orgId .
+  {% if org_id %}
+  FILTER(?orgId = "{{ org_id }}")
+  {% endif %}
+}
+ORDER BY ?name
