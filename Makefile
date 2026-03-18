@@ -5,7 +5,7 @@ AUTHOR = "Flanders Marine Institute, VLIZ vzw"
 
 REPONAME = py-sema
 
-.PHONY: help clean startup install init init-dev init-docs docs docs-build docs-serve docs-clean test test-quick test-with-graphdb test-coverage test-coverage test-coverage-with-graphdb check lint-fix update
+.PHONY: help clean startup install init init-dev init-docs docs docs-sync-examples docs-build docs-serve docs-clean test test-quick test-with-graphdb test-coverage test-coverage test-coverage-with-graphdb check lint-fix update
 .DEFAULT_GOAL := help
 
 help:  ## Shows this list of available targets and their effect.
@@ -42,14 +42,25 @@ init-docs: startup subyt-update  ## initial prepare of the environment for local
 
 docs: docs-build  ## builds docs website using MyST
 
+docs-sync-examples:  ## mirrors examples into docs/examples/source for docs build artifacts
+	@rm -rf ./docs/examples/source
+	@mkdir -p ./docs/examples/source
+	@cp -a ./examples/. ./docs/examples/source/
+
 docs-build:  ## builds docs website into docs/_build/html using MyST
+	@$(MAKE) docs-sync-examples --no-print-directory
 	@cd docs && npx --yes mystmd build --html --ci
+	@rm -rf ./docs/_build/html/examples
+	@mkdir -p ./docs/_build/html/examples
+	@cp -a ./docs/examples/source/. ./docs/_build/html/examples/
 
 docs-serve:  ## serves docs website locally using MyST live preview
+	@$(MAKE) docs-sync-examples --no-print-directory
 	@cd docs && npx --yes mystmd start
 
 docs-clean:  ## removes generated docs build artifacts
 	@rm -rf ./docs/_build
+	@rm -rf ./docs/examples/source
 
 test-single:  ## runs the standard test-suite for the memory-graph implementation
 	@for file in $$(find ${TEST_PATH} -name 'test_*.py'); do \

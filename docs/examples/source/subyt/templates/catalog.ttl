@@ -1,0 +1,24 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<{{ base_uri }}dataset/people>
+    a dcat:Dataset ;
+    dcterms:title "{{ sets.metadata.title }}" ;
+    dcterms:issued "{{ sets.metadata.issued }}"^^xsd:date ;
+    dcterms:publisher "{{ sets.metadata.publisher }}" .
+
+{% for org in sets.organizations %}
+<{{ base_uri }}org/{{ org.id }}>
+    a schema:Organization ;
+    schema:name "{{ org.name }}" .
+{% endfor %}
+
+{% for person in sets._ %}
+<{{ base_uri }}person/{{ person.id }}>
+    a foaf:Person ;
+    foaf:name "{{ person.name }}" ;
+    schema:memberOf <{{ base_uri }}org/{{ person.org_id }}> .
+{% endfor %}

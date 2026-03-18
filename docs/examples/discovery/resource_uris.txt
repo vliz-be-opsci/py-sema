@@ -1,0 +1,3 @@
+https://dbpedia.org/resource/Python_(programming_language)
+https://dbpedia.org/resource/Belgium
+https://example.org/unknown

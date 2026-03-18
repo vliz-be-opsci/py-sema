@@ -1,0 +1,11 @@
+@prefix schema: <http://schema.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+
+<http://example.org/org/ALPHA>
+    a schema:Organization ;
+    foaf:name "Alpha Lab" .
+
+<http://example.org/org/BETA>
+    a schema:Organization ;
+    foaf:name "Beta Lab" .

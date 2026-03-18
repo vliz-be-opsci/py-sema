@@ -1,0 +1,17 @@
+snooze-till-graph-age-minutes: 1000000
+prefix:
+  ex: http://example.org/person/
+  foaf: http://xmlns.com/foaf/0.1/
+assert:
+  - subjects:
+      literal:
+        - http://example.org/person/alice
+    paths:
+      - "foaf:name"
+sources:
+  - type: file
+    path: ../data/persons.ttl
+    format: turtle
+
+harvesting:
+  output_graph: http://example.org/graph/harvested

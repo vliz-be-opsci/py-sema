@@ -1,0 +1,20 @@
+services:
+  - name: validate_persons
+    type: pyshacl
+    input: ../data/persons.ttl
+    shapes: ../shapes/person_shape.ttl
+    output: ../reports/person_validation.ttl
+
+  - name: extract_data
+    type: custom
+    depends_on: validate_persons
+    command: sema-query
+    args:
+      - --source
+      - ../data/persons.ttl
+      - --template_folder
+      - ../templates
+      - --template_name
+      - extract.sparql
+      - --output_location
+      - ../results/extracted.csv

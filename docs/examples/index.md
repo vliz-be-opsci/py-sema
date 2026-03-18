@@ -1,8 +1,9 @@
 # Examples Appendix
 
-This appendix includes the canonical README files from the examples subfolders.
+This appendix provides curated, MyST-safe documentation for each example submodule.
 
-Use these pages when you want copy-ready commands exactly as maintained in the source examples.
+Each page includes practical commands and links to the canonical source README on GitHub.
+This avoids broken relative links when example READMEs are rendered inside the docs book.
 
 ## Included Example READMEs
 

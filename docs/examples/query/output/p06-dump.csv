@@ -1,0 +1,11 @@
+id,pref_lang,alt_lang,alt,depr,member
+SDN:P06::UMNX,per metre per nanometre,,/m/nm,false,http://vocab.nerc.ac.uk/collection/P06/current/UMNX/
+SDN:P06::UECH,MicroEinsteins per square centimetre per hour,,uE/cm^2/h,false,http://vocab.nerc.ac.uk/collection/P06/current/UECH/
+SDN:P06::UNBQ,Nanobecquerels per litre,,nBq/l,false,http://vocab.nerc.ac.uk/collection/P06/current/UNBQ/
+SDN:P06::NGPG,Nanograms per gram,,ng/g,false,http://vocab.nerc.ac.uk/collection/P06/current/NGPG/
+SDN:P06::MOLE,Moles,,mol,false,http://vocab.nerc.ac.uk/collection/P06/current/MOLE/
+SDN:P06::UVAA,Metres per second,m/s,m/s,false,http://vocab.nerc.ac.uk/collection/P06/current/UVAA/
+SDN:P06::WPKG,Watts per kilogram,,W/kg,false,http://vocab.nerc.ac.uk/collection/P06/current/WPKG/
+SDN:P06::UBQK,Becquerels per kilogram,,Bq/kg,false,http://vocab.nerc.ac.uk/collection/P06/current/UBQK/
+SDN:P06::BYTE,Bytes,,Bytes,false,http://vocab.nerc.ac.uk/collection/P06/current/BYTE/
+SDN:P06::UGRM,Grams,,g,false,http://vocab.nerc.ac.uk/collection/P06/current/UGRM/

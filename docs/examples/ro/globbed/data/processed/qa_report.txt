@@ -1,0 +1,3 @@
+QA report
+- missing values: 0
+- outliers flagged: 0

@@ -1,0 +1,11 @@
+id,pref_lang,alt_lang,alt,depr,member
+SDN:P06::BQSM,Becquerels per square metre,,Bq/m^2,false,http://vocab.nerc.ac.uk/collection/P06/current/BQSM/
+SDN:P06::BSM3,Becquerels second per cubic metre,,Bq.s/m^3,false,http://vocab.nerc.ac.uk/collection/P06/current/BSM3/
+SDN:P06::KMP2,Kilograms per square metre,,kg/m^2,false,http://vocab.nerc.ac.uk/collection/P06/current/KMP2/
+SDN:P06::UKMC,Kilograms per cubic metre,,kg/m^3,false,http://vocab.nerc.ac.uk/collection/P06/current/UKMC/
+SDN:P06::UUUU,Dimensionless,,Dmnless,false,http://vocab.nerc.ac.uk/collection/P06/current/UUUU/
+SDN:P06::KMPS,Kilograms per metre per second,,kg/m/s,false,http://vocab.nerc.ac.uk/collection/P06/current/KMPS/
+SDN:P06::BQM3,Becquerels per cubic metre,,Bq/m^3,false,http://vocab.nerc.ac.uk/collection/P06/current/BQM3/
+SDN:P06::MOLE,Moles,,mol,false,http://vocab.nerc.ac.uk/collection/P06/current/MOLE/
+SDN:P06::DEGE,Degrees east,,degree_east,false,http://vocab.nerc.ac.uk/collection/P06/current/DEGE/
+SDN:P06::ULAA,Metres,,m,false,http://vocab.nerc.ac.uk/collection/P06/current/ULAA/

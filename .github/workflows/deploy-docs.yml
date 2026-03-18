@@ -35,13 +35,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install MyST CLI
-        run: npm install -g mystmd
-
       - name: Build docs
-        run: |
-          cd docs
-          myst build --html --ci
+        run: make docs-build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

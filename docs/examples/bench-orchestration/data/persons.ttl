@@ -1,0 +1,22 @@
+@prefix ex: <http://example.org/person/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:alice a foaf:Person ;
+    foaf:name "Alice Example" ;
+    foaf:mbox <mailto:alice@example.org> ;
+    schema:address "Antwerp" ;
+    foaf:age 29 .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Example" ;
+    foaf:mbox <mailto:bob@example.org> ;
+    schema:address "Ghent" ;
+    foaf:age 33 .
+
+ex:carol a foaf:Person ;
+    foaf:name "Carol Example" ;
+    foaf:mbox <mailto:carol@sample.org> ;
+    schema:address "Brussels" ;
+    foaf:age 41 .

@@ -1,0 +1,37 @@
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/dataset/people>
+    a dcat:Dataset ;
+    dcterms:title "" ;
+    dcterms:issued ""^^xsd:date ;
+    dcterms:publisher "" .
+
+
+<http://example.org/org/ALPHA>
+    a schema:Organization ;
+    schema:name "Alpha Lab" .
+
+<http://example.org/org/BETA>
+    a schema:Organization ;
+    schema:name "Beta Lab" .
+
+
+
+<http://example.org/person/1>
+    a foaf:Person ;
+    foaf:name "Alice Smith" ;
+    schema:memberOf <http://example.org/org/ALPHA> .
+
+<http://example.org/person/2>
+    a foaf:Person ;
+    foaf:name "Bob Jones" ;
+    schema:memberOf <http://example.org/org/BETA> .
+
+<http://example.org/person/3>
+    a foaf:Person ;
+    foaf:name "Carol Lee" ;
+    schema:memberOf <http://example.org/org/ALPHA> .
