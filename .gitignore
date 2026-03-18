@@ -14,3 +14,5 @@ tests/commons/aggregator/output-data/graph.ttl
 
 # test-driven development
 *tdd*
+
+docs/_build/
