@@ -64,7 +64,7 @@ class ROBlueprint(GraphBlueprint):
                 if (self.glob_root / path).is_file():
                     if not property.get("$type"):
                         property["$type"] = "File"
-                    self.body[str(path)] = deepcopy(property)
+                    self.body[str(path.as_posix())] = deepcopy(property)
                 else:
                     if not property.get("$type"):
                         property["$type"] = "Dataset"

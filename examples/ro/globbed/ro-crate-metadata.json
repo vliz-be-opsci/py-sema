@@ -13,14 +13,14 @@
             "doi": "{PROJECT_DOI}",
             "email": "{AUTHOR_EMAIL}",
             "hasPart": [
-                "dataprocessedREADME.txt",
-                "dataprocessedqa_report.txt",
-                "dataprocessedsummary.parquet",
-                "datarawobservations.csv",
-                "datarawsensors.csv",
-                "docsREADME.md",
-                "scriptstransform.py",
-                "workflowspipeline.cwl"
+                "data/processed/README.txt",
+                "data/processed/qa_report.txt",
+                "data/processed/summary.parquet",
+                "data/raw/observations.csv",
+                "data/raw/sensors.csv",
+                "docs/README.md",
+                "scripts/transform.py",
+                "workflows/pipeline.cwl"
             ],
             "license": {
                 "@id": "https://creativecommons.org/licenses/by/4.0/"
@@ -28,23 +28,23 @@
             "name": "{AUTHOR_NAME}"
         },
         {
-            "@id": "data\\processed\\README.txt",
+            "@id": "data/processed/README.txt",
             "@type": "File"
         },
         {
-            "@id": "data\\processed\\qa_report.txt",
+            "@id": "data/processed/qa_report.txt",
             "@type": "File"
         },
         {
-            "@id": "data\\processed\\summary.parquet",
+            "@id": "data/processed/summary.parquet",
             "@type": "File"
         },
         {
-            "@id": "data\\raw\\observations.csv",
+            "@id": "data/raw/observations.csv",
             "@type": "File"
         },
         {
-            "@id": "data\\raw\\sensors.csv",
+            "@id": "data/raw/sensors.csv",
             "@type": "File"
         },
         {
@@ -53,7 +53,7 @@
             "name": "Documentation"
         },
         {
-            "@id": "docs\\README.md",
+            "@id": "docs/README.md",
             "@type": "File"
         },
         {
@@ -65,11 +65,11 @@
             }
         },
         {
-            "@id": "scripts\\transform.py",
+            "@id": "scripts/transform.py",
             "@type": "File"
         },
         {
-            "@id": "workflows\\pipeline.cwl",
+            "@id": "workflows/pipeline.cwl",
             "@type": "File"
         }
     ]
