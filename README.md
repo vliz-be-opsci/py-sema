@@ -95,6 +95,31 @@ builder = DefaultSparqlBuilder()
 
 For more detailed examples, see the [examples/](examples/) folder.
 
+## Documentation
+
+py-sema documentation is now available as a MyST book in [docs/](docs/).
+
+### Local Documentation Preview
+
+Build static HTML docs:
+
+```bash
+make docs-build
+```
+
+Start live preview server:
+
+```bash
+make docs-serve
+```
+
+Generated output is placed in `docs/_build/html`.
+
+### GitHub Pages Publishing
+
+Documentation is built on pull requests and deployed to GitHub Pages from
+`main` when files under `docs/` change.
+
 ## Architecture
 
 ```mermaid

@@ -12,3 +12,4 @@ object_graph_mapping.ttl
 tests/ro/creator/data/katoomba-rainfall/ro-crate-metadata.json
 tdd-*/
 *tdd_*.py
+docs/_build

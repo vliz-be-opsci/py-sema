@@ -5,7 +5,7 @@ AUTHOR = "Flanders Marine Institute, VLIZ vzw"
 
 REPONAME = py-sema
 
-.PHONY: help clean startup install init init-dev init-docs docs docs-build test test-quick test-with-graphdb test-coverage test-coverage test-coverage-with-graphdb check lint-fix update
+.PHONY: help clean startup install init init-dev init-docs docs docs-build docs-serve docs-clean test test-quick test-with-graphdb test-coverage test-coverage test-coverage-with-graphdb check lint-fix update
 .DEFAULT_GOAL := help
 
 help:  ## Shows this list of available targets and their effect.
@@ -40,13 +40,16 @@ init-docs: startup subyt-update  ## initial prepare of the environment for local
 	@poetry install --with 'docs'
 
 
-#docs:  ## builds the docs
-#	@poetry run sphinx-quickstart -q --ext-autodoc --ext-githubpages --ext-viewcode --sep --project $(MODULE) --author '${AUTHOR} -f' source_docs
-#	@cp ./docs/* ./source_docs/source/
-#	@sleep 1
-#	@poetry run sphinx-apidoc -o ./source_docs/source ./$(MODULE)
-#	@poetry run sphinx-build -b html ./source_docs/source ./source_docs/build/html
-#	@cp ./source_docs/source/custom.css ./source_docs/build/html/_static/custom.css
+docs: docs-build  ## builds docs website using MyST
+
+docs-build:  ## builds docs website into docs/_build/html using MyST
+	@cd docs && npx --yes mystmd build --html --ci
+
+docs-serve:  ## serves docs website locally using MyST live preview
+	@cd docs && npx --yes mystmd start
+
+docs-clean:  ## removes generated docs build artifacts
+	@rm -rf ./docs/_build
 
 test-single:  ## runs the standard test-suite for the memory-graph implementation
 	@for file in $$(find ${TEST_PATH} -name 'test_*.py'); do \

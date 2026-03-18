@@ -1,0 +1,43 @@
+version: 1
+
+project:
+  id: py-sema-documentation
+  title: py-sema Documentation
+  description: Semantic manipulation of RDF data in Python.
+  github: https://github.com/vliz-be-opsci/py-sema
+  toc:
+    - file: index.md
+    - file: getting-started.md
+    - file: cli-reference.md
+    - title: End-User Guide
+      children:
+        - file: user-guide/index.md
+        - file: user-guide/query-workflow.md
+    - title: Examples Appendix
+      children:
+        - file: examples/index.md
+        - file: examples/query-readme.md
+        - file: examples/subyt-readme.md
+        - file: examples/discovery-readme.md
+        - file: examples/harvest-readme.md
+        - file: examples/bench-orchestration-readme.md
+        - file: examples/ro-readme.md
+    - title: Module Reference
+      children:
+        - file: modules/bench.md
+        - file: modules/discovery.md
+        - file: modules/harvest.md
+        - file: modules/query.md
+        - file: modules/ro.md
+        - file: modules/subyt.md
+        - file: modules/syncfs.md
+        - file: modules/commons.md
+
+site:
+  title: py-sema Documentation
+  template: book-theme
+  actions:
+    - title: GitHub
+      url: https://github.com/vliz-be-opsci/py-sema
+    - title: Issues
+      url: https://github.com/vliz-be-opsci/py-sema/issues
