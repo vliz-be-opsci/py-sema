@@ -43,7 +43,8 @@ class ROBlueprint(GraphBlueprint):
         self.glob_root = glob_root
         self.glob_ignore = glob_ignore
         if glob_walk:
-            self.implicit_body["**/*"] = {}
+            # most generic glob pattern needs to be expanded first
+            self.implicit_body = {"**/*": {}, **self.implicit_body}
         if glob_walk or glob_rnode:
             self._expand_glob()
 
@@ -61,17 +62,19 @@ class ROBlueprint(GraphBlueprint):
                 excludes=self.glob_ignore,
             )
             for path in paths:
+                _prop = deepcopy(property)
                 if (self.glob_root / path).is_file():
-                    if not property.get("$type"):
-                        property["$type"] = "File"
-                    self.body[str(path.as_posix())] = deepcopy(property)
+                    if not _prop.get("$type"):
+                        _prop["$type"] = "File"
+                    self.body[str(path.as_posix())] = _prop
                 else:
-                    if not property.get("$type"):
-                        property["$type"] = "Dataset"
+                    if not _prop.get("$type"):
+                        _prop["$type"] = "Dataset"
+                    self.body[str(path.as_posix())] = _prop
 
         for identifier, property in self.explicit_body.items():
             if identifier in self.body:
-                self.body[identifier].update(property)
+                self.body[identifier].update(property) # overwrite intended
             else:
                 self.body[identifier] = property
 

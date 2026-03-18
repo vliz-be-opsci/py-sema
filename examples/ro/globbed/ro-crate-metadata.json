@@ -28,6 +28,14 @@
             "name": "{AUTHOR_NAME}"
         },
         {
+            "@id": "data",
+            "@type": "Dataset"
+        },
+        {
+            "@id": "data/processed",
+            "@type": "Dataset"
+        },
+        {
             "@id": "data/processed/README.txt",
             "@type": "File"
         },
@@ -37,7 +45,12 @@
         },
         {
             "@id": "data/processed/summary.parquet",
-            "@type": "File"
+            "@type": "File",
+            "encodingFormat": "application/parquet"
+        },
+        {
+            "@id": "data/raw",
+            "@type": "Dataset"
         },
         {
             "@id": "data/raw/observations.csv",
@@ -57,6 +70,10 @@
             "@type": "File"
         },
         {
+            "@id": "docs/drafts",
+            "@type": "Dataset"
+        },
+        {
             "@id": "ro-crate-metadata.json",
             "@type": "CreativeWork",
             "about": "./",
@@ -65,12 +82,30 @@
             }
         },
         {
+            "@id": "scripts",
+            "@type": "Dataset"
+        },
+        {
             "@id": "scripts/transform.py",
-            "@type": "File"
+            "@type": [
+                "File",
+                "SoftwareSourceCode"
+            ],
+            "programmingLanguage": "Python"
+        },
+        {
+            "@id": "workflows",
+            "@type": "Dataset"
         },
         {
             "@id": "workflows/pipeline.cwl",
-            "@type": "File"
+            "@type": [
+                "File",
+                "ComputationalWorkflow"
+            ],
+            "programmingLanguage": {
+                "@id": "https://w3id.org/workflowhub/workflow-ro-crate#cwl"
+            }
         }
     ]
 }

@@ -48,7 +48,7 @@ class ROBuilder(GraphBuilder):
         )
 
         for identifier, properties in self._blueprint.body.items():
-            a = properties.get("$type")
+            a: str | list = properties.get("$type")
             label = properties.get("$label")
             properties = {
                 k: v for k, v in properties.items() if not k.startswith("$")
@@ -69,7 +69,7 @@ class ROBuilder(GraphBuilder):
                     properties=properties,
                 )
 
-            if a == "File":
+            if a == "File" or "File" in a:
                 self._graph_wrapper.update_node(
                     identifier=root_dataset,
                     properties={"hasPart": identifier},
