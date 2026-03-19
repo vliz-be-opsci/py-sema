@@ -1,0 +1,28 @@
+{# Jinja Template --> Sparql Query
+ | Search for parameters that have text matching the regex in collections at BODC
+ | variables in template:
+ |    - (optional) props: list of properties into which search will be executed (defaults to skos:prefLabel skos:altLabel skos:definition dc:description) - e.g. add `-v props[]=skos:altLabel,skos:definition`
+ |    - regex: regex matching the term description  (anything matches if no regex provided try `-v col="\\'$"` to find terms with labels ending in a final single quote)
+ |    - (optional) col: collection code (like `-v col=P02`) to limit the search to, if none provided, all collections are searched
+#}
+{%-if not props %}{%set props = ["skos:prefLabel", "skos:altLabel", "skos:definition", "dc:description"] %}{%endif-%}
+
+prefix skos: <http://www.w3.org/2004/02/skos/core#>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix dc: <http://purl.org/dc/terms/>
+
+select *
+where
+{
+	{%- if col %}
+  BIND(<http://vocab.nerc.ac.uk/collection/{{col}}/current/> as ?col)
+	{% endif-%}
+
+  values ?lookin { {%for prop in props%} {{ prop }} {%endfor%} }
+
+  ?term a skos:Concept .
+  ?col skos:member ?term .
+  ?term ?lookin ?found .
+
+  FILTER(regex(str(?found),"{{regex}}","i"))
+}
