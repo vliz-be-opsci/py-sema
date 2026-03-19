@@ -249,8 +249,10 @@ class ConfigBuilder:
         """
         if config_folder is None:
             config_folder = Path("config")
-            log.warning("""Config folder is None,
-                using current working directory as config folder""")
+            log.warning(
+                "Config folder is None, "
+                "using current working directory as config folder"
+            )
         self.config_files_folder = Path(config_folder)
         self._rdf_store_access = rdf_store_access
         log.debug("ConfigBuilder initialized")
@@ -368,9 +370,10 @@ class ConfigBuilder:
                 dict_object["snooze-till-graph-age-minutes"],
                 name_config,
             ):
-                log.info(f"""{name_config=} snoozed for
-                    {dict_object['snooze-till-graph-age-minutes']} minutes
-                    """)
+                log.info(
+                    f"{name_config=} snoozed for "
+                    f"{dict_object['snooze-till-graph-age-minutes']} minutes"
+                )
                 return
         except Exception as e:
             log.exception(e)
@@ -414,26 +417,31 @@ class ConfigBuilder:
             config_lastmod_file = Path(self.config_files_folder) / name_config
             lastmod_file = config_lastmod_file.stat().st_mtime
 
-            log.debug(f"""Last modified date of config file:
-                    {name_config}: {lastmod_file}
-                """)
+            log.debug(
+                "Last modified date of config file: "
+                f"{name_config}: {lastmod_file}"
+            )
 
             lastmod_config = self._rdf_store_access.lastmod_ts_for_config(
                 name_config
             )
             if lastmod_config is not None:
                 if lastmod_file > lastmod_config.timestamp():
-                    log.debug("""Config file is newer then the last modified
-                        of the config in the admin graph. Bypassing snooze.""")
+                    log.debug(
+                        "Config file is newer then the last modified "
+                        "of the config in the admin graph. Bypassing snooze."
+                    )
                     # if the config file is newer then the last modified
                     # of the config in the admin graph then we can bypass
                     # the snooze and continue
                     return True
 
-            log.debug(f"""Last modified of config in admin graph:
-                {name_config}: {lastmod_config}""")
             log.debug(
-                f"Checking if config {name_config}"
+                "Last modified of config in admin graph: "
+                f"{name_config}: {lastmod_config}"
+            )
+            log.debug(
+                f"Checking if config {name_config} "
                 f"is older then {snooze_time} minutes"
             )
             return not self._rdf_store_access.verify_max_age_of_config(
