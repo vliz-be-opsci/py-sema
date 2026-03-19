@@ -1,5 +1,3 @@
-import os
-
 """
 This module defines various task handlers for different types of tasks.
 Each handler inherits from the `TaskHandler` base class and
@@ -19,12 +17,12 @@ allowing for a consistent way to process different types of tasks.
 Each specific handler class implements the `handle` method
 to perform the necessary actions for its respective task type.
 """
-from logging import getLogger
 
-from pyshacl import validate
+from logging import getLogger
 
 from sema.commons.aggregator import Aggregator
 from sema.harvest import Harvest
+from sema.shacl import Shacl
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 
@@ -60,33 +58,7 @@ class QueryHandler(TaskHandler):
 
 class ShaclHandler(TaskHandler):
     def handle(self, task):
-        # TODO wrap this direct call in a process class
-        # one that can be called elsewhere
-        # and adds more features (like including graphdb)
-        conforms, _, _ = validate(
-            data_graph=os.path.join(  # TODO avoid os.path and use pathlib
-                task.input_data_location, task.args["data_graph"]
-            ),
-            shacl_graph=os.path.join(
-                task.sembench_data_location, task.args["shacl_graph"]
-            ),
-            # TODO: expand options to
-            #  - "graphdb" (to valildate graphdb),
-            #  - "url" (to get online content and use its mimetype)
-            data_graph_format="ttl",
-            # TODO: expand options to include "url"
-            shacl_graph_format="ttl",
-            inference="rdfs",
-            debug=True,
-        )
-        assert conforms, (
-            "pyshacl validation failed for "
-            f"data graph \"{task.args['data_graph']}\" "
-            "with "
-            f"shape graph \"{task.args['shacl_graph']}\""
-        )
-        # TODO this return is never used - so should be removed
-        return conforms
+        Shacl(**task.args).process()
 
 
 class SubytHandler(TaskHandler):

@@ -1,0 +1,7 @@
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/jm01>
+    a schema:Person ;
+    schema:givenName "Jan Modaal" ;
+    schema:age 35 .
