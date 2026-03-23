@@ -5,7 +5,7 @@ AUTHOR = "Flanders Marine Institute, VLIZ vzw"
 
 REPONAME = py-sema
 
-.PHONY: help clean startup install init init-dev init-docs docs docs-build test test-quick test-with-graphdb test-coverage test-coverage test-coverage-with-graphdb check lint-fix update
+.PHONY: help clean startup install init init-dev init-docs docs docs-build test test-quick test-with-store test-coverage test-coverage test-coverage-with-store check lint-fix update
 .DEFAULT_GOAL := help
 
 help:  ## Shows this list of available targets and their effect.
@@ -71,18 +71,18 @@ test-module: ## runs a given module when testing, module can be the following: b
 test-quick:  ## runs tests more quickly by skipping some lengthy ones
 	@(export QUICKTEST=1 && $(MAKE) test --no-print-directory)
 
-test-with-graphdb: ## runs the standard test-suite for all available implementations (requires docker to spin up a sparql endpoint)
-	@(export REPONAME=${REPONAME} && ./tests/kgap-graphdb.sh start-wait)
-	-@(export TEST_SPARQL_READ_URI=http://localhost:7200/repositories/${REPONAME} TEST_SPARQL_WRITE_URI=http://localhost:7200/repositories/${REPONAME}/statements && $(MAKE) test --no-print-directory)
-	@./tests/kgap-graphdb.sh stop
+test-with-store: ## runs the standard test-suite for all available implementations (requires docker to spin up a sparql endpoint)
+	@(export REPONAME=${REPONAME} && ./tests/kgap-store.sh start-wait)
+	-@(export TEST_SPARQL_READ_URI=http://localhost:7878/query TEST_SPARQL_WRITE_URI=http://localhost:7878/update && $(MAKE) test --no-print-directory)
+	@./tests/kgap-store.sh stop
 
 test-coverage:  ## runs the standard test-suite for the memory-graph implementation and produces a coverage report
 	@poetry run pytest --cov=$(MODULE) ${TEST_PATH} --cov-report term-missing
 
-test-coverage-with-graphdb:  ## runs the standard test-suite for all available implementations and produces a coverage report
-	@(export REPONAME=${REPONAME} && ./tests/kgap-graphdb.sh start-wait)
-	-@(export TEST_SPARQL_READ_URI=http://localhost:7200/repositories/${REPONAME} TEST_SPARQL_WRITE_URI=http://localhost:7200/repositories/${REPONAME}/statements && $(MAKE) test-coverage --no-print-directory)
-	@./tests/kgap-graphdb.sh stop
+test-coverage-with-store:  ## runs the standard test-suite for all available implementations and produces a coverage report
+	@(export REPONAME=${REPONAME} && ./tests/kgap-store.sh start-wait)
+	-@(export TEST_SPARQL_READ_URI=http://localhost:7878/query TEST_SPARQL_WRITE_URI=http://localhost:7878/update && $(MAKE) test-coverage --no-print-directory)
+	@./tests/kgap-store.sh stop
 
 check:  ## performs linting on the python code
 	@poetry run black --check --diff .

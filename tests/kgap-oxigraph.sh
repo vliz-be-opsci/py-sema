@@ -1,8 +1,9 @@
 #! /usr/bin/env bash
 
-DCKRIMAGE="ghcr.io/vliz-be-opsci/kgap/kgap_graphdb:latest"
-PRT_HST=7200
-PRT_GST=7200
+DCKRIMAGE="ghcr.io/oxigraph/oxigraph:latest"
+srvname="oxigraph"
+PRT_HST=7878
+PRT_GST=7878
 
 if [ -z $(which docker) ]; then
     echo "ERROR :: Need docker installed to run $0 - exiting."
@@ -27,12 +28,13 @@ cmd=$1
 
 # Function to start the test-container
 do_start() {
-    echo "launching local graphdb from docker image"
-    docker run -d --rm --name ${DCKRNAME} -e GDB_REPO=${REPONAME} -p ${PRT_HST}:${PRT_GST} ${DCKRIMAGE}
-    echo "docker 'graphdb' started"
+    echo "launching local ${srvname} from docker image"
+    mkdir -p ${PWD}/data/oxigraph
+    docker run -d --rm --name ${DCKRNAME} -p ${PRT_HST}:${PRT_GST} ${DCKRIMAGE} serve --location /data --bind 0.0.0.0:${PRT_GST}
+    echo "docker '${srvname}' started"
     echo "contact it at http://localhost:${PRT_HST} and/or use these settings for SPARQL connections:"
-    export TEST_SPARQL_READ_URI=http://localhost:${PRT_HST}/repositories/${REPONAME}
-    export TEST_SPARQL_WRITE_URI=http://localhost:${PRT_HST}/repositories/${REPONAME}/statements
+    export TEST_SPARQL_READ_URI=http://localhost:${PRT_HST}/query?default-graph-uri=urn:oxigraph:union-graph
+    export TEST_SPARQL_WRITE_URI=http://localhost:${PRT_HST}/update
     echo "for tests connecting to the instance use these: (or call this script with 'source' in front)"
     echo "   TEST_SPARQL_READ_URI=${TEST_SPARQL_READ_URI}"
     echo "  TEST_SPARQL_WRITE_URI=${TEST_SPARQL_WRITE_URI}"
@@ -40,15 +42,16 @@ do_start() {
 
 # Function to stop the container
 do_stop() {
-    echo "shutting-down local graphdb docker container"
+    echo "shutting-down local ${srvname} docker container"
     docker stop ${DCKRNAME} || (echo "Aborted script to stop ${DCKRNAME}" && exit 1)
     unset TEST_SPARQL_READ_URI TEST_SPARQL_WRITE_URI
-    echo "docker 'graphdb' stopped"
+    echo "docker '${srvname}' stopped"
+    rm -rf ${PWD}/data/oxigraph
 }
 
 # Function to wait for the container
 do_wait_health() {
-    echo "waiting for local graphdb docker container to be in health state"
+    echo "waiting for local ${srvname} docker container to be in health state"
     status=""
     wait=0
     while [[ $status != "healthy" ]] ; do 
@@ -56,25 +59,21 @@ do_wait_health() {
         status=$(docker inspect -f {{.State.Health.Status}} ${DCKRNAME})
         wait=0.5
     done; 
-    echo -e "\ndocker 'graphdb' up and $status"
+    echo -e "\ndocker '${srvname}' up and $status"
 }
 
 # Main execution
 case $cmd in
-    "start")
+    "start"|"start-wait")
         do_start
         ;;
     "wait")
-        do_wait_health
-        ;;
-    "start-wait")
-        do_start
-        do_wait_health
+        echo "no waiting for oxigraph"
         ;;
     "stop")
         do_stop
         ;;
     *)
-        echo "Invalid command. Use 'start' or 'stop'."
+        echo "Invalid command. Use one of start | wait | start-wait | stop."
         ;;
 esac
