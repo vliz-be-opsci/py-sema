@@ -1,0 +1,10 @@
+$:
+  prefix:
+    foaf: http://xmlns.com/foaf/0.1/
+
+<Alice>:
+  $type: foaf:Person
+  foaf:knows: <Bob>
+
+<Bob>:
+  $type: foaf:Person

@@ -222,8 +222,10 @@ class TestConfigFileEventHandler(unittest.TestCase):
 
 class TestLocationsFromEnviron(unittest.TestCase):
     def test_locations_from_environ_empty(self):
+        original_env = os.environ.copy()
         os.environ.clear()
         result = locations_from_environ()
+        os.environ.update(original_env)
         self.assertEqual(result, {})
 
     def test_locations_from_environ_single_location(self):

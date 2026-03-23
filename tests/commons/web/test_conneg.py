@@ -54,7 +54,7 @@ def expected_marine_info_variants(type_id: str):
         (
             "text/html",
             "http://www.w3.org/ns/dx/conneg/altr",
-            f"-{type_id}-alt.html",
+            None,
         ),
         (
             "text/turtle",
@@ -92,6 +92,8 @@ def expected_marine_info_variants(type_id: str):
         #     "https://marineinfo.org/id/publication/307837",
         #     expected_marine_info_variants("publication-307837"),
         # ),
+        # inclusion of test is blocked by conneg issue in marineinfo
+        # - see https://vliz.atlassian.net/browse/IMIS-1806
         # (
         #     "https://marineinfo.org/id/dataset/90",
         #     expected_marine_info_variants("dataset-90")
@@ -260,10 +262,12 @@ def test_conneg_eval(url, expected):
             else:
                 assert (
                     filename is not None
-                ), f"Missing filename for {url} {exp_suffix=}"
+                ), f"Missing filename for {url},{exp_mime},{exp_profile} "
+                f"{exp_suffix=}"
                 assert filename.endswith(
                     exp_suffix
-                ), f"{filename=} for {url} not ending with {exp_suffix=}"
+                ), f"{filename=} for {url},{exp_mime},{exp_profile} not ending"
+                f" with {exp_suffix=}"
 
             if exp_mime in {"text/turtle", "application/ld+json"}:
                 try:

@@ -7,3 +7,13 @@ tests/__sync__/
 tests/output/
 pytest.log
 data/oxigraph/
+venv/
+.venv/
+object_graph_mapping.ttl
+tests/ro/creator/data/katoomba-rainfall/ro-crate-metadata.json
+tests/commons/aggregator/output-data/graph.ttl
+
+# test-driven development
+*tdd*
+
+docs/_build/

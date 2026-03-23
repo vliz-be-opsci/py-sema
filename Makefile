@@ -31,7 +31,9 @@ startup: ## prepares environment for using py-poetry
 install:  ## install this package in the current environment
 	@poetry install
 
-init: startup subyt-update install  ## initial prepare of the environment for local execution of the package
+init-base: startup subyt-update install  ## initial prepare of the environment for local execution of the package
+
+init: init-dev  ## alias for init-dev
 
 init-dev: startup subyt-update  ## initial prepare of the environment for further development in the package
 	@poetry install --with 'tests' --with 'dev' --with 'docs'
