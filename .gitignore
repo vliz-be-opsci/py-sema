@@ -15,4 +15,8 @@ tests/commons/aggregator/output-data/graph.ttl
 # test-driven development
 *tdd*
 
+# config stuff
+.vscode/settings.json
+
+# build results
 docs/_build/

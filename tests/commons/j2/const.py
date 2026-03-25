@@ -8,11 +8,14 @@ TEST_TEMPLATES_FOLDER = DEFAULT_TEMPLATES_FOLDER
 file_system_loader = FileSystemLoader(TEST_TEMPLATES_FOLDER)
 templates_env = Environment(loader=file_system_loader)
 
-sparql_templates_list = templates_env.list_templates()
+sparql_templates_list = templates_env.list_templates(
+    filter_func=lambda x: x.endswith(".sparql")
+)
 
 template_variables = {
     "all.sparql": set({"N"}),
     "bodc-find.sparql": set({"regex", "collections", "language"}),
+    "bodc-find-any.sparql": set({"props", "regex", "col"}),
     "bodc-listing.sparql": set({"cc", "lang", "N"}),
     "broader-terms.sparql": set({"term", "language"}),
     "rdf-predicates-count.sparql": set(),

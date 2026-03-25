@@ -44,8 +44,10 @@ class Executor:
         """
         Assert all paths for all subjects given for each task per config.
         """
-        log.debug("""Asserting all paths for all
-               subjects given for each task per config""")
+        log.debug(
+            "Asserting all paths for all "
+            "subjects given for each task per config"
+        )
         for task in self.tasks:
             task_execution_report = TaskExecutionReport()
             log.debug(f"Task: {task}")
@@ -71,10 +73,10 @@ class Executor:
                             task_execution_report,
                         )
                     except Exception as e:
-                        log.error(f"""
-                            {subject} has an error: {e}
-                            for assertion path: {assertion_path}
-                            """)
+                        log.error(
+                            f"{subject} has an error: {e} "
+                            f"for assertion path: {assertion_path}"
+                        )
                         log.exception(e)
                     finally:
                         log.debug(

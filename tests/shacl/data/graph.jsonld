@@ -1,0 +1,13 @@
+{
+  "@context": {
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@id": "http://example.org/as03",
+  "@type": "schema:Person",
+  "schema:givenName": "Anna Spoor",
+  "schema:age": {
+    "@value": 28,
+    "@type": "xsd:integer"
+  }
+}

@@ -1,0 +1,7 @@
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/mn02>
+    a schema:Person ;
+    # schema:givenName "Missing Name" ;
+    schema:age 33 .

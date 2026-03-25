@@ -7,7 +7,7 @@ log = getLogger(__name__)
 
 
 def getMatchingGlobPaths(
-    root: Path,
+    root: Path | None = None,
     includes: list[str] | str = ["**/*"],
     excludes: list[str] | str = [],
     *,
@@ -31,6 +31,12 @@ def getMatchingGlobPaths(
         includes = [includes]
     if isinstance(excludes, str):
         excludes = [excludes]
+    if root is None:
+        root = Path("/").absolute()
+    # glob patterns should not start with /,
+    # otherwise they will be treated as absolute paths and not relative to root
+    includes = [i.lstrip("/") for i in includes if i and i != "/"]
+    excludes = [e.lstrip("/") for e in excludes if e and e != "/"]
     for include in includes:
         for path in root.glob(include):
             if any(path.match(exclude) for exclude in excludes):

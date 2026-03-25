@@ -1,0 +1,20 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schema:PersonShape
+    a sh:NodeShape ;
+    sh:targetClass schema:Person ; # De shape is van toepassing op alle schema:Person objecten
+    sh:property [
+        sh:path schema:givenName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ; # Naam is verplicht
+    ] ;
+    sh:property [
+        sh:path schema:age ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 0 ; # Leeftijd mag niet negatief zijn
+        sh:maxCount 1 ;
+    ] .

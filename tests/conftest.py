@@ -129,7 +129,7 @@ def quicktest() -> bool:
     """bool setting indicating to skip lengthy tests
     setting driven by setting env variable "QUICKTEST" to anything but 0 or ""
     """
-    return bool(os.getenv("QUICKTEST", 0))
+    return bool(os.getenv("QUICKTEST", "0") != "0")
 
 
 @pytest.fixture()
