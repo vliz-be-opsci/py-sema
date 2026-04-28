@@ -25,7 +25,7 @@ class Aggregator(ServiceBase):
         self,
         *,
         input_path: str | Path,
-        globs: list[str, dict[str, str]],
+        globs: list[str | dict[str, str]],
         output_path: str | Path | None = None,
         output_format: str | None = None,
     ) -> None:
