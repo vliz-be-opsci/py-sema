@@ -8,7 +8,7 @@ def test_aggregator():
     Aggregator(
         input_path="./tests/commons/aggregator/input-data",
         output_path="./tests/commons/aggregator/output-data/graph.ttl",
-        globs={"**/*.ttl": "ttl", "**/*.json": "json-ld"},
+        globs=["**/*.ttl", {"**/*.json": "json-ld"}],
     ).process()
     g0 = Graph().parse(
         "./tests/commons/aggregator/output-data/graph_expected.ttl"

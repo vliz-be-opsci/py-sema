@@ -15,34 +15,27 @@ def get_arg_parser() -> SemaArgsParser:
     )
 
     parser.add_argument(
-        "-ip",
+        "-i",
         "--input-path",
         default=".",
         help="Input folder containing one or more RDF files",
     )
 
     parser.add_argument(
-        "-ig",
-        "--input-glob",
-        default="**/*",
+        "-g",
+        "--glob-pattern",
+        action="append",  # multiple -g can be combined
         help="Glob pattern for selecting input files relative to input path",
     )
 
     parser.add_argument(
-        "-if",
-        "--input-format",
-        default="text/turtle",
-        help="Input RDF format",
-    )
-
-    parser.add_argument(
-        "-op",
+        "-o",
         "--output-path",
         help="Output file path",
     )
 
     parser.add_argument(
-        "-of",
+        "-fmt",
         "--output-format",
         help="Output RDF format",
     )
@@ -50,13 +43,29 @@ def get_arg_parser() -> SemaArgsParser:
     return parser
 
 
+def parse_glob_patterns(glob_patterns: list[str]) -> list[str, dict[str, str]]:
+    """Convert `pattern:format` strings to dicts where needed."""
+    if not glob_patterns:
+        return ["**/*"]
+
+    globs = []
+    for glob_pattern in glob_patterns:
+        if ":" in glob_pattern:
+            g, fmt = glob_pattern.split(":")
+            globs.append({g: fmt})
+        else:
+            globs.append(glob_pattern)
+    return globs
+
+
 def make_service(args: Namespace) -> Aggregator:
     """Make the service with the passed args"""
+    globs = parse_glob_patterns(args.glob_pattern)
     return Aggregator(
         input_path=args.input_path,
-        globs={args.input_glob: args.input_fmt},
+        globs=globs,
         output_path=args.output_path,
-        output_format=args.output_fmt,
+        output_format=args.output_format,
     )
 
 

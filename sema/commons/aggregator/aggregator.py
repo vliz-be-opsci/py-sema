@@ -25,14 +25,14 @@ class Aggregator(ServiceBase):
         self,
         *,
         input_path: str | Path,
-        globs: dict[str, str],
+        globs: list[str, dict[str, str]],
         output_path: str | Path | None = None,
         output_format: str | None = None,
     ) -> None:
         self._input_path = Path(input_path)
         self._globs = globs
         self._output_path = Path(
-            output_path or self.input_path / "graph.ttl"
+            output_path or self._input_path / "graph.ttl"
         )  # output path should include the file name
         self._output_format = output_format or "text/turtle"
         self._graph = Graph()
@@ -40,9 +40,20 @@ class Aggregator(ServiceBase):
 
     @Trace.init(Trace)
     def process(self) -> AggregatorResult:
-        for glb, fmt in self._globs.items():
+        for glob in self._globs:
+            if isinstance(glob, str):
+                g = glob
+                fmt = None
+            elif isinstance(glob, dict):
+                assert (
+                    len(glob) == 1
+                ), "each glob dict should have exactly one key-value pair"
+                g, fmt = next(iter(glob.items()))
+            else:
+                raise TypeError("globs should be a list of strings or dicts")
+
             for p in getMatchingGlobPaths(
-                self._input_path, glb, makeRelative=False
+                self._input_path, g, makeRelative=False
             ):
                 if p.is_file():
                     if p.resolve() == self._output_path.resolve():
