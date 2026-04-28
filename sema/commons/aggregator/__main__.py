@@ -43,7 +43,9 @@ def get_arg_parser() -> SemaArgsParser:
     return parser
 
 
-def parse_glob_patterns(glob_patterns: list[str]) -> list[str | dict[str, str]]:
+def parse_glob_patterns(
+    glob_patterns: list[str],
+) -> list[str | dict[str, str]]:
     """Convert `pattern:format` strings to dicts where needed."""
     if not glob_patterns:
         return ["**/*"]
