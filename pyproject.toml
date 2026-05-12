@@ -57,6 +57,7 @@ pytest-cov = "*"
 
 [tool.poetry.scripts]
 sema = "sema.__main__:main"
+sema-aggregate = "sema.commons.aggregator.__main__:main"
 sema-bench = "sema.bench.__main__:main"
 sema-conneg = "sema.commons.web.conneg_cli:main"
 sema-get = "sema.discovery.__main__:main"
