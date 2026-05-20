@@ -25,6 +25,7 @@ from pyshacl import validate
 
 from sema.commons.aggregator import Aggregator
 from sema.harvest import Harvest
+from sema.ro.getter import ROGetter
 from sema.subyt import Subyt
 from sema.syncfs import SyncFsTriples
 
@@ -105,3 +106,8 @@ class RMLHandler(TaskHandler):
 class AggregateHandler(TaskHandler):
     def handle(self, task):
         Aggregator(**task.args).process()
+
+
+class RoGetHandler(TaskHandler):
+    def handle(self, task):
+        ROGetter(**task.args).process()
