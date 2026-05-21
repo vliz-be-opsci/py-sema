@@ -17,6 +17,7 @@ def get_arg_parser() -> SemaArgsParser:
     parser.add_argument(
         "-u",
         "--uri",
+        required=True,
         help="Input folder containing one or more RDF files",
     )
 

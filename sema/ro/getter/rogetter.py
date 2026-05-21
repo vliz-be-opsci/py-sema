@@ -63,7 +63,16 @@ class ROGetter(ServiceBase):
             encoding_format.strip() == "application/zip"
         ), f"Expected zip distribution, got {encoding_format}"
 
-        if self._force and self._output_path.exists():
+        if self._force and self._output_path == Path("."):
+            raise ValueError(
+                "Cannot use --force when output path is current directory"
+            )
+
+        if (
+            self._force
+            and self._output_path != Path(".")
+            and self._output_path.exists()
+        ):
             shutil.rmtree(self._output_path)
 
         if self._output_path != "." and not self._output_path.exists():
