@@ -1,15 +1,17 @@
-import requests
-import shutil
-import zipfile
-import logging
-import tempfile
 import glob
-from sema.commons.service import ServiceBase, ServiceResult, Trace
+import logging
+import shutil
+import tempfile
+import zipfile
 from pathlib import Path
+
+import requests
 from rdflib import Graph
 
+from sema.commons.service import ServiceBase, ServiceResult, Trace
 
 logger = logging.getLogger(__name__)
+
 
 class ROGetterResult(ServiceResult):
     """Result of the ROGetter service"""
@@ -23,7 +25,7 @@ class ROGetterResult(ServiceResult):
 
 
 class ROGetter(ServiceBase):
-    def __init__(self, *, uri, output_path = None, force = False):
+    def __init__(self, *, uri, output_path=None, force=False):
         # uri = "https://data.emobon.embrc.eu/observatory-profile/latest"
         assert uri, "URI is required"
         if not uri.endswith("/"):
@@ -37,11 +39,15 @@ class ROGetter(ServiceBase):
     def process(self) -> ROGetterResult:
         query_result = (
             Graph()
-            .parse(data=requests.get(f"{self._uri}ro-crate-metadata.json").text, format="json-ld", base=self._uri)
+            .parse(
+                data=requests.get(f"{self._uri}ro-crate-metadata.json").text,
+                format="json-ld",
+                base=self._uri,
+            )
             .query(f"""
             PREFIX schema: <http://schema.org/>
 
-            SELECT ?d ?e 
+            SELECT ?d ?e
             WHERE {{
                 <{self._uri}ro-crate-metadata.json> schema:about ?o .
                 ?o schema:distribution ?d .
@@ -53,7 +59,9 @@ class ROGetter(ServiceBase):
         assert len(query_result) <= 1, "Expected exactly one distribution"
 
         distribution, encoding_format = next(iter(query_result))
-        assert encoding_format.strip() == "application/zip", f"Expected zip distribution, got {encoding_format}"
+        assert (
+            encoding_format.strip() == "application/zip"
+        ), f"Expected zip distribution, got {encoding_format}"
 
         if self._force and self._output_path.exists():
             shutil.rmtree(self._output_path)
@@ -66,7 +74,7 @@ class ROGetter(ServiceBase):
             temp_dir = Path(temp_dir)
             with open(temp_dir / "zipball.zip", "wb") as f:
                 f.write(zipball.content)
-            with zipfile.ZipFile(temp_dir / "zipball.zip", 'r') as f:
+            with zipfile.ZipFile(temp_dir / "zipball.zip", "r") as f:
                 f.extractall(temp_dir / "zipball")
             for path in glob.glob(str(temp_dir / "zipball" / "*" / "*")):
                 shutil.move(path, self._output_path)

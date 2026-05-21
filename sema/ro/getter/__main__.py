@@ -2,8 +2,8 @@
 import sys
 from logging import getLogger
 
-from sema.ro.getter import ROGetter
 from sema.commons.cli import Namespace, SemaArgsParser
+from sema.ro.getter import ROGetter
 
 log = getLogger(__name__)
 
@@ -32,9 +32,7 @@ def get_arg_parser() -> SemaArgsParser:
         "--force",
         default=False,
         action="store_true",
-        help=(
-            "Overwrite output path if it already exists."
-        ),
+        help=("Overwrite output path if it already exists."),
     )
 
     return parser

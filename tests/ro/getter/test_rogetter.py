@@ -1,13 +1,17 @@
-import requests
-from sema.ro.getter import ROGetter
 from pathlib import Path
+
+import requests
+
+from sema.ro.getter import ROGetter
 
 
 class MockResponse:
     def __init__(self):
-        with open("./tests/ro/getter/input-data/ro-crate-metadata.json", "r") as f:
+        with open(
+            "./tests/ro/getter/input-data/ro-crate-metadata.json", "r"
+        ) as f:
             self.text = f.read()
-        
+
         with open("./tests/ro/getter/input-data/zipball.zip", "rb") as f:
             self.content = f.read()
 
@@ -26,5 +30,6 @@ def test_ro_getter(monkeypatch):
     )
     roc.process()
 
-
-    assert Path("./tests/ro/getter/output-data/ro-crate-metadata.json").exists()
+    assert Path(
+        "./tests/ro/getter/output-data/ro-crate-metadata.json"
+    ).exists()
