@@ -9,6 +9,7 @@ import requests
 from rdflib import Graph
 
 from sema.commons.service import ServiceBase, ServiceResult, Trace
+from sema.commons.web import parse_header
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,6 @@ class ROGetterResult(ServiceResult):
 
 class ROGetter(ServiceBase):
     def __init__(self, *, uri, output_path=None, force=False):
-        # uri = "https://data.emobon.embrc.eu/observatory-profile/latest"
         assert uri, "URI is required"
         if not uri.endswith("/"):
             uri = uri + "/"
@@ -34,6 +34,7 @@ class ROGetter(ServiceBase):
         self._output_path = Path(output_path or ".")
         self._result = ROGetterResult()
         self._force = force
+        self._default_path = Path(".")
 
     @Trace.init(Trace)
     def process(self) -> ROGetterResult:
@@ -56,26 +57,25 @@ class ROGetter(ServiceBase):
             """)
         )  # TODO: consider moving this query to sema/query/sparql_templates
 
-        assert len(query_result) <= 1, "Expected exactly one distribution"
+        assert len(query_result) == 1, "Expected exactly one distribution"
 
         distribution, encoding_format = next(iter(query_result))
         assert (
-            encoding_format.strip() == "application/zip"
+            parse_header(encoding_format)[0] == "application/zip"
         ), f"Expected zip distribution, got {encoding_format}"
 
-        if self._force and self._output_path == Path("."):
+        if self._force and self._output_path == self._default_path:
             raise ValueError(
                 "Cannot use --force when output path is current directory"
             )
 
-        if (
-            self._force
-            and self._output_path != Path(".")
-            and self._output_path.exists()
-        ):
+        if self._force and self._output_path.exists():
             shutil.rmtree(self._output_path)
 
-        if self._output_path != "." and not self._output_path.exists():
+        if (
+            self._output_path != self.default_path
+            and not self._output_path.exists()
+        ):
             self._output_path.mkdir(parents=True, exist_ok=True)
 
         with tempfile.TemporaryDirectory() as temp_dir:
