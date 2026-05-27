@@ -73,7 +73,7 @@ class ROGetter(ServiceBase):
             shutil.rmtree(self._output_path)
 
         if (
-            self._output_path != self.default_path
+            self._output_path != self._default_path
             and not self._output_path.exists()
         ):
             self._output_path.mkdir(parents=True, exist_ok=True)
