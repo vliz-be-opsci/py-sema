@@ -67,6 +67,7 @@ sema-query-templates = "sema.query.copytpl:main_cli_install_templates"
 sema-subyt = "sema.subyt.__main__:main"
 sema-syncfs = "sema.syncfs.__main__:main"
 sema-roc = "sema.ro.creator.__main__:main"
+sema-ro-get = "sema.ro.getter.__main__:main"
 
 [build-system]
 requires = ["setuptools","poetry"]
