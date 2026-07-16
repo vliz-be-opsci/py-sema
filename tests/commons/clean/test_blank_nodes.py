@@ -1,6 +1,8 @@
-import pytest
 import json
-from rdflib import Graph, BNode, URIRef, Literal
+
+import pytest
+from rdflib import BNode, Graph, Literal, URIRef
+
 from sema.commons.clean import clean_graph, default_cleaner
 
 # We will test how py-sema's clean_graph handles various @id and property formats.
@@ -41,28 +43,28 @@ TEST_CASES = [
         "name": "blank_node_with_at_sign",
         "id": "_:help@embrc.org",
         "should_fail_parse": False,
-        "should_fail_clean": False, # This should now clean successfully
+        "should_fail_clean": False,  # This should now clean successfully
     },
     # 6. Blank node with slash
     {
         "name": "blank_node_with_slash",
         "id": "_:b0/slash",
         "should_fail_parse": False,
-        "should_fail_clean": False, # This should now clean successfully
+        "should_fail_clean": False,  # This should now clean successfully
     },
     # 7. Blank node with percent
     {
         "name": "blank_node_with_percent",
         "id": "_:b0%percent",
         "should_fail_parse": False,
-        "should_fail_clean": False, # This should now clean successfully
+        "should_fail_clean": False,  # This should now clean successfully
     },
     # 8. Blank node with dollar
     {
         "name": "blank_node_with_dollar",
         "id": "_:b0$dollar",
         "should_fail_parse": False,
-        "should_fail_clean": False, # This should now clean successfully
+        "should_fail_clean": False,  # This should now clean successfully
     },
     # 9. Non-blank node: http URI
     {
@@ -87,6 +89,7 @@ TEST_CASES = [
     },
 ]
 
+
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_jsonld_node_interactions(case):
     name = case["name"]
@@ -99,16 +102,16 @@ def test_jsonld_node_interactions(case):
         "@context": {
             "ContactPoint": "http://schema.org/ContactPoint",
             "email": "http://schema.org/email",
-            "name": "http://schema.org/name"
+            "name": "http://schema.org/name",
         },
         "@graph": [
             {
                 "@id": node_id,
                 "@type": "ContactPoint",
                 "email": "mailto:info@example.org",
-                "name": "Test Node"
+                "name": "Test Node",
             }
-        ]
+        ],
     }
 
     g = Graph()
@@ -164,4 +167,3 @@ def test_other_rdf_formats_invalid_blank_node_failures():
     g_xml = Graph()
     with pytest.raises(Exception):
         g_xml.parse(data=xml_data, format="xml")
-

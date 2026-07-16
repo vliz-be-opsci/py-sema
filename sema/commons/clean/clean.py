@@ -139,16 +139,19 @@ def normalise_scheme_node(
 normalise_scheme_node.level = Level.Node
 
 
-def clean_bnode_node(ref: URIRef | BNode | Literal) -> URIRef | BNode | Literal:
-    """Sanitizes invalid characters in BNode identifiers to be valid in NTriples/Turtle formats.
-    """
+def clean_bnode_node(
+    ref: URIRef | BNode | Literal,
+) -> URIRef | BNode | Literal:
+    """Sanitizes invalid characters in BNode identifiers to be valid in NTriples/Turtle formats."""
     log.debug("clean_bnode_node called")
     if not isinstance(ref, BNode):
         return ref
     # else
     value = str(ref)
     cleaned_value = re.sub(r"[^a-zA-Z0-9_\-\.]", "_", value)
-    if not cleaned_value or not (cleaned_value[0].isalnum() or cleaned_value[0] == "_"):
+    if not cleaned_value or not (
+        cleaned_value[0].isalnum() or cleaned_value[0] == "_"
+    ):
         cleaned_value = "b" + cleaned_value
     if cleaned_value.endswith("."):
         cleaned_value = cleaned_value[:-1] + "_"
