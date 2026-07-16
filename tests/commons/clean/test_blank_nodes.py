@@ -1,13 +1,13 @@
 import json
 
 import pytest
-from rdflib import BNode, Graph, Literal, URIRef
+from rdflib import Graph
 
 from sema.commons.clean import clean_graph, default_cleaner
 
-# We will test how py-sema's clean_graph handles various @id and property formats.
-# Under JSON-LD 1.1, any string starting with "_:" is a valid blank node identifier,
-# and relative path IDs are valid relative IRIs.
+# We will test how py-sema's clean_graph handles various @id and property
+# formats. Under JSON-LD 1.1, any string starting with "_:" is a valid
+# blank node identifier, and relative path IDs are valid relative IRIs.
 
 TEST_CASES = [
     # 1. Standard blank node (should pass)
@@ -92,7 +92,6 @@ TEST_CASES = [
 
 @pytest.mark.parametrize("case", TEST_CASES)
 def test_jsonld_node_interactions(case):
-    name = case["name"]
     node_id = case["id"]
     should_fail_parse = case["should_fail_parse"]
     should_fail_clean = case["should_fail_clean"]
@@ -134,7 +133,7 @@ def test_jsonld_node_interactions(case):
         cleaned_g = clean_graph(g, cleaner)
         assert len(cleaned_g) == len(g)
         # Verify serialization completes without raising
-        cleaned_g.serialize(format="nt")
+        cleaned_g.serialize(format="ttl")
 
 
 def test_other_rdf_formats_invalid_blank_node_failures():
@@ -149,13 +148,14 @@ def test_other_rdf_formats_invalid_blank_node_failures():
 
     # 2. N-Quads expects a syntax error/parser error for _:help@embrc.org
     nq_data = """
-    _:help@embrc.org <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/ContactPoint> .
+    _:help@embrc.org <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/ContactPoint> .  # noqa: E501
     """
     g_nq = Graph()
     with pytest.raises(Exception):
         g_nq.parse(data=nq_data, format="nquads")
 
-    # 3. RDF/XML expects a syntax error because rdf:nodeID value is not a valid NCName
+    # 3. RDF/XML expects a syntax error because rdf:nodeID value is not a
+    # valid NCName
     xml_data = """<?xml version="1.0" encoding="utf-8"?>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
              xmlns:schema="http://schema.org/">

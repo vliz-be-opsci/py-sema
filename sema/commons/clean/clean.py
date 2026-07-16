@@ -19,7 +19,7 @@ class Level(Enum):
     Node = "node"
 
 
-def reparse(g: Graph, format="nt"):
+def reparse(g: Graph, format="ttl"):
     """This is a hack workaround for issue
     https://github.com/RDFLib/rdflib/issues/2760
     It reproduces the graph by serializing and parsing it again
@@ -139,33 +139,10 @@ def normalise_scheme_node(
 normalise_scheme_node.level = Level.Node
 
 
-def clean_bnode_node(
-    ref: URIRef | BNode | Literal,
-) -> URIRef | BNode | Literal:
-    """Sanitizes invalid characters in BNode identifiers to be valid in NTriples/Turtle formats."""
-    log.debug("clean_bnode_node called")
-    if not isinstance(ref, BNode):
-        return ref
-    # else
-    value = str(ref)
-    cleaned_value = re.sub(r"[^a-zA-Z0-9_\-\.]", "_", value)
-    if not cleaned_value or not (
-        cleaned_value[0].isalnum() or cleaned_value[0] == "_"
-    ):
-        cleaned_value = "b" + cleaned_value
-    if cleaned_value.endswith("."):
-        cleaned_value = cleaned_value[:-1] + "_"
-    return BNode(cleaned_value)
-
-
-clean_bnode_node.level = Level.Node
-
-
 NAMED_CLEAN_FUNCTIONS: dict = {
     "graph:reparse": reparse,
     "node:clean_uri": clean_uri_node,
     "node:normalise_schema.org": normalise_scheme_node,
-    "node:clean_bnode": clean_bnode_node,
 }
 
 
