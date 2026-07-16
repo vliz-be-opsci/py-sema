@@ -112,24 +112,26 @@ def test_jsonld_node_interactions(case):
     }
 
     g = Graph()
-    
+
     if should_fail_parse:
         with pytest.raises(Exception):
             g.parse(data=json.dumps(json_ld_data), format="json-ld")
         return
-    
+
     # Parse should succeed
     g.parse(data=json.dumps(json_ld_data), format="json-ld")
     assert len(g) > 0
 
     cleaner = default_cleaner()
-    
+
     if should_fail_clean:
         with pytest.raises(Exception):
             clean_graph(g, cleaner)
     else:
         cleaned_g = clean_graph(g, cleaner)
         assert len(cleaned_g) == len(g)
+        # Verify serialization completes without raising
+        cleaned_g.serialize(format="nt")
 
 
 def test_other_rdf_formats_invalid_blank_node_failures():
