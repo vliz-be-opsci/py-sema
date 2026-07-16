@@ -130,3 +130,36 @@ def test_jsonld_node_interactions(case):
     else:
         cleaned_g = clean_graph(g, cleaner)
         assert len(cleaned_g) == len(g)
+
+
+def test_other_rdf_formats_invalid_blank_node_failures():
+    # 1. Turtle expects a syntax error for _:help@embrc.org
+    ttl_data = """
+    @prefix schema: <http://schema.org/> .
+    _:help@embrc.org a schema:ContactPoint .
+    """
+    g_ttl = Graph()
+    with pytest.raises(Exception):
+        g_ttl.parse(data=ttl_data, format="ttl")
+
+    # 2. N-Quads expects a syntax error/parser error for _:help@embrc.org
+    nq_data = """
+    _:help@embrc.org <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/ContactPoint> .
+    """
+    g_nq = Graph()
+    with pytest.raises(Exception):
+        g_nq.parse(data=nq_data, format="nquads")
+
+    # 3. RDF/XML expects a syntax error because rdf:nodeID value is not a valid NCName
+    xml_data = """<?xml version="1.0" encoding="utf-8"?>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+             xmlns:schema="http://schema.org/">
+      <rdf:Description rdf:nodeID="help@embrc.org">
+        <rdf:type rdf:resource="http://schema.org/ContactPoint"/>
+      </rdf:Description>
+    </rdf:RDF>
+    """
+    g_xml = Graph()
+    with pytest.raises(Exception):
+        g_xml.parse(data=xml_data, format="xml")
+
