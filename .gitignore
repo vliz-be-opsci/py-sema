@@ -17,3 +17,5 @@ tests/ro/getter/output-data
 *tdd*
 
 docs/_build/
+.agents
+skills-lock.json
