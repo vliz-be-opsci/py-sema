@@ -19,7 +19,7 @@ class Level(Enum):
     Node = "node"
 
 
-def reparse(g: Graph, format="nt"):
+def reparse(g: Graph, format="ttl"):
     """This is a hack workaround for issue
     https://github.com/RDFLib/rdflib/issues/2760
     It reproduces the graph by serializing and parsing it again
@@ -225,8 +225,9 @@ def build_clean_chain(*specs) -> Callable:
 
         # note this by itself this is a graph-level function
         apply_triple_chain.level = Level.Graph  # type: ignore
-        # that can be added at the end of that chain
-        grouped_fn[Level.Graph].append(apply_triple_chain)
+        # Insert at the beginning of the graph chain instead of appending
+        # to ensure node/triple cleaning runs before graph-level reparse
+        grouped_fn[Level.Graph].insert(0, apply_triple_chain)
 
     graph_chain: list = grouped_fn[Level.Graph]  # all graph-level-functions
     log.debug(f"building {graph_chain=}")
