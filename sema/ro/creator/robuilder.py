@@ -82,20 +82,17 @@ class ROBuilder(GraphBuilder):
         self.graph = self._graph_wrapper.unwrap()
 
     def _apply_reasoning(self):
+        """Execute blueprint-configured CONSTRUCT reasoning queries."""
         reason_cfg = self._blueprint.reason
         if not reason_cfg:
             return
 
         if isinstance(reason_cfg, dict):
             sources = (
-                reason_cfg.get("source")
-                or reason_cfg.get("sources")
-                or []
+                reason_cfg.get("source") or reason_cfg.get("sources") or []
             )
             queries = (
-                reason_cfg.get("query")
-                or reason_cfg.get("queries")
-                or []
+                reason_cfg.get("query") or reason_cfg.get("queries") or []
             )
         elif isinstance(reason_cfg, (list, tuple)):
             sources = []

@@ -9,6 +9,7 @@ log = getLogger(__name__)
 
 
 def get_arg_parser() -> SemaArgsParser:
+    """Create and configure the argument parser for sema-reason."""
     parser = SemaArgsParser(
         "sema-reason",
         "Execute SPARQL CONSTRUCT queries against RDF sources "
@@ -87,6 +88,7 @@ def _main(*args_list) -> bool:
 
 
 def main():
+    """Main CLI entry point for sema-reason."""
     success: bool = _main(*sys.argv[1:])
     sys.exit(0 if success else 1)
 

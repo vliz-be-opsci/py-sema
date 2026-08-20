@@ -148,3 +148,58 @@ def test_reason_glob_queries(tmp_path: Path):
     assert (ex.obs1, ex.hasVal, Literal(True)) in res_g
     assert (ex.obs1, ex.isObs, Literal(True)) in res_g
     assert (ex.obs2, ex.hasVal, Literal(True)) in res_g
+
+
+def test_reason_inline_iri_query(tmp_path: Path):
+    source = tmp_path / "source.ttl"
+    source.write_text(
+        "<http://example.org/item1> <http://schema.org/name> 'Item 1' .",
+        encoding="utf-8",
+    )
+
+    # One-line query containing an IRI
+    inline_query = (
+        "CONSTRUCT { <http://example.org/item1> "
+        "<http://schema.org/status> 'active' } "
+        "WHERE { <http://example.org/item1> <http://schema.org/name> ?n }"
+    )
+
+    reasoner = Reasoner(
+        input_path=tmp_path,
+        sources=source,
+        queries=inline_query,
+    )
+    res_g = reasoner.reason()
+    assert (
+        URIRef("http://example.org/item1"),
+        URIRef("http://schema.org/status"),
+        Literal("active"),
+    ) in res_g
+
+
+def test_reason_query_directory_name(tmp_path: Path):
+    source = tmp_path / "source.ttl"
+    source.write_text(
+        "<http://example.org/node> <http://example.org/val> 42 .",
+        encoding="utf-8",
+    )
+
+    qdir = tmp_path / "queries_folder"
+    qdir.mkdir()
+    (qdir / "transform.rq").write_text(
+        "CONSTRUCT { ?s <http://example.org/valid> true } "
+        "WHERE { ?s <http://example.org/val> ?v }",
+        encoding="utf-8",
+    )
+
+    reasoner = Reasoner(
+        input_path=tmp_path,
+        sources="source.ttl",
+        queries="queries_folder",
+    )
+    res_g = reasoner.reason()
+    assert (
+        URIRef("http://example.org/node"),
+        URIRef("http://example.org/valid"),
+        Literal(True),
+    ) in res_g

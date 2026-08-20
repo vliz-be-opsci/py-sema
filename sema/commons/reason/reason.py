@@ -12,28 +12,56 @@ from sema.commons.store import RDFStore
 
 logger = logging.getLogger(__name__)
 
+SUPPORTED_RDF_EXTENSIONS: set[str] = {
+    ".ttl",
+    ".turtle",
+    ".jsonld",
+    ".json",
+    ".nt",
+    ".n3",
+    ".xml",
+    ".rdf",
+}
+
 
 class ReasonResult(ServiceResult):
-    """Result of the reasoner service"""
+    """Result of the reasoner service.
+
+    :param graph: Resulting reasoned RDF graph, if available.
+    """
 
     def __init__(self, graph: Graph | None = None) -> None:
+        """Initialize the ReasonResult."""
         self._success: bool = False
         self._graph: Graph | None = graph
 
     @property
     def success(self) -> bool:
+        """Indicate whether reasoning completed successfully."""
         return self._success
 
     @property
     def graph(self) -> Graph | None:
+        """Return the constructed RDF graph."""
         return self._graph
 
 
 class Reasoner(ServiceBase):
-    """
-    Reasoner service that executes SPARQL CONSTRUCT queries against RDF sources
-    (in-memory graphs, triple files, RDFStores, or endpoints) and outputs
-    the reasoned triples.
+    """Reasoner service for executing SPARQL CONSTRUCT queries on RDF sources.
+
+    Executes SPARQL CONSTRUCT queries against RDF sources (in-memory graphs,
+    triple files, directories, RDFStores, or endpoints) and produces an
+    inferred RDF graph.
+
+    :param sources: Single source or list of sources (Graph, RDFStore, path,
+        or glob).
+    :param queries: Single query or list of queries (SPARQL strings, file
+        paths, or directory paths).
+    :param output_path: Destination file path for serialization.
+    :param output_format: RDF format for output serialization.
+    :param prefixes: Namespace prefix mapping dict.
+    :param base: Base URI for relative IRI resolution in queries.
+    :param input_path: Base directory for relative file/query path resolution.
     """
 
     def __init__(
@@ -47,6 +75,7 @@ class Reasoner(ServiceBase):
         base: str | None = None,
         input_path: str | Path | None = None,
     ) -> None:
+        """Initialize the Reasoner instance."""
         self._input_path = Path(input_path) if input_path else Path.cwd()
         self._sources = sources if sources is not None else []
         if isinstance(self._sources, (str, Path, Graph, RDFStore)):
@@ -65,34 +94,53 @@ class Reasoner(ServiceBase):
         self._result = ReasonResult()
 
     def _resolve_path(self, path_str_or_path: str | Path) -> Path:
+        """Resolve a path relative to input_path if not absolute.
+
+        :param path_str_or_path: Path string or Path object.
+        :return: Absolute resolved Path.
+        """
         p = Path(path_str_or_path)
         if not p.is_absolute():
             p = (self._input_path / p).resolve()
         return p
 
     def _collect_query_texts(self) -> list[str]:
+        """Collect and read SPARQL query texts from sources or strings.
+
+        :return: List of SPARQL query strings.
+        :raises FileNotFoundError: If a specified query file or folder
+            is not found.
+        """
         query_texts: list[str] = []
+        sparql_kw_pattern = re.compile(
+            r"^\s*(PREFIX|BASE|CONSTRUCT|SELECT|ASK|DESCRIBE)\b",
+            re.IGNORECASE,
+        )
         for q in self._queries:
-            is_file_like = isinstance(q, Path) or (
-                isinstance(q, str)
-                and (
-                    q.endswith(".sparql")
-                    or q.endswith(".rq")
-                    or (
-                        "\n" not in q
-                        and (
-                            "*" in q
-                            or "?" in q
-                            or "/" in q
-                            or "\\" in q
-                            or Path(q).suffix in [".sparql", ".rq"]
-                        )
+            if isinstance(q, Path):
+                candidate = self._resolve_path(q)
+                if candidate.is_dir():
+                    for match in sorted(candidate.rglob("*.sparql")) + sorted(
+                        candidate.rglob("*.rq")
+                    ):
+                        if match.is_file():
+                            query_texts.append(
+                                match.read_text(encoding="utf-8")
+                            )
+                elif candidate.is_file():
+                    query_texts.append(candidate.read_text(encoding="utf-8"))
+                else:
+                    raise FileNotFoundError(
+                        f"SPARQL query file or folder '{q}' not "
+                        f"found at '{candidate}'."
                     )
-                )
-            )
-            if is_file_like:
-                if isinstance(q, str) and ("*" in q or "?" in q):
-                    # glob
+            elif isinstance(q, str):
+                trimmed = q.strip()
+                if "\n" in q or sparql_kw_pattern.match(trimmed):
+                    # Inline SPARQL query string
+                    query_texts.append(q)
+                elif "*" in q or "?" in q:
+                    # Glob pattern for query files under input_path
                     matches = getMatchingGlobPaths(
                         self._input_path, q, makeRelative=False
                     )
@@ -102,11 +150,7 @@ class Reasoner(ServiceBase):
                                 match.read_text(encoding="utf-8")
                             )
                 else:
-                    candidate = (
-                        self._resolve_path(q)
-                        if isinstance(q, (str, Path))
-                        else q
-                    )
+                    candidate = self._resolve_path(q)
                     if candidate.is_dir():
                         for match in sorted(
                             candidate.rglob("*.sparql")
@@ -119,21 +163,24 @@ class Reasoner(ServiceBase):
                         query_texts.append(
                             candidate.read_text(encoding="utf-8")
                         )
-                    elif Path(q).is_file():
-                        query_texts.append(
-                            Path(q).read_text(encoding="utf-8")
-                        )
-                    else:
+                    elif q.endswith(".sparql") or q.endswith(".rq"):
                         raise FileNotFoundError(
-                            f"SPARQL query file or folder '{q}' not "
+                            f"SPARQL query file '{q}' not "
                             f"found at '{candidate}'."
                         )
+                    else:
+                        # Fallback to inline SPARQL query text
+                        query_texts.append(q)
             else:
-                # Raw query string
                 query_texts.append(str(q))
         return query_texts
 
     def _inject_prefixes_and_base(self, query_str: str) -> str:
+        """Inject BASE and PREFIX declarations into query if not present.
+
+        :param query_str: Raw SPARQL query string.
+        :return: SPARQL query string with injected prefixes and base.
+        """
         injected = []
         if self._base and not re.search(
             r"^\s*BASE\s+<", query_str, re.IGNORECASE | re.MULTILINE
@@ -150,6 +197,11 @@ class Reasoner(ServiceBase):
         return query_str
 
     def _build_source_graph(self, base_graph: Graph | None = None) -> Graph:
+        """Build and populate the combined source RDF Graph.
+
+        :param base_graph: Optional existing Graph to include in the source.
+        :return: Populated rdflib Graph.
+        """
         source_graph = Graph()
         if base_graph is not None:
             source_graph += base_graph
@@ -161,7 +213,6 @@ class Reasoner(ServiceBase):
             if isinstance(src, Graph):
                 source_graph += src
             elif isinstance(src, RDFStore):
-                # Export all triples from store into source_graph
                 store_res = src.select(
                     "SELECT ?s ?p ?o WHERE { ?s ?p ?o }", None
                 )
@@ -182,18 +233,24 @@ class Reasoner(ServiceBase):
                         self._parse_file_into_graph(source_graph, resolved)
                     elif resolved.is_dir():
                         for match in sorted(resolved.rglob("*")):
-                            if match.is_file():
-                                try:
-                                    self._parse_file_into_graph(
-                                        source_graph, match
-                                    )
-                                except Exception:
-                                    pass
+                            if (
+                                match.is_file()
+                                and match.suffix.lower()
+                                in SUPPORTED_RDF_EXTENSIONS
+                            ):
+                                self._parse_file_into_graph(
+                                    source_graph, match
+                                )
 
         return source_graph
 
     @staticmethod
     def _parse_file_into_graph(graph: Graph, path: Path) -> None:
+        """Parse an RDF file into the provided graph.
+
+        :param graph: Target rdflib Graph.
+        :param path: Path of the RDF file to parse.
+        """
         suffix = path.suffix.lower()
         format_map = {
             ".ttl": "turtle",
@@ -216,9 +273,10 @@ class Reasoner(ServiceBase):
             raise e
 
     def reason(self, base_graph: Graph | None = None) -> Graph:
-        """
-        Executes configured CONSTRUCT queries against the accumulated
-        source graph and returns the resulting Graph of constructed triples.
+        """Execute configured CONSTRUCT queries against source data.
+
+        :param base_graph: Optional base graph to combine with sources.
+        :return: Constructed rdflib Graph.
         """
         source_graph = self._build_source_graph(base_graph=base_graph)
         reasoned_graph = Graph()
@@ -244,6 +302,10 @@ class Reasoner(ServiceBase):
 
     @Trace.init(Trace)
     def process(self) -> ReasonResult:
+        """Execute the reasoning process and serialize output if requested.
+
+        :return: ReasonResult instance containing the reasoned Graph.
+        """
         reasoned_graph = self.reason()
         if self._output_path:
             self._output_path.parent.mkdir(parents=True, exist_ok=True)

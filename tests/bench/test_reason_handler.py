@@ -1,5 +1,6 @@
 from pathlib import Path
 from unittest import TestCase
+
 from rdflib import Graph, Literal, Namespace
 
 from sema.bench.dispatcher import TaskDispatcher
@@ -14,6 +15,7 @@ class TestReasonHandler(TestCase):
 
     def test_handle(self, tmp_path=None):
         import tempfile
+
         with tempfile.TemporaryDirectory() as td:
             base_dir = Path(td)
             input_dir = base_dir / "input"
@@ -66,3 +68,50 @@ class TestReasonHandler(TestCase):
             g = Graph().parse(out_file)
             ex = Namespace("http://example.org/")
             self.assertIn((ex.item1, ex.processed, Literal(True)), g)
+
+    def test_handle_scalar_args(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            base_dir = Path(td)
+            input_dir = base_dir / "input"
+            input_dir.mkdir()
+            output_dir = base_dir / "output"
+            output_dir.mkdir()
+
+            source_ttl = input_dir / "single.ttl"
+            source_ttl.write_text(
+                "@prefix ex: <http://example.org/> . ex:item2 ex:val 50 .",
+                encoding="utf-8",
+            )
+
+            query_file = base_dir / "single_query.sparql"
+            query_file.write_text(
+                "PREFIX ex: <http://example.org/> "
+                "CONSTRUCT { ex:item2 ex:done true } "
+                "WHERE { ex:item2 ex:val ?v }",
+                encoding="utf-8",
+            )
+
+            out_file = output_dir / "scalar_out.ttl"
+
+            # Pass scalar strings instead of lists
+            task = Task(
+                input_data_location=input_dir,
+                output_data_location=output_dir,
+                sembench_data_location=base_dir,
+                task_id="test_scalar_reason_bench",
+                func="reason",
+                args={
+                    "sources": "single.ttl",
+                    "queries": "single_query.sparql",
+                    "output_path": str(out_file),
+                },
+            )
+
+            ReasonHandler().handle(task)
+
+            self.assertTrue(out_file.exists())
+            g = Graph().parse(out_file)
+            ex = Namespace("http://example.org/")
+            self.assertIn((ex.item2, ex.done, Literal(True)), g)

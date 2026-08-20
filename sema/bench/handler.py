@@ -115,27 +115,38 @@ class RoGetHandler(TaskHandler):
         ROGetter(**task.args).process()
 
 
+def _resolve_bench_path(val, base_dir):
+    """Resolve relative path against base_dir if it exists there."""
+    if isinstance(val, (str, Path)):
+        p = Path(val)
+        if not p.is_absolute() and (Path(base_dir) / p).exists():
+            return str(Path(base_dir) / p)
+    return val
+
+
+def _resolve_bench_paths(item, base_dir):
+    """Resolve scalar or list of relative paths against base_dir."""
+    if isinstance(item, list):
+        return [_resolve_bench_path(x, base_dir) for x in item]
+    elif isinstance(item, (str, Path)):
+        return _resolve_bench_path(item, base_dir)
+    return item
+
+
 class ReasonHandler(TaskHandler):
+    """Handler for SemBench SPARQL reasoning tasks."""
+
     def handle(self, task):
+        """Execute the reasoning task with resolved sources and queries."""
         args = dict(task.args)
-        if "sources" in args and isinstance(args["sources"], list):
-            args["sources"] = [
-                str(Path(task.input_data_location) / s)
-                if isinstance(s, (str, Path))
-                and not Path(s).is_absolute()
-                and (Path(task.input_data_location) / s).exists()
-                else s
-                for s in args["sources"]
-            ]
-        if "queries" in args and isinstance(args["queries"], list):
-            args["queries"] = [
-                str(Path(task.sembench_data_location) / q)
-                if isinstance(q, (str, Path))
-                and not Path(q).is_absolute()
-                and (Path(task.sembench_data_location) / q).exists()
-                else q
-                for q in args["queries"]
-            ]
+        if "sources" in args:
+            args["sources"] = _resolve_bench_paths(
+                args["sources"], task.input_data_location
+            )
+        if "queries" in args:
+            args["queries"] = _resolve_bench_paths(
+                args["queries"], task.sembench_data_location
+            )
         if "input_path" not in args:
             args["input_path"] = task.sembench_data_location
         Reasoner(**args).process()

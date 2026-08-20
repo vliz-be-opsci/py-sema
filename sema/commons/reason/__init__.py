@@ -1,3 +1,3 @@
-from .reason import Reason, ReasonResult, Reasoner
+from .reason import Reason, Reasoner, ReasonResult
 
 __all__ = ["Reasoner", "ReasonResult", "Reason"]

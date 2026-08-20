@@ -1,5 +1,7 @@
 from pathlib import Path
+
 from rdflib import Graph, Literal, Namespace
+
 from sema.commons.reason.__main__ import _main
 
 
@@ -30,10 +32,14 @@ def test_reason_cli(tmp_path: Path):
     out_file = tmp_path / "output.ttl"
 
     success = _main(
-        "-i", str(tmp_path),
-        "-s", "source.ttl",
-        "-q", "query.sparql",
-        "-o", str(out_file),
+        "-i",
+        str(tmp_path),
+        "-s",
+        "source.ttl",
+        "-q",
+        "query.sparql",
+        "-o",
+        str(out_file),
     )
 
     assert success is True
