@@ -4,7 +4,11 @@ from unittest import TestCase
 from rdflib import Graph, Literal, Namespace
 
 from sema.bench.dispatcher import TaskDispatcher
-from sema.bench.handler import ReasonHandler
+from sema.bench.handler import (
+    ReasonHandler,
+    _resolve_bench_path,
+    _resolve_bench_paths,
+)
 from sema.bench.task import Task
 
 
@@ -115,3 +119,148 @@ class TestReasonHandler(TestCase):
             g = Graph().parse(out_file)
             ex = Namespace("http://example.org/")
             self.assertIn((ex.item2, ex.done, Literal(True)), g)
+
+    def test_resolve_bench_path(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            base_dir = Path(td)
+            existing_file = base_dir / "existing.ttl"
+            existing_file.write_text(
+                "@prefix ex: <http://example.org/> .", encoding="utf-8"
+            )
+
+            # 1. Concrete relative path that exists -> resolved
+            resolved = _resolve_bench_path("existing.ttl", base_dir)
+            self.assertEqual(resolved, str(existing_file))
+
+            # 2. Concrete relative path that does not exist -> unchanged
+            resolved_missing = _resolve_bench_path("missing.ttl", base_dir)
+            self.assertEqual(resolved_missing, "missing.ttl")
+
+            # 3. Relative glob pattern -> rooted at base_dir
+            resolved_glob = _resolve_bench_path("*.ttl", base_dir)
+            self.assertEqual(resolved_glob, str(base_dir / "*.ttl"))
+
+            resolved_nested = _resolve_bench_path("nested/*.ttl", base_dir)
+            expected_nested = str(base_dir / "nested" / "*.ttl")
+            self.assertEqual(resolved_nested, expected_nested)
+
+            # 4. Absolute glob pattern -> preserved as-is
+            abs_glob = str(base_dir / "*.ttl")
+            self.assertEqual(_resolve_bench_path(abs_glob, base_dir), abs_glob)
+
+            # 5. Inline SPARQL query -> preserved as-is
+            sparql = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
+            self.assertEqual(_resolve_bench_path(sparql, base_dir), sparql)
+
+            # 6. Non-string / non-Path -> unchanged
+            self.assertIsNone(_resolve_bench_path(None, base_dir))
+            g = Graph()
+            self.assertIs(_resolve_bench_path(g, base_dir), g)
+
+            # 7. Test _resolve_bench_paths on list
+            resolved_list = _resolve_bench_paths(
+                ["existing.ttl", "*.ttl"], base_dir
+            )
+            self.assertEqual(
+                resolved_list, [str(existing_file), str(base_dir / "*.ttl")]
+            )
+
+    def test_handle_source_glob(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            base_dir = Path(td)
+            input_dir = base_dir / "input"
+            input_dir.mkdir()
+            output_dir = base_dir / "output"
+            output_dir.mkdir()
+
+            (input_dir / "data1.ttl").write_text(
+                "@prefix ex: <http://example.org/> . ex:itemA ex:val 10 .",
+                encoding="utf-8",
+            )
+            (input_dir / "data2.ttl").write_text(
+                "@prefix ex: <http://example.org/> . ex:itemB ex:val 20 .",
+                encoding="utf-8",
+            )
+
+            query_file = base_dir / "construct.sparql"
+            query_file.write_text(
+                "PREFIX ex: <http://example.org/> "
+                "CONSTRUCT { ?s ex:processed true } "
+                "WHERE { ?s ex:val ?v }",
+                encoding="utf-8",
+            )
+
+            out_file = output_dir / "glob_out.ttl"
+
+            # Pass relative glob pattern as sources
+            task = Task(
+                input_data_location=input_dir,
+                output_data_location=output_dir,
+                sembench_data_location=base_dir,
+                task_id="test_glob_reason_bench",
+                func="reason",
+                args={
+                    "sources": "*.ttl",
+                    "queries": ["construct.sparql"],
+                    "output_path": str(out_file),
+                },
+            )
+
+            ReasonHandler().handle(task)
+
+            self.assertTrue(out_file.exists())
+            g = Graph().parse(out_file)
+            ex = Namespace("http://example.org/")
+            self.assertIn((ex.itemA, ex.processed, Literal(True)), g)
+            self.assertIn((ex.itemB, ex.processed, Literal(True)), g)
+
+    def test_handle_source_glob_absolute(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            base_dir = Path(td)
+            input_dir = base_dir / "input"
+            input_dir.mkdir()
+            output_dir = base_dir / "output"
+            output_dir.mkdir()
+
+            (input_dir / "data1.ttl").write_text(
+                "@prefix ex: <http://example.org/> . ex:itemX ex:val 100 .",
+                encoding="utf-8",
+            )
+
+            query_file = base_dir / "construct.sparql"
+            query_file.write_text(
+                "PREFIX ex: <http://example.org/> "
+                "CONSTRUCT { ?s ex:active true } "
+                "WHERE { ?s ex:val ?v }",
+                encoding="utf-8",
+            )
+
+            out_file = output_dir / "abs_glob_out.ttl"
+
+            # Pass absolute glob pattern as sources
+            abs_glob = str(input_dir / "*.ttl")
+            task = Task(
+                input_data_location=input_dir,
+                output_data_location=output_dir,
+                sembench_data_location=base_dir,
+                task_id="test_abs_glob_reason_bench",
+                func="reason",
+                args={
+                    "sources": [abs_glob],
+                    "queries": "construct.sparql",
+                    "output_path": str(out_file),
+                },
+            )
+
+            ReasonHandler().handle(task)
+
+            self.assertTrue(out_file.exists())
+            g = Graph().parse(out_file)
+            ex = Namespace("http://example.org/")
+            self.assertIn((ex.itemX, ex.active, Literal(True)), g)

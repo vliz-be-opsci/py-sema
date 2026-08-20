@@ -116,11 +116,18 @@ class RoGetHandler(TaskHandler):
 
 
 def _resolve_bench_path(val, base_dir):
-    """Resolve relative path against base_dir if it exists there."""
+    """Resolve relative path or glob pattern against base_dir."""
     if isinstance(val, (str, Path)):
         p = Path(val)
-        if not p.is_absolute() and (Path(base_dir) / p).exists():
-            return str(Path(base_dir) / p)
+        if not p.is_absolute():
+            if (Path(base_dir) / p).exists():
+                return str(Path(base_dir) / p)
+            val_str = str(val)
+            if "*" in val_str or (
+                "?" in val_str
+                and not any(c in val_str for c in ("{", "}", "\n", " "))
+            ):
+                return str(Path(base_dir) / p)
     return val
 
 

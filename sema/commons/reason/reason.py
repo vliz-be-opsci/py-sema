@@ -1,3 +1,4 @@
+import glob
 import logging
 import re
 from pathlib import Path
@@ -141,9 +142,14 @@ class Reasoner(ServiceBase):
                     query_texts.append(q)
                 elif "*" in q or "?" in q:
                     # Glob pattern for query files under input_path
-                    matches = getMatchingGlobPaths(
-                        self._input_path, q, makeRelative=False
-                    )
+                    if Path(q).is_absolute():
+                        matches = [
+                            Path(p) for p in glob.glob(q, recursive=True)
+                        ]
+                    else:
+                        matches = getMatchingGlobPaths(
+                            self._input_path, q, makeRelative=False
+                        )
                     for match in sorted(matches):
                         if match.is_file():
                             query_texts.append(
@@ -221,9 +227,14 @@ class Reasoner(ServiceBase):
             elif isinstance(src, (str, Path)):
                 src_str = str(src)
                 if "*" in src_str or "?" in src_str:
-                    matches = getMatchingGlobPaths(
-                        self._input_path, src_str, makeRelative=False
-                    )
+                    if Path(src_str).is_absolute():
+                        matches = [
+                            Path(p) for p in glob.glob(src_str, recursive=True)
+                        ]
+                    else:
+                        matches = getMatchingGlobPaths(
+                            self._input_path, src_str, makeRelative=False
+                        )
                     for match in sorted(matches):
                         if match.is_file():
                             self._parse_file_into_graph(source_graph, match)
