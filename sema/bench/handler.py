@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 """
 This module defines various task handlers for different types of tasks.
@@ -24,6 +25,7 @@ from logging import getLogger
 from pyshacl import validate
 
 from sema.commons.aggregator import Aggregator
+from sema.commons.reason import Reasoner
 from sema.harvest import Harvest
 from sema.ro.getter import ROGetter
 from sema.subyt import Subyt
@@ -111,3 +113,29 @@ class AggregateHandler(TaskHandler):
 class RoGetHandler(TaskHandler):
     def handle(self, task):
         ROGetter(**task.args).process()
+
+
+class ReasonHandler(TaskHandler):
+    def handle(self, task):
+        args = dict(task.args)
+        if "sources" in args and isinstance(args["sources"], list):
+            args["sources"] = [
+                str(Path(task.input_data_location) / s)
+                if isinstance(s, (str, Path))
+                and not Path(s).is_absolute()
+                and (Path(task.input_data_location) / s).exists()
+                else s
+                for s in args["sources"]
+            ]
+        if "queries" in args and isinstance(args["queries"], list):
+            args["queries"] = [
+                str(Path(task.sembench_data_location) / q)
+                if isinstance(q, (str, Path))
+                and not Path(q).is_absolute()
+                and (Path(task.sembench_data_location) / q).exists()
+                else q
+                for q in args["queries"]
+            ]
+        if "input_path" not in args:
+            args["input_path"] = task.sembench_data_location
+        Reasoner(**args).process()
