@@ -138,11 +138,12 @@ def _resolve_bench_path(val, base_dir):
             return val
         p = Path(val)
         if not p.is_absolute():
-            if (Path(base_dir) / p).exists():
-                return str(Path(base_dir) / p)
+            base_resolved = Path(base_dir).resolve()
+            if (base_resolved / p).exists():
+                return str(base_resolved / p)
             val_str = str(val)
             if "*" in val_str or "?" in val_str:
-                return str(Path(base_dir) / p)
+                return str(base_resolved / p)
     return val
 
 
@@ -171,4 +172,10 @@ class ReasonHandler(TaskHandler):
             )
         if "input_path" not in args:
             args["input_path"] = task.sembench_data_location
+        if "output_path" in args and args["output_path"]:
+            p = Path(args["output_path"])
+            if not p.is_absolute():
+                args["output_path"] = str(
+                    Path(task.output_data_location).resolve() / p
+                )
         Reasoner(**args).process()

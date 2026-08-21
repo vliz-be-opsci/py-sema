@@ -80,8 +80,11 @@ def get_arg_parser() -> SemaArgsParser:
 
 
 def make_service(args: Namespace) -> Sembench:
+    locations = SemaArgsParser.args_to_dict(args.locations)
+    if "home" not in locations and args.config_path:
+        locations["home"] = args.config_path
     return Sembench(
-        locations=SemaArgsParser.args_to_dict(args.locations),
+        locations=locations,
         sembench_config_file_name=args.config_name,
         scheduler_interval_seconds=args.interval,
         watch_config_file=args.watch,
