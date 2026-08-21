@@ -146,6 +146,14 @@ class TestReasonHandler(TestCase):
             expected_nested = str(base_dir / "nested" / "*.ttl")
             self.assertEqual(resolved_nested, expected_nested)
 
+            # Glob pattern with '?' and whitespace
+            resolved_ws_q = _resolve_bench_path(
+                "data sample ?.ttl", base_dir
+            )
+            self.assertEqual(
+                resolved_ws_q, str(base_dir / "data sample ?.ttl")
+            )
+
             # 4. Absolute glob pattern -> preserved as-is
             abs_glob = str(base_dir / "*.ttl")
             self.assertEqual(_resolve_bench_path(abs_glob, base_dir), abs_glob)
@@ -161,10 +169,15 @@ class TestReasonHandler(TestCase):
 
             # 7. Test _resolve_bench_paths on list
             resolved_list = _resolve_bench_paths(
-                ["existing.ttl", "*.ttl"], base_dir
+                ["existing.ttl", "*.ttl", "data sample ?.ttl"], base_dir
             )
             self.assertEqual(
-                resolved_list, [str(existing_file), str(base_dir / "*.ttl")]
+                resolved_list,
+                [
+                    str(existing_file),
+                    str(base_dir / "*.ttl"),
+                    str(base_dir / "data sample ?.ttl"),
+                ],
             )
 
     def test_handle_source_glob(self):
@@ -217,6 +230,57 @@ class TestReasonHandler(TestCase):
             ex = Namespace("http://example.org/")
             self.assertIn((ex.itemA, ex.processed, Literal(True)), g)
             self.assertIn((ex.itemB, ex.processed, Literal(True)), g)
+
+    def test_handle_source_glob_whitespace_question_mark(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            base_dir = Path(td)
+            input_dir = base_dir / "input"
+            input_dir.mkdir()
+            output_dir = base_dir / "output"
+            output_dir.mkdir()
+
+            (input_dir / "sample 1.ttl").write_text(
+                "@prefix ex: <http://example.org/> . ex:item1 ex:val 10 .",
+                encoding="utf-8",
+            )
+            (input_dir / "sample 2.ttl").write_text(
+                "@prefix ex: <http://example.org/> . ex:item2 ex:val 20 .",
+                encoding="utf-8",
+            )
+
+            query_file = base_dir / "construct.sparql"
+            query_file.write_text(
+                "PREFIX ex: <http://example.org/> "
+                "CONSTRUCT { ?s ex:processed true } "
+                "WHERE { ?s ex:val ?v }",
+                encoding="utf-8",
+            )
+
+            out_file = output_dir / "ws_glob_out.ttl"
+
+            # Pass relative ? glob pattern containing whitespace
+            task = Task(
+                input_data_location=input_dir,
+                output_data_location=output_dir,
+                sembench_data_location=base_dir,
+                task_id="test_ws_glob_reason_bench",
+                func="reason",
+                args={
+                    "sources": "sample ?.ttl",
+                    "queries": "construct.sparql",
+                    "output_path": str(out_file),
+                },
+            )
+
+            ReasonHandler().handle(task)
+
+            self.assertTrue(out_file.exists())
+            g = Graph().parse(out_file)
+            ex = Namespace("http://example.org/")
+            self.assertIn((ex.item1, ex.processed, Literal(True)), g)
+            self.assertIn((ex.item2, ex.processed, Literal(True)), g)
 
     def test_handle_source_glob_absolute(self):
         import tempfile

@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 
 """
@@ -115,18 +116,32 @@ class RoGetHandler(TaskHandler):
         ROGetter(**task.args).process()
 
 
+SPARQL_KW_PATTERN = re.compile(
+    r"^\s*(PREFIX|BASE|CONSTRUCT|SELECT|ASK|DESCRIBE)\s+",
+    re.IGNORECASE,
+)
+
+
+def _is_inline_sparql(val: str) -> bool:
+    """Check if string is an inline SPARQL query text."""
+    if not isinstance(val, str):
+        return False
+    if "\n" in val:
+        return True
+    return bool(SPARQL_KW_PATTERN.match(val.strip()))
+
+
 def _resolve_bench_path(val, base_dir):
     """Resolve relative path or glob pattern against base_dir."""
     if isinstance(val, (str, Path)):
+        if isinstance(val, str) and _is_inline_sparql(val):
+            return val
         p = Path(val)
         if not p.is_absolute():
             if (Path(base_dir) / p).exists():
                 return str(Path(base_dir) / p)
             val_str = str(val)
-            if "*" in val_str or (
-                "?" in val_str
-                and not any(c in val_str for c in ("{", "}", "\n", " "))
-            ):
+            if "*" in val_str or "?" in val_str:
                 return str(Path(base_dir) / p)
     return val
 
