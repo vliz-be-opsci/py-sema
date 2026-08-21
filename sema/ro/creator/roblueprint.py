@@ -16,6 +16,8 @@ class ROBlueprint(GraphBlueprint):
         glob_rnode=True,
         glob_walk=False,
         glob_ignore: list[str] | str = [],
+        reason: dict | list | str | None = None,
+        construct: dict | list | str | None = None,
         *args,
         **kwargs,
     ):
@@ -36,6 +38,7 @@ class ROBlueprint(GraphBlueprint):
         )
 
         self.nested_datasets = nested_datasets
+        self.reason = reason if reason is not None else construct
         self.implicit_body = {k: v for k, v in self.body.items() if "*" in k}
         self.explicit_body = {
             k: v for k, v in self.body.items() if not ("*" in k)

@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 
 from sema.commons.ogm import GraphBuilder
+from sema.commons.reason import Reasoner
 from sema.commons.yml import LoaderBuilder
 
 from .roblueprint import ROBlueprint
@@ -75,4 +76,45 @@ class ROBuilder(GraphBuilder):
                     properties={"hasPart": identifier},
                 )
 
-            self.graph = self._graph_wrapper.unwrap()
+        if getattr(self._blueprint, "reason", None):
+            self._apply_reasoning()
+
+        self.graph = self._graph_wrapper.unwrap()
+
+    def _apply_reasoning(self):
+        """Execute blueprint-configured CONSTRUCT reasoning queries."""
+        reason_cfg = self._blueprint.reason
+        if not reason_cfg:
+            return
+
+        if isinstance(reason_cfg, dict):
+            sources = (
+                reason_cfg.get("source") or reason_cfg.get("sources") or []
+            )
+            queries = (
+                reason_cfg.get("query") or reason_cfg.get("queries") or []
+            )
+        elif isinstance(reason_cfg, (list, tuple)):
+            sources = []
+            queries = list(reason_cfg)
+        else:
+            sources = []
+            queries = [reason_cfg]
+
+        prefixes = {
+            str(k): str(v)
+            for k, v in getattr(self._blueprint, "prefix", {}).items()
+        }
+
+        input_path = self.rocrate_path or Path.cwd()
+        reasoner = Reasoner(
+            sources=sources,
+            queries=queries,
+            prefixes=prefixes,
+            base="urn:rocreator:",
+            input_path=input_path,
+        )
+
+        current_graph = self._graph_wrapper.unwrap()
+        reasoned_graph = reasoner.reason(base_graph=current_graph)
+        current_graph += reasoned_graph

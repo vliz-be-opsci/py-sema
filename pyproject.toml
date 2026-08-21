@@ -68,6 +68,7 @@ sema-subyt = "sema.subyt.__main__:main"
 sema-syncfs = "sema.syncfs.__main__:main"
 sema-roc = "sema.ro.creator.__main__:main"
 sema-ro-get = "sema.ro.getter.__main__:main"
+sema-reason = "sema.commons.reason.__main__:main"
 
 [build-system]
 requires = ["setuptools","poetry"]

@@ -1,4 +1,6 @@
 import os
+import re
+from pathlib import Path
 
 """
 This module defines various task handlers for different types of tasks.
@@ -24,6 +26,7 @@ from logging import getLogger
 from pyshacl import validate
 
 from sema.commons.aggregator import Aggregator
+from sema.commons.reason import Reasoner
 from sema.harvest import Harvest
 from sema.ro.getter import ROGetter
 from sema.subyt import Subyt
@@ -111,3 +114,61 @@ class AggregateHandler(TaskHandler):
 class RoGetHandler(TaskHandler):
     def handle(self, task):
         ROGetter(**task.args).process()
+
+
+SPARQL_KW_PATTERN = re.compile(
+    r"^\s*(PREFIX|BASE|CONSTRUCT|SELECT|ASK|DESCRIBE)\s+",
+    re.IGNORECASE,
+)
+
+
+def _is_inline_sparql(val: str) -> bool:
+    """Check if string is an inline SPARQL query text."""
+    if not isinstance(val, str):
+        return False
+    if "\n" in val:
+        return True
+    return bool(SPARQL_KW_PATTERN.match(val.strip()))
+
+
+def _resolve_bench_path(val, base_dir):
+    """Resolve relative path or glob pattern against base_dir."""
+    if isinstance(val, (str, Path)):
+        if isinstance(val, str) and _is_inline_sparql(val):
+            return val
+        p = Path(val)
+        if not p.is_absolute():
+            if (Path(base_dir) / p).exists():
+                return str(Path(base_dir) / p)
+            val_str = str(val)
+            if "*" in val_str or "?" in val_str:
+                return str(Path(base_dir) / p)
+    return val
+
+
+def _resolve_bench_paths(item, base_dir):
+    """Resolve scalar or list of relative paths against base_dir."""
+    if isinstance(item, list):
+        return [_resolve_bench_path(x, base_dir) for x in item]
+    elif isinstance(item, (str, Path)):
+        return _resolve_bench_path(item, base_dir)
+    return item
+
+
+class ReasonHandler(TaskHandler):
+    """Handler for SemBench SPARQL reasoning tasks."""
+
+    def handle(self, task):
+        """Execute the reasoning task with resolved sources and queries."""
+        args = dict(task.args)
+        if "sources" in args:
+            args["sources"] = _resolve_bench_paths(
+                args["sources"], task.input_data_location
+            )
+        if "queries" in args:
+            args["queries"] = _resolve_bench_paths(
+                args["queries"], task.sembench_data_location
+            )
+        if "input_path" not in args:
+            args["input_path"] = task.sembench_data_location
+        Reasoner(**args).process()

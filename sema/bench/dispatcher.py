@@ -1,6 +1,7 @@
 from sema.bench.handler import (
     AggregateHandler,
     HarvestHandler,
+    ReasonHandler,
     RoGetHandler,
     ShaclHandler,
     SubytHandler,
@@ -16,6 +17,7 @@ class TaskDispatcher:
         "harvest": HarvestHandler,
         "aggregate": AggregateHandler,
         "ro-get": RoGetHandler,
+        "reason": ReasonHandler,
     }
 
     def dispatch(self, task):
