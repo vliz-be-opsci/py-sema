@@ -48,8 +48,17 @@ class ROBuilder(GraphBuilder):
         )
 
         for identifier, properties in self._blueprint.body.items():
-            a = properties.get("$type")
+            if identifier == "./":
+                a = "schema:Dataset"
+            elif identifier == "ro-crate-metadata.json":
+                a = "schema:CreativeWork"
+            elif not "://" in identifier:
+                a = properties.get("$type", "File")
+            else:
+                a = properties.get("$type")
+
             label = properties.get("$label")
+
             properties = {
                 k: v for k, v in properties.items() if not k.startswith("$")
             }
@@ -61,7 +70,7 @@ class ROBuilder(GraphBuilder):
                     label=label,
                     properties=properties,
                 )
-            else:  # TODO identifiers like "<my_relative_id>" will give an error when created as a relative node # noqa: E501
+            else:
                 self._graph_wrapper.create_relative_node(
                     identifier=identifier,
                     a=a,

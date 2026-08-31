@@ -65,7 +65,11 @@ class ROBlueprint(GraphBlueprint):
 
     def _expand_body(self):
         assert self.glob_root, "glob_root must be set to expand glob patterns"
-        globs = [k for k in self.body.keys() if not (k == "./" or "://" in k)]
+        globs = [
+            k
+            for k in self.body.keys()
+            if not (k == "ro-crate-metadata.json" or k == "./" or "://" in k)
+        ]
 
         # create a DAG of globs, pointing from more general to more specific
         dg = nx.DiGraph()
@@ -93,7 +97,7 @@ class ROBlueprint(GraphBlueprint):
 
         # handle rocrate root and URIs
         for k, v in self.body.items():
-            if k == "./" or "://" in k:
+            if k == "ro-crate-metadata.json" or k == "./" or "://" in k:
                 expanded_body[k] = v
 
         self.body = dict(

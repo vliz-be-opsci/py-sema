@@ -110,9 +110,7 @@ class GraphWrapper:
     def create_iri_node(self, *args, **kwargs) -> URIRef:
         return self.create_node(kind="iri", *args, **kwargs)
 
-    def create_relative_node(
-        self, *args, **kwargs
-    ) -> URIRef:  # TODO where is this method used?
+    def create_relative_node(self, *args, **kwargs) -> URIRef:
         """
         relative to the document uri (i.e. not relative to the base uri)
         """
