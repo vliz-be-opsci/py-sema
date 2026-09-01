@@ -9,9 +9,8 @@
             "doi": "https://doi.org/10.3233/DS-210053",
             "hasPart": [
                 "data.csv",
-                "data0.csv",
-                "data1.csv",
-                "datan.csv"
+                "implicit_file",
+                "table.csv"
             ],
             "license": {
                 "@id": "http://spdx.org/licenses/CC0-1.0"
@@ -28,25 +27,15 @@
             "name": "Rainfall data for Katoomba, NSW Australia February 2022"
         },
         {
-            "@id": "data0.csv",
-            "@type": "File",
-            "encodingFormat": "application/parquet"
-        },
-        {
-            "@id": "data1.csv",
-            "@type": "File",
-            "encodingFormat": "application/parquet"
-        },
-        {
-            "@id": "datan.csv",
-            "@type": "File",
-            "encodingFormat": "application/hdf"
-        },
-        {
             "@id": "https://creativecommons.org/licenses/by-nc-sa/3.0/au/",
             "@type": "CreativeWork",
             "description": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Australia",
             "name": "CC BY-NC-SA 3.0 AU"
+        },
+        {
+            "@id": "https://orcid.org/0000-0002-5934-8998",
+            "@type": "Person",
+            "https://example.org/nick": "my_nickname"
         },
         {
             "@id": "https://ror.org/04dkp1p98",
@@ -54,6 +43,10 @@
             "description": "Australian Government Bureau of Meteorology",
             "name": "Bureau of Meteorology",
             "url": "http://www.bom.gov.au/"
+        },
+        {
+            "@id": "implicit_file",
+            "@type": "File"
         },
         {
             "@id": "ro-crate-metadata.json",
@@ -64,8 +57,12 @@
             }
         },
         {
-            "@id": "spreadsheets",
-            "@type": "Dataset"
+            "@id": "table.csv",
+            "@type": "File",
+            "encodingFormat": "text/plain",
+            "license": {
+                "@id": "https://creativecommons.org/licenses/by-nc-sa/3.0/au/"
+            }
         }
     ]
 }
