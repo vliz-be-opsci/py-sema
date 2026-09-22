@@ -110,7 +110,7 @@ clean_uri_node.level = Level.Node
 def normalise_scheme_str(
     uri: str,
     domain: str | None = "schema.org",
-    to_scheme: str | None = "https",
+    to_scheme: str | None = "http",
 ) -> str:
     # check uri matches ^https?://«domain».*
     # if not return input, else
@@ -124,7 +124,7 @@ def normalise_scheme_str(
 def normalise_scheme_node(
     ref: URIRef | BNode | Literal,
     domain: str | None = "schema.org",
-    to_scheme: str | None = "https",
+    to_scheme: str | None = "http",
 ) -> URIRef | BNode | Literal:
     log.debug("normalise_scheme_node called")
     if not isinstance(ref, URIRef):

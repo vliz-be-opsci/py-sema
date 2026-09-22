@@ -78,7 +78,7 @@ def netto_triples_for_store_info_set(
 
 def graphs_in_execution_report(rdfstore: RDFStoreAccess):
     sparql = """
-    PREFIX schema: <https://schema.org/>
+    PREFIX schema: <http://schema.org/>
     PREFIX void: <http://rdfs.org/ns/void#>
     SELECT ?s ?contentUrl ?triples
     WHERE {
