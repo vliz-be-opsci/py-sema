@@ -114,4 +114,3 @@ def test_yaml_unique_filter() -> None:
             assert records[1]["name"] == "Bob"
     finally:
         temp_path.unlink()
-

@@ -14,6 +14,7 @@ import string
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+import pytest
 from conftest import log
 
 from sema.commons.glob import getMatchingGlobPaths
@@ -384,6 +385,10 @@ Section.registerImplementation(TemplateSection)
 Section.registerImplementation(ResultSection)
 
 
+@pytest.mark.skipif(
+    not any(FNC_PATH.glob("*.test")),
+    reason="subyt-compliance submodule not initialized; run 'make subyt-update'",
+)
 def test_compliance_checks() -> None:
     assert FNC_PATH.exists() and FNC_PATH.is_dir(), (
         "the subyt-compliance folder should be available at " f"{FNC_PATH !s}"
