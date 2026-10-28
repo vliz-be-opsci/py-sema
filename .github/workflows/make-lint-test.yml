@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3.5.2
+      - uses: actions/checkout@v7.0.1
       - uses: dorny/paths-filter@v2
         id: filter
         with:
@@ -27,13 +27,16 @@ jobs:
               - 'tests/**'
 
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4.6.0
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.12"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.2
+        with:
+          enable-cache: true
       - name: Install dependencies
         run: |
-          make init-dev
-          pip install -e .[tests]
+          uv sync --all-groups
 
       - name: Linting check
         id: linting_check
