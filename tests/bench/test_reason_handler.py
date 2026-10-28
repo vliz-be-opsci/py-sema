@@ -147,9 +147,7 @@ class TestReasonHandler(TestCase):
             self.assertEqual(resolved_nested, expected_nested)
 
             # Glob pattern with '?' and whitespace
-            resolved_ws_q = _resolve_bench_path(
-                "data sample ?.ttl", base_dir
-            )
+            resolved_ws_q = _resolve_bench_path("data sample ?.ttl", base_dir)
             self.assertEqual(
                 resolved_ws_q, str(base_dir / "data sample ?.ttl")
             )
