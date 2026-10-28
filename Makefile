@@ -24,22 +24,22 @@ clean:  ## removes all possible derived built results from other executions of t
 subyt-update: ## prepares environment for using git submodules
 	@git submodule update --init --recursive
 
-startup: ## prepares environment for using py-poetry
+startup: ## prepares environment for using uv
 	@pip install --upgrade pip
-	@which poetry >/dev/null || pip install poetry
+	@which uv >/dev/null || pip install uv
 
 install:  ## install this package in the current environment
-	@poetry install
+	@uv sync
 
 init-base: startup subyt-update install  ## initial prepare of the environment for local execution of the package
 
 init: init-dev  ## alias for init-dev
 
 init-dev: startup subyt-update  ## initial prepare of the environment for further development in the package
-	@poetry install --with 'tests' --with 'dev' --with 'docs'
+	@uv sync --all-groups
 
 init-docs: startup subyt-update  ## initial prepare of the environment for local execution and reading the docs
-	@poetry install --with 'docs'
+	@uv sync
 
 
 #docs:  ## builds the docs
@@ -53,7 +53,7 @@ init-docs: startup subyt-update  ## initial prepare of the environment for local
 test-single:  ## runs the standard test-suite for the memory-graph implementation
 	@for file in $$(find ${TEST_PATH} -name 'test_*.py'); do \
 		if grep -q $(filter-out $@,$(MAKECMDGOALS)) $$file; then \
-			poetry run pytest $$file::$(filter-out $@,$(MAKECMDGOALS)); \
+			uv run pytest $$file::$(filter-out $@,$(MAKECMDGOALS)); \
 		fi \
 	done
 
@@ -61,12 +61,12 @@ test-single:  ## runs the standard test-suite for the memory-graph implementatio
 	@:
 
 test:              ## runs the tests
-	poetry run pytest ${TEST_PATH}
+	uv run pytest ${TEST_PATH}
 
 test-module: ## runs a given module when testing, module can be the following: bench, common, harvest, query, subyt, syncfs, clean, cli, env, j2, j2-template, log, path, prov, serv, store
 	@for folder in $$(find ${TEST_PATH} -type d -name $(filter-out $@,$(MAKECMDGOALS))); do \
 		for file in $$(find $$folder -name 'test_*.py'); do \
-			poetry run pytest $$file; \
+			uv run pytest $$file; \
 		done \
 	done
 
@@ -79,7 +79,7 @@ test-with-graphdb: ## runs the standard test-suite for all available implementat
 	@./tests/kgap-graphdb.sh stop
 
 test-coverage:  ## runs the standard test-suite for the memory-graph implementation and produces a coverage report
-	@poetry run pytest --cov=$(MODULE) ${TEST_PATH} --cov-report term-missing
+	@uv run pytest --cov=$(MODULE) ${TEST_PATH} --cov-report term-missing
 
 test-coverage-with-graphdb:  ## runs the standard test-suite for all available implementations and produces a coverage report
 	@(export REPONAME=${REPONAME} && ./tests/kgap-graphdb.sh start-wait)
@@ -87,19 +87,19 @@ test-coverage-with-graphdb:  ## runs the standard test-suite for all available i
 	@./tests/kgap-graphdb.sh stop
 
 check:  ## performs linting on the python code
-	@poetry run black --check --diff .
-	@poetry run isort --check --diff .
-	@poetry run flake8 . --exclude ${FLAKE8_EXCLUDE} --ignore=E203,W503
+	@uv run black --check --diff .
+	@uv run isort --check --diff .
+	@uv run flake8 . --exclude ${FLAKE8_EXCLUDE} --ignore=E203,W503
 
 lint-fix:  ## fixes code according to the lint suggestions
-	@poetry run black .
-	@poetry run isort .
+	@uv run black .
+	@uv run isort .
 
 update:  ## updates dependencies
-	@poetry update
+	@uv pip compile pyproject.toml --upgrade -o uv.lock 2>/dev/null || uv lock
 
 build: update check test docs  ## builds the package
-	@poetry build
+	@uv build
 
 release: build  ## releases the package
-	@poetry release
+	@uv publish

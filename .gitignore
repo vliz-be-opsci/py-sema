@@ -16,6 +16,10 @@ tests/ro/getter/output-data
 # test-driven development
 *tdd*
 
+# lock files
+uv.lock
+poetry.lock
+
 docs/_build/
 .agents
 skills-lock.json
