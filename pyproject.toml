@@ -1,86 +1,76 @@
-[tool.poetry]
+[project]
 name = "pysema"
 version = "0.1.0"
 description = "Overall parent of all packages involving semantic manipulation of RDF data."
-authors = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>",
-           "Opsci VLIZ <OpSci@vliz.be>"]
-maintainers = ["cedricdcc <30471340+cedricdcc@users.noreply.github.com>"]
-packages = [{include = "sema"}]
-repository = "https://github.com/vliz-be-opsci/py-sema"
+authors = [
+    { name = "cedricdcc", email = "30471340+cedricdcc@users.noreply.github.com" },
+    { name = "Opsci VLIZ", email = "OpSci@vliz.be" },
+]
+maintainers = [
+    { name = "cedricdcc", email = "30471340+cedricdcc@users.noreply.github.com" },
+]
 license = "MIT"
 readme = "README.md"
+requires-python = ">=3.11,<4.0"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-rdflib = "^7.0.0"
-validators = "^0.28.3"
-urnparse = "^0.2.2"
-jinja2 = "^3.1.4"
-python-dateutil = "^2.9.0.post0"
-setuptools = "*"
-uritemplate = "^4.1.1"
-urllib3 = "^2.2.2"
-requests = "^2.32.3"
-typeguard = "^4.3.0"
-apscheduler = "^3.10.4"
-pyshacl = "^0.26.0"
-watchdog = "^4.0.1"
-pyyaml = "^6.0.2"
-singleton-decorator = "^1.0.0"
+dependencies = [
+    "rdflib>=7.0.0,<8.0.0",
+    "validators>=0.28.3,<0.29.0", 
+    "urnparse>=0.2.2,<0.3.0", 
+    "jinja2>=3.1.4,<4.0.0", 
+    "python-dateutil>=2.9.0.post0,<3.0.0", 
+    "setuptools", 
+    "uritemplate>=4.1.1,<5.0.0", 
+    "urllib3>=2.2.2,<3.0.0", 
+    "requests>=2.32.3,<3.0.0", 
+    "typeguard>=4.3.0,<5.0.0", 
+    "apscheduler>=3.10.4,<4.0.0", 
+    "pyshacl>=0.26.0,<0.27.0", 
+    "watchdog>=4.0.1,<5.0.0", 
+    "pyyaml>=6.0.2,<7.0.0", 
+    "singleton-decorator>=1.0.0,<2.0.0", 
+]
 
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-sphinx = "*"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-isort = "*"
-black = "*"
-flake8 = "*"
-setuptools = "^70.1.0"
-pandas = "^2.2.2"
-xmlasdict = "^0.2.2"
-
-[tool.poetry.group.tests]
-optional = true
-
-[tool.poetry.group.tests.dependencies]
-pyyaml = "*"
-pytest = "*"
-coverage = "*"
-python-dotenv = "*"
-pytest-cov = "*"
-
-[tool.poetry.scripts]
-sema = "sema.__main__:main"
-sema-aggregate = "sema.commons.aggregator.__main__:main"
-sema-bench = "sema.bench.__main__:main"
-sema-conneg = "sema.commons.web.conneg_cli:main"
-sema-get = "sema.discovery.__main__:main"
-sema-harvest = "sema.harvest.__main__:main"
-sema-query = "sema.query.__main__:main"
-sema-query-templates = "sema.query.copytpl:main_cli_install_templates"
-sema-subyt = "sema.subyt.__main__:main"
-sema-syncfs = "sema.syncfs.__main__:main"
-sema-roc = "sema.ro.creator.__main__:main"
-sema-ro-get = "sema.ro.getter.__main__:main"
+[project.scripts] 
+sema = "sema.__main__:main" 
+sema-aggregate = "sema.commons.aggregator.__main__:main" 
+sema-bench = "sema.bench.__main__:main" 
+sema-conneg = "sema.commons.web.conneg_cli:main" 
+sema-get = "sema.discovery.__main__:main" 
+sema-harvest = "sema.harvest.__main__:main" 
+sema-query = "sema.query.__main__:main" 
+sema-query-templates = "sema.query.copytpl:main_cli_install_templates" 
+sema-subyt = "sema.subyt.__main__:main" 
+sema-syncfs = "sema.syncfs.__main__:main" 
+sema-roc = "sema.ro.creator.__main__:main" 
+sema-ro-get = "sema.ro.getter.__main__:main" 
 sema-reason = "sema.commons.reason.__main__:main"
 
-[build-system]
-requires = ["setuptools","poetry"]
-build-backend = "poetry.core.masonry.api"
+[project.urls]
+Repository = "https://github.com/vliz-be-opsci/py-sema"
 
-[tool.black]
-line-length = 79
+[dependency-groups] 
+docs = [ "sphinx", ] 
+dev = [ "isort", "black", "flake8", "setuptools>=70.1.0", "pandas>=2.2.2,<3.0.0", "xmlasdict>=0.2.2,<0.3.0", ] 
+tests = [ "pyyaml", "pytest", "coverage", "python-dotenv", "pytest-cov", ]
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests",]
+[build-system] 
+requires = ["poetry-core>=2.0"] 
+build-backend = "poetry.core.masonry.api" 
+
+[tool.poetry] 
+packages = [ 
+    { include = "sema" }, 
+]
+
+[tool.black] 
+line-length = 79 
+
+[tool.isort] 
+multi_line_output = 3 
+include_trailing_comma = true 
+
+[tool.pytest.ini_options] 
+testpaths = ["tests"] 
 pythonpath = ["."]
