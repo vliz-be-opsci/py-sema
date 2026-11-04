@@ -160,10 +160,10 @@ def test_normalise_scheme_node():
     http_uri = "http://schema.org/test"
     https_uri = "https://schema.org/test"
 
-    assert https_uri == normalise_scheme_str(http_uri)
-    assert https_uri == normalise_scheme_str(https_uri)
-    assert https_uri == str(normalise_scheme_node(URIRef(http_uri)))
-    assert https_uri == str(normalise_scheme_node(URIRef(https_uri)))
+    assert http_uri == normalise_scheme_str(http_uri)
+    assert http_uri == normalise_scheme_str(https_uri)
+    assert http_uri == str(normalise_scheme_node(URIRef(http_uri)))
+    assert http_uri == str(normalise_scheme_node(URIRef(https_uri)))
 
     domain = "example.org"
     http_domain = f"http://{domain}/tester"
@@ -330,7 +330,7 @@ def test_clean_chain():
                 uri = str(n)
                 assert check_valid_uri(uri)
                 if ("schema.org") in uri:
-                    assert uri.startswith("https://")
+                    assert uri.startswith("http://")
                 continue
             # else
             count_other += 1
