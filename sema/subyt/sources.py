@@ -38,7 +38,11 @@ class SourceFactory:
 
     def __init__(self):
         self._register = dict()
-        self._ext_mime_map = {"csv": "text/csv"}
+        self._ext_mime_map = {
+            "csv": "text/csv",
+            "yaml": "application/yaml",
+            "yml": "application/yaml",
+        }
 
     @property
     def ext_2_mime(self):
@@ -568,3 +572,65 @@ try:
     SourceFactory.register("application/xml", XMLFileSource)
 except ImportError:
     log.warning("Python XML module not available -- disabling XML support!")
+
+
+try:
+    import yaml
+
+    class YamlFileSource(Source):
+        """
+        Source producing iterator over data-set coming from YAML on file
+        """
+
+        def __init__(self, yaml_file_path: Path, config: dict = {}) -> None:
+            super().__init__()
+            assert_readable(yaml_file_path)
+            self._yaml: Path = yaml_file_path.absolute()
+            self._init_source(self._yaml)
+
+        def __enter__(self) -> object:
+            with open(self._yaml, mode="r", encoding="utf-8-sig") as yamlfile:
+                docs = [
+                    doc
+                    for doc in yaml.safe_load_all(yamlfile)
+                    if doc is not None
+                ]
+
+                if not docs:
+                    data = []
+                elif len(docs) > 1:
+                    data = docs
+                else:
+                    data = docs[0]
+                    # unwrap nested structures
+                    while isinstance(data, dict) and len(data.keys()) == 1:
+                        child = list(data.values())[0]
+                        if isinstance(child, (dict, list)):
+                            if (
+                                isinstance(child, dict)
+                                and len(child.keys()) == 0
+                            ):
+                                data = [data]
+                                break
+                            data = child
+                        else:
+                            break
+                    if not isinstance(data, list):
+                        data = [data]
+
+            return iter(data)
+
+        def __exit__(self, *exc) -> None:
+            pass
+
+        def __repr__(self) -> str:
+            return f"YamlFileSource('{self._yaml!s}')"
+
+    SourceFactory.map("yaml", "application/yaml")
+    SourceFactory.map("yml", "application/yaml")
+    SourceFactory.register("application/yaml", YamlFileSource)
+    SourceFactory.register("text/yaml", YamlFileSource)
+    SourceFactory.register("text/x-yaml", YamlFileSource)
+    SourceFactory.register("application/x-yaml", YamlFileSource)
+except ImportError:
+    log.warning("Python YAML module not available -- disabling YAML support!")
