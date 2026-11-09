@@ -65,26 +65,29 @@ def test_yaml_file_source_contents(content: str, expected_len: int) -> None:
 def test_yaml_yml_extension_and_mime() -> None:
     with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False) as f:
         f.write(YAML_LIST_CONTENT)
-        temp_path = Path(f.name)
+        temp_yml = Path(f.name)
+
+    with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
+        f.write(YAML_LIST_CONTENT)
+        temp_yaml = Path(f.name)
 
     try:
-        # Check .yml detection
-        source_yml = SourceFactory.make_source(str(temp_path))
+        # Check .yml detection via mimetypes
+        source_yml = SourceFactory.make_source(str(temp_yml))
         assert isinstance(source_yml, YamlFileSource)
 
-        # Check explicit config with mime
+        # Check .yaml detection via mimetypes
+        source_yaml = SourceFactory.make_source(str(temp_yaml))
+        assert isinstance(source_yaml, YamlFileSource)
+
+        # Check explicit config with official IANA mime type (application/yaml)
         source_mime = SourceFactory.make_source(
-            {"path": str(temp_path), "mime": "text/yaml"}
+            {"path": str(temp_yaml), "mime": "application/yaml"}
         )
         assert isinstance(source_mime, YamlFileSource)
-
-        # Check explicit config with ext
-        source_ext = SourceFactory.make_source(
-            {"path": str(temp_path), "ext": "yaml"}
-        )
-        assert isinstance(source_ext, YamlFileSource)
     finally:
-        temp_path.unlink()
+        temp_yml.unlink()
+        temp_yaml.unlink()
 
 
 def test_yaml_unique_filter() -> None:

@@ -38,11 +38,7 @@ class SourceFactory:
 
     def __init__(self):
         self._register = dict()
-        self._ext_mime_map = {
-            "csv": "text/csv",
-            "yaml": "application/yaml",
-            "yml": "application/yaml",
-        }
+        self._ext_mime_map = {"csv": "text/csv"}
 
     @property
     def ext_2_mime(self):
@@ -626,11 +622,9 @@ try:
         def __repr__(self) -> str:
             return f"YamlFileSource('{self._yaml!s}')"
 
-    SourceFactory.map("yaml", "application/yaml")
-    SourceFactory.map("yml", "application/yaml")
+    # Official IANA media type for YAML is application/yaml (RFC 9512)
+    mimetypes.add_type("application/yaml", ".yaml")
+    mimetypes.add_type("application/yaml", ".yml")
     SourceFactory.register("application/yaml", YamlFileSource)
-    SourceFactory.register("text/yaml", YamlFileSource)
-    SourceFactory.register("text/x-yaml", YamlFileSource)
-    SourceFactory.register("application/x-yaml", YamlFileSource)
 except ImportError:
     log.warning("Python YAML module not available -- disabling YAML support!")
