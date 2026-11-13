@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 from unittest import TestCase
 
-from rdflib import Graph, Literal, Namespace, URIRef
+from rdflib import Graph, Namespace, URIRef
 
 from sema.bench.core import Sembench
 from sema.ro.creator import ROCreator
@@ -125,7 +125,7 @@ reason_task:
 
             roc_yaml = bench_dir / "roc-me.yml"
             roc_yaml.write_text(
-                f"""
+                """
 $:
   prefix:
     schema: "http://schema.org/"

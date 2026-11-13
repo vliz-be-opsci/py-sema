@@ -387,7 +387,7 @@ Section.registerImplementation(ResultSection)
 
 @pytest.mark.skipif(
     not any(FNC_PATH.glob("*.test")),
-    reason="subyt-compliance submodule not initialized; run 'make subyt-update'",
+    reason="subyt-compliance submodule not initialized; run 'make subyt-upd'",
 )
 def test_compliance_checks() -> None:
     assert FNC_PATH.exists() and FNC_PATH.is_dir(), (

@@ -92,6 +92,7 @@ check:  ## performs linting on the python code
 	@uv run flake8 . --exclude ${FLAKE8_EXCLUDE} --ignore=E203,W503
 
 lint-fix:  ## fixes code according to the lint suggestions
+	@uv run ruff check --select F401,F541 --fix .
 	@uv run black .
 	@uv run isort .
 
