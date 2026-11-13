@@ -24,7 +24,7 @@ class ObjectGraphMapper(ABC):
             destination=destination or "./object_graph_mapping.ttl",
             format=format,
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def __str__(self, destination=None, format=None, *args, **kwargs) -> str:
@@ -55,7 +55,7 @@ class ObjectGraphMapper(ABC):
                 auto_compact=True,
                 indent=indent,
                 *args,
-                **kwargs
+                **kwargs,
             )
         )
 
